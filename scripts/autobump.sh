@@ -80,6 +80,8 @@ if [ -n "$ISSUE" ]; then
     log "issue #$ISSUE -> $PKG -> $NEWVER"
 fi
 [ -n "$PKG" ] && [ -n "$NEWVER" ] || die "need <issue#> or <cat/pkg> <newver>"
+# never open a PR without the full local test: --pr always runs emerge + smoke
+[ "$DO_PR" = 1 ] && DO_INSTALL=1
 
 CAT=${PKG%%/*}; PN=${PKG##*/}
 PKGDIR="$REPO/$PKG"
