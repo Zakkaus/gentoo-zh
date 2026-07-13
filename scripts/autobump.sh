@@ -133,13 +133,24 @@ fi
 # per-version external deps artifact must exist before anything else
 depsurl=$(grep -oE 'https://[^ "]*(gentoo-zh-drafts|gentoo-deps)[^ "]*' "$OLD_EBUILD" | head -1 || true)
 if [ -n "$depsurl" ]; then
-    testurl=$(sed -e "s/${OLD_PV//./\\.}/${NEWVER}/g" <<<"$depsurl")
-    code=$(curl -sIL -o /dev/null -w '%{http_code}' "$testurl")
-    if [ "$code" != "200" ]; then
-        escalate_note "per-version deps artifact missing (HTTP $code): $testurl"
-    else
-        ok "deps artifact exists: $testurl"
-    fi
+    # The URL usually carries literal ebuild vars (${P}/${PV}/${PN}); expand them
+    # against the NEW version, then also swap any hardcoded old version. Without
+    # this the URL keeps a literal ${PV} and 404s every time - the check would
+    # escalate EVERY deps-artifact package even when the artifact exists.
+    testurl=$depsurl
+    testurl=${testurl//\$\{P\}/${PN}-${NEWVER}}
+    testurl=${testurl//\$\{PV\}/${NEWVER}}
+    testurl=${testurl//\$\{PN\}/${PN}}
+    testurl=$(sed -e "s/${OLD_PV//./\\.}/${NEWVER}/g" <<<"$testurl")
+    code=$(curl -sIL --max-time 30 -o /dev/null -w '%{http_code}' "$testurl" || echo 000)
+    case "$code" in
+        200) ok "deps artifact exists: $testurl" ;;
+        # only a definitive 404 means "not built yet" -> escalate. A network blip
+        # (000/5xx) is inconclusive: don't record a terminal defer over it, the
+        # fetch stage re-checks and defers transiently (exit 2) if truly absent.
+        404) escalate_note "per-version deps artifact missing (HTTP 404): $testurl" ;;
+        *)   log "deps artifact check inconclusive (HTTP $code, network?): $testurl" ;;
+    esac
 fi
 
 # version-pinned patches: only a bump risk if the ebuild ACTUALLY applies them.
@@ -180,7 +191,6 @@ ok "classification: mechanical bump candidate"
 if git status --porcelain --untracked-files=no | grep -vE ' (scripts|docs)/' | grep -q .; then
     die "working tree has tracked modifications"
 fi
-git rev-parse --verify -q "$BRANCH" >/dev/null && die "branch $BRANCH already exists"
 git fetch "$SYNC_REMOTE" >/dev/null 2>&1 || die "git fetch $SYNC_REMOTE failed"
 # scripts/ and docs/ live only on the tooling branch; master has neither, so an
 # uncommitted change to them makes `checkout master` refuse. That is the usual
@@ -188,6 +198,15 @@ git fetch "$SYNC_REMOTE" >/dev/null 2>&1 || die "git fetch $SYNC_REMOTE failed"
 git checkout -q master 2>/dev/null || \
     die "cannot checkout master - commit/stash your scripts/ or docs/ changes first (the tool switches to master, where those files do not exist)"
 git merge -q --ff-only "$SYNC_REMOTE/master" || die "master is not a fast-forward of $SYNC_REMOTE/master (diverged?)"
+# The branch name is deterministic (cat-pn-newver); if it already exists it is a
+# leftover from an interrupted or push-failed prior attempt (a successful attempt
+# records exit 0 and is never re-invoked for the same version). Drop it so retries
+# are idempotent instead of wedging on "branch already exists". We are on master
+# now, so deleting it is safe.
+if git rev-parse --verify -q "$BRANCH" >/dev/null; then
+    log "dropping stale branch $BRANCH from a prior attempt"
+    git branch -qD "$BRANCH" 2>/dev/null || die "branch $BRANCH exists and could not be removed"
+fi
 git checkout -qb "$BRANCH" || die "cannot create $BRANCH"
 ok "branch $BRANCH off synced master"
 
@@ -198,7 +217,14 @@ cleanup_fail() { # abort: unstage, remove the copied ebuild, restore, drop branc
     git checkout -q -- "$PKGDIR" 2>/dev/null
     git checkout -q master
     git branch -qD "$BRANCH" 2>/dev/null
+    # remove the --install spillover (all safe no-ops if that stage never ran)
+    $SUDO rm -f "/etc/portage/package.accept_keywords/autobump-$PN" 2>/dev/null
+    [ -d "$LIVE_OVERLAY" ] && [ "$LIVE_OVERLAY" != "$REPO" ] && \
+        $SUDO rm -f "$LIVE_OVERLAY/$PKG/$PN-$NEWVER.ebuild" 2>/dev/null
 }
+# from here on the branch exists, so an interrupt (Ctrl-C, CI/harness SIGTERM)
+# must not leave it orphaned. Disarmed once the commit is safely made (stage 7).
+trap 'cleanup_fail; exit 130' INT TERM
 
 # pkgcheck baseline: pre-existing findings must not block a bump later;
 # only findings the bump introduces do (version prefix stripped to compare)
@@ -223,8 +249,12 @@ ok "distfiles fetched, Manifest regenerated"
 tree_of() { # $1 = ebuild basename, $2 = out file; echoes the workdir
     $TMO $SUDO ebuild "$1" clean unpack >/dev/null 2>&1 || return 1
     local pvr=${1%.ebuild}; pvr=${pvr#${PN}-}
-    local wd="/var/tmp/portage/${CAT}/${PN}-${pvr}/work"
+    local tmpd; tmpd=$(portageq envvar PORTAGE_TMPDIR 2>/dev/null); tmpd=${tmpd:-/var/tmp}
+    local wd="$tmpd/portage/${CAT}/${PN}-${pvr}/work"
     $SUDO find "$wd" -type f -printf '%P\n' 2>/dev/null | sort > "$2"
+    # an empty listing means the workdir guess was wrong or unpack produced
+    # nothing - never let the caller read that as "no files changed"
+    [ -s "$2" ] || return 1
     echo "$wd"
 }
 
@@ -253,10 +283,17 @@ surface_of() { # $1 = workdir, $2 = out file
     } | sort -u > "$2"
 }
 
-# payload (repackaged binary) vs source decides which diff applies
+# payload (repackaged binary) vs source decides which diff applies. Detect a
+# prebuilt payload by several signals, not just the archive extension: SRC_URI
+# may be indented (opencode-bin tab-indents it, so ^SRC_URI misses it), and a
+# plain binary .tar.gz has no telltale extension - so also trust the -bin PN
+# convention, QA_PREBUILT, RESTRICT=strip/bindist, and the unpacker eclass.
 PAYLOAD=0
-if grep -qE '\.(deb|AppImage)' <(grep -A8 '^SRC_URI' "$(basename "$NEW_EBUILD")") \
-   || grep -q 'inherit.*unpacker' "$(basename "$NEW_EBUILD")"; then
+neweb=$(basename "$NEW_EBUILD")
+if grep -qE '\.(deb|AppImage|exe|dmg)' <(grep -A8 -E '^[[:space:]]*SRC_URI' "$neweb") \
+   || grep -qE 'inherit.*unpacker' "$neweb" \
+   || grep -qE '^[[:space:]]*(QA_PREBUILT=|RESTRICT=.*(strip|bindist))' "$neweb" \
+   || [[ "$PN" == *-bin ]]; then
     PAYLOAD=1
 fi
 
@@ -284,7 +321,7 @@ if [ "$PAYLOAD" = 1 ]; then
             grep -qxF "${p//$OLD_PV/$NEWVER}" "$EVIDENCE_DIR/tree-added.txt" \
                 || printf '%s\n' "$p" >> "$EVIDENCE_DIR/tree-removed-real.txt"
         done < "$EVIDENCE_DIR/tree-removed.txt"
-        realrm=$(grep -c . "$EVIDENCE_DIR/tree-removed-real.txt" 2>/dev/null || echo 0)
+        realrm=$(wc -l < "$EVIDENCE_DIR/tree-removed-real.txt")
         if [ "$realrm" -gt 0 ]; then
             head -20 "$EVIDENCE_DIR/tree-removed-real.txt"
             cleanup_fail
@@ -369,9 +406,11 @@ if [ "$DO_INSTALL" = 1 ]; then
     # of an overlay package are often overlay packages too (fcitx-pinyin-moegirl
     # needs dev-python/mw2fcitx), and CI runs with overlay-wide ~amd64. The
     # ::gentoo-zh qualifier leaves the stable system tree untouched.
+    $SUDO mkdir -p /etc/portage/package.accept_keywords 2>/dev/null
     { echo "$PKG ~amd64"; echo "*/*::gentoo-zh ~amd64"; } \
         | $SUDO tee "/etc/portage/package.accept_keywords/autobump-$PN" >/dev/null
-    if $TMO $SUDO emerge --oneshot --quiet "=$PKG-$NEWVER" > "$EVIDENCE_DIR/emerge.log" 2>&1; then
+    $TMO $SUDO emerge --oneshot --quiet "=$PKG-$NEWVER" > "$EVIDENCE_DIR/emerge.log" 2>&1; erc=$?
+    if [ "$erc" = 0 ]; then
         # source packages skip stage 6, so the emerge is where a QA notice would
         # surface (it fails the CI elog gate). Prebuilt already checked at stage 6.
         if [ "$PAYLOAD" = 0 ] && grep -q 'QA Notice' "$EVIDENCE_DIR/emerge.log"; then
@@ -416,6 +455,14 @@ if [ "$DO_INSTALL" = 1 ]; then
     else
         tail -20 "$EVIDENCE_DIR/emerge.log"
         cleanup_fail
+        # A timeout (124 from `timeout`) is not a defect - it is a heavy build that
+        # did not fit the per-op ceiling. Defer (exit 2) so the sweep retries and CI
+        # (bigger budget / getbinpkg) can finish it, rather than condemning the bump.
+        if [ "$erc" = 124 ]; then
+            echo "== emerge timed out (>${AUTOBUMP_OP_TIMEOUT:-900}s): heavy build, not a defect. Deferring."
+            echo "== evidence: $EVIDENCE_DIR/emerge.log =="
+            exit 2
+        fi
         # Distinguish a dependency-resolution failure - a build dep is masked /
         # unkeyworded / incompatible with the local PYTHON_TARGET, or needs a USE
         # change on a transitive dep (piliplus-bin pulls libdbusmenu[gtk3]) - from
@@ -436,6 +483,8 @@ if [ "$DO_INSTALL" = 1 ]; then
 fi
 
 # ---------- stage 7: finalize + QA + commit ----------
+# the smoke keywords file has done its job; drop it so it does not accumulate
+$SUDO rm -f "/etc/portage/package.accept_keywords/autobump-$PN" 2>/dev/null
 cd "$REPO"
 git rm -q "$OLD_EBUILD"
 # drop the removed version's DIST entries (distfiles are all local, no refetch)
@@ -451,14 +500,15 @@ if [ -s "$EVIDENCE_DIR/pkgcheck-new.txt" ]; then
     echo "== pkgcheck findings introduced by the bump; evidence: $EVIDENCE_DIR =="
     exit 3
 fi
-pkgdev commit --scan false --signoff || die "pkgdev commit failed"
+pkgdev commit --scan false --signoff || { cleanup_fail; die "pkgdev commit failed"; }
+trap - INT TERM   # commit is made; an interrupt now must NOT discard it
 ok "committed: $(git log -1 --format=%s)"
 
 pkgcheck scan --commits --net > "$EVIDENCE_DIR/pkgcheck-net.txt" 2>&1 || true
 if grep -E 'DeadUrl|RedirectedUrl' "$EVIDENCE_DIR/pkgcheck-net.txt" | grep -q "$PN"; then
     # re-verify: rate-limit false positives are common
     grep -oE 'https://[^ ]+' <(grep -A1 "$PN" "$EVIDENCE_DIR/pkgcheck-net.txt") | sort -u | while read -r u; do
-        printf '%s -> %s\n' "$u" "$(curl -sIL -o /dev/null -w '%{http_code}' "$u")"
+        printf '%s -> %s\n' "$u" "$(curl -sL --max-time 20 -o /dev/null -w '%{http_code}' "$u")"
     done > "$EVIDENCE_DIR/url-recheck.txt"
     if grep -vq ' -> 200' "$EVIDENCE_DIR/url-recheck.txt"; then
         cat "$EVIDENCE_DIR/url-recheck.txt"
@@ -470,7 +520,7 @@ fi
 
 # ---------- stage 8: PR ----------
 if [ "$DO_PR" = 1 ]; then
-    git push -u origin "$BRANCH" || die "push failed"
+    git push -u --force-with-lease "$PUSH_REMOTE" "$BRANCH" || die "push failed"
     subj=$(git log -1 --format=%s)
     body="$EVIDENCE_DIR/pr-body.md"
     {
