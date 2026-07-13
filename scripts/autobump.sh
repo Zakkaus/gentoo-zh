@@ -182,6 +182,12 @@ if [ "$(grep -oE '~[a-z0-9]+' <(grep -E '^[[:space:]]*KEYWORDS=' "$OLD_EBUILD") 
     log "multi-arch KEYWORDS: non-amd64 will be marked untested, PR will be draft"
 fi
 
+# GUI app? The smoke can only prove it INSTALLED, never that it launches/renders,
+# so a GUI bump carries more uncertainty (it can install clean yet fail to start).
+# Flag it in the PR so the human reviewer knows to actually run it before merging.
+GUI=0
+grep -qE '^[[:space:]]*inherit.*(desktop|xdg)' "$OLD_EBUILD" && GUI=1
+
 grep -E '^[[:space:]]*KEYWORDS=' "$OLD_EBUILD" >> "$CLS" 2>/dev/null || true
 
 if [ "${#ESCALATIONS[@]}" -gt 0 ]; then
@@ -574,6 +580,7 @@ if [ "$DO_PR" = 1 ]; then
         echo "Payload layout, deps and referenced paths verified unchanged against $OLD_PVR."
         echo "Built clean locally; smoke: $SMOKE."
         [ "$MULTIARCH" = 1 ] && echo "Only amd64 was built and run; other keyworded arches untested."
+        [ "$GUI" = 1 ] && echo "⚠️ GUI app: installed cleanly but NOT launch-tested here - please verify it actually starts before merging."
         [ -n "$ISSUE" ] && { echo; echo "Closes #$ISSUE"; }
         echo
         echo "---"
