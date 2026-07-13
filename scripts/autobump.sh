@@ -150,14 +150,22 @@ ok "classification: mechanical bump candidate"
 [ "$CHECK_ONLY" = 1 ] && { echo "check-only: would bump $PKG $OLD_PVR -> $NEWVER"; exit 0; }
 
 # ---------- stage 3: preflight (AGENTS.md) ----------
-# untracked files are unrelated work and must be preserved (AGENTS.md);
-# only tracked modifications block us
-[ -z "$(git status --porcelain --untracked-files=no)" ] || die "working tree has tracked modifications"
+# untracked files are unrelated work and must be preserved (AGENTS.md); only
+# tracked modifications block us - except scripts/ and docs/, which are this
+# tooling itself and never part of a package bump
+if git status --porcelain --untracked-files=no | grep -vE ' (scripts|docs)/' | grep -q .; then
+    die "working tree has tracked modifications"
+fi
 git rev-parse --verify -q "$BRANCH" >/dev/null && die "branch $BRANCH already exists"
 git fetch upstream >/dev/null 2>&1 || die "git fetch upstream failed"
 git checkout -q master && git merge -q --ff-only upstream/master || die "master sync failed"
 git checkout -qb "$BRANCH" || die "cannot create $BRANCH"
 ok "branch $BRANCH off synced master"
+
+# pkgcheck baseline: pre-existing findings must not block a bump later;
+# only findings the bump introduces do (version prefix stripped to compare)
+pkgcheck scan "$PKG" 2>/dev/null | sed -E 's/version [^:]+: //' | sort -u \
+    > "$EVIDENCE_DIR/pkgcheck-baseline.txt"
 
 # ---------- stage 4: fetch old artifacts, create new ebuild, fetch+manifest ----------
 cd "$PKGDIR"
@@ -172,8 +180,9 @@ sudo chown "$(id -un):$(id -gn)" Manifest
 ok "distfiles fetched, Manifest regenerated"
 
 # ---------- stage 5: artifact diff ----------
-cleanup_fail() { # abort: remove new ebuild, restore Manifest, drop branch
+cleanup_fail() { # abort: unstage, remove new ebuild, restore, drop branch
     cd "$REPO"
+    git reset -q -- "$PKGDIR" 2>/dev/null
     rm -f "$NEW_EBUILD"
     git checkout -q -- "$PKGDIR" 2>/dev/null
     git checkout -q master
@@ -316,12 +325,15 @@ fi
 cd "$REPO"
 git rm -q "$OLD_EBUILD"
 git add "$PKGDIR"
-if ! pkgcheck scan "$PKG" > "$EVIDENCE_DIR/pkgcheck.txt" 2>&1 || [ -s "$EVIDENCE_DIR/pkgcheck.txt" ]; then
-    if [ -s "$EVIDENCE_DIR/pkgcheck.txt" ]; then
-        cat "$EVIDENCE_DIR/pkgcheck.txt"
-        echo "== pkgcheck findings; evidence: $EVIDENCE_DIR/pkgcheck.txt =="
-        exit 3
-    fi
+pkgcheck scan "$PKG" 2>/dev/null | sed -E 's/version [^:]+: //' | sort -u \
+    > "$EVIDENCE_DIR/pkgcheck-after.txt"
+comm -13 "$EVIDENCE_DIR/pkgcheck-baseline.txt" "$EVIDENCE_DIR/pkgcheck-after.txt" \
+    > "$EVIDENCE_DIR/pkgcheck-new.txt"
+if [ -s "$EVIDENCE_DIR/pkgcheck-new.txt" ]; then
+    cat "$EVIDENCE_DIR/pkgcheck-new.txt"
+    cleanup_fail
+    echo "== pkgcheck findings introduced by the bump; evidence: $EVIDENCE_DIR =="
+    exit 3
 fi
 pkgdev commit --scan false --signoff || die "pkgdev commit failed"
 ok "committed: $(git log -1 --format=%s)"
