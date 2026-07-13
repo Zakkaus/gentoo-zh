@@ -142,10 +142,15 @@ if [ -n "$depsurl" ]; then
     fi
 fi
 
-# version-pinned patches
+# version-pinned patches: only a bump risk if the ebuild ACTUALLY applies them.
+# A stray files/*.patch the ebuild never references (no eapply/PATCHES=/FILESDIR)
+# is dead cruft, not something the new version must re-apply - don't escalate on
+# it (archlinux-keyring carries an unused 01_adapt_to_sequoia patch).
 if ls "$PKGDIR"/files/*.patch >/dev/null 2>&1; then
     ls "$PKGDIR"/files/*.patch > "$EVIDENCE_DIR/patches.txt"
-    escalate_note "files/ patches present - re-apply must be verified"
+    if grep -qE 'eapply|epatch|PATCHES[+]?=|FILESDIR.*\.patch' "$OLD_EBUILD"; then
+        escalate_note "files/ patches applied by the ebuild - re-apply must be verified"
+    fi
 fi
 
 # multi-arch: not fatal, but PR must be draft + say untested
