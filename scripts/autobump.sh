@@ -392,13 +392,18 @@ if [ "$PAYLOAD" = 1 ]; then
         echo "== build failed; evidence: $EVIDENCE_DIR/build.log =="
         exit 3
     fi
-    if grep -q 'QA Notice' "$EVIDENCE_DIR/build.log"; then
+    # `ebuild install` does NOT install RDEPEND, so a bundled lib linking an
+    # RDEPEND-provided soname (reqable bundles libayatana-appindicator3, which
+    # needs dev-libs/libdbusmenu) shows a spurious "Unresolved soname" QA notice
+    # here - it resolves once emerge installs RDEPEND (checked in --install below).
+    # So ignore unresolved-soname at this stage; fail on any OTHER QA notice.
+    if grep 'QA Notice' "$EVIDENCE_DIR/build.log" | grep -qv 'Unresolved soname'; then
         grep -A5 'QA Notice' "$EVIDENCE_DIR/build.log" | head -20
         cleanup_fail
         echo "== QA notice during install (would fail CI elog gate); evidence: $EVIDENCE_DIR/build.log =="
         exit 3
     fi
-    ok "ebuild install clean, no QA notices"
+    ok "ebuild install clean (soname resolution deferred to the emerge)"
 elif [ "$DO_INSTALL" != 1 ]; then
     log "source package: not build-tested without --install (surface-diff only); --pr implies --install"
 fi
@@ -422,10 +427,14 @@ if [ "$DO_INSTALL" = 1 ]; then
         | $SUDO tee "/etc/portage/package.accept_keywords/autobump-$PN" >/dev/null
     $TMO $SUDO emerge --oneshot --quiet "=$PKG-$NEWVER" > "$EVIDENCE_DIR/emerge.log" 2>&1; erc=$?
     if [ "$erc" = 0 ]; then
-        # source packages skip stage 6, so the emerge is where a QA notice would
-        # surface (it fails the CI elog gate). Prebuilt already checked at stage 6.
-        if [ "$PAYLOAD" = 0 ] && grep -q 'QA Notice' "$EVIDENCE_DIR/emerge.log"; then
-            grep -A5 'QA Notice' "$EVIDENCE_DIR/emerge.log" | head -20
+        # QA-notice gate on the emerge (RDEPEND is now installed):
+        #   source  -> any QA notice fails the CI elog gate.
+        #   prebuilt-> re-check only the unresolved-soname class deferred from
+        #     stage 6; a soname still missing after RDEPEND install is a real
+        #     dep gap. Other prebuilt QA notices (dlopen advisories) are too noisy.
+        if [ "$PAYLOAD" = 0 ]; then qapat='QA Notice'; else qapat='Unresolved soname'; fi
+        if grep -q "$qapat" "$EVIDENCE_DIR/emerge.log"; then
+            grep -A5 "$qapat" "$EVIDENCE_DIR/emerge.log" | head -20
             cleanup_fail
             echo "== QA notice during emerge (would fail CI elog gate); evidence: $EVIDENCE_DIR/emerge.log =="
             exit 3
