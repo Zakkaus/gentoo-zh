@@ -545,8 +545,12 @@ if [ "$DO_PR" = 1 ]; then
     # fixups onto it. We just recreated the branch locally with a fresh single
     # commit, so pushing (even --force-with-lease, which the earlier `git fetch`
     # defeats) would clobber their work. Bail instead - the bump is already up.
-    if gh pr list --repo "$UPSTREAM_REPO" --head "$head" --state open \
-         --json number --jq '.[].number' 2>/dev/null | grep -q .; then
+    # match by bare branch name + head-repo owner (gh --head wants the bare
+    # branch, not owner:branch, so filter in jq to stay correct for fork PRs too)
+    if gh pr list --repo "$UPSTREAM_REPO" --state open \
+         --json number,headRefName,headRepositoryOwner \
+         --jq ".[] | select(.headRefName==\"$BRANCH\" and .headRepositoryOwner.login==\"$owner\") | .number" \
+         2>/dev/null | grep -q .; then
         log "an open PR already exists for $BRANCH - not pushing (would clobber review)"
         echo "== done; PR already open, nothing to push. Evidence: $EVIDENCE_DIR =="
         exit 0
