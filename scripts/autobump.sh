@@ -114,8 +114,14 @@ if grep -qiE '(alpha|beta|rc[0-9]*|pre|nightly|dev)([._-]|$)' <<<"$NEWVER" \
 fi
 
 # first version component changed = big jump (dae 1->2, mkinitcpio 39->41, tsukimi 0.21->26.7)
-old1=${OLD_PV%%.*}; new1=${NEWVER%%.*}
-if [ "$old1" != "$new1" ]; then
+# EXCEPT date-scheme versions (YYYYMMDD[.N]): the 8-digit lead is one monotonic
+# value that changes on every bump, so a newer date is routine, not a major jump.
+# Only a date going backwards is suspicious.
+if [[ "$OLD_PV" =~ ^20[0-9]{6}([._-][0-9]+)*$ ]] && [[ "$NEWVER" =~ ^20[0-9]{6}([._-][0-9]+)*$ ]]; then
+    if [ "${NEWVER%%[._-]*}" -lt "${OLD_PV%%[._-]*}" ]; then
+        escalate_note "date version went backwards: $OLD_PV -> $NEWVER"
+    fi
+elif [ "${OLD_PV%%.*}" != "${NEWVER%%.*}" ]; then
     escalate_note "major component change: $OLD_PV -> $NEWVER"
 fi
 
