@@ -252,15 +252,20 @@ if grep -qE '\.(deb|AppImage)' <(grep -A8 '^SRC_URI' "$(basename "$NEW_EBUILD")"
     PAYLOAD=1
 fi
 
-WD_OLD=$(tree_of "$(basename "$OLD_EBUILD")" "$EVIDENCE_DIR/tree-old.txt") || { cleanup_fail; die "unpack old failed"; }
-WD_NEW=$(tree_of "$(basename "$NEW_EBUILD")" "$EVIDENCE_DIR/tree-new.txt") || { cleanup_fail; die "unpack new failed"; }
-comm -23 "$EVIDENCE_DIR/tree-old.txt" "$EVIDENCE_DIR/tree-new.txt" > "$EVIDENCE_DIR/tree-removed.txt"
-comm -13 "$EVIDENCE_DIR/tree-old.txt" "$EVIDENCE_DIR/tree-new.txt" > "$EVIDENCE_DIR/tree-added.txt"
-removed=$(wc -l < "$EVIDENCE_DIR/tree-removed.txt")
-added=$(wc -l < "$EVIDENCE_DIR/tree-added.txt")
-
+# Prebuilt payload: unpack both, diff the file tree (a removed path = danger).
+# Source: the unpack feeds the build-option surface diff, but `ebuild unpack`
+# runs pkg_setup first, which for python-any-r1 and similar dies without the
+# build deps installed. That is not a real problem for the bump (such packages
+# have no cmake/meson option surface anyway) - fall back to the emerge build
+# gate instead of hard-failing.
 if [ "$PAYLOAD" = 1 ]; then
-    # prebuilt: any removed path is dangerous (renamed .desktop broke claude-desktop)
+    WD_OLD=$(tree_of "$(basename "$OLD_EBUILD")" "$EVIDENCE_DIR/tree-old.txt") || { cleanup_fail; die "unpack old failed"; }
+    WD_NEW=$(tree_of "$(basename "$NEW_EBUILD")" "$EVIDENCE_DIR/tree-new.txt") || { cleanup_fail; die "unpack new failed"; }
+    comm -23 "$EVIDENCE_DIR/tree-old.txt" "$EVIDENCE_DIR/tree-new.txt" > "$EVIDENCE_DIR/tree-removed.txt"
+    comm -13 "$EVIDENCE_DIR/tree-old.txt" "$EVIDENCE_DIR/tree-new.txt" > "$EVIDENCE_DIR/tree-added.txt"
+    removed=$(wc -l < "$EVIDENCE_DIR/tree-removed.txt")
+    added=$(wc -l < "$EVIDENCE_DIR/tree-added.txt")
+    # any removed path is dangerous (renamed .desktop broke claude-desktop)
     if [ "$removed" -gt 0 ]; then
         head -20 "$EVIDENCE_DIR/tree-removed.txt"
         cleanup_fail
@@ -268,7 +273,8 @@ if [ "$PAYLOAD" = 1 ]; then
         exit 3
     fi
     ok "payload tree: no removed paths ($added new files - see tree-added.txt)"
-else
+elif WD_OLD=$(tree_of "$(basename "$OLD_EBUILD")" "$EVIDENCE_DIR/tree-old.txt") \
+     && WD_NEW=$(tree_of "$(basename "$NEW_EBUILD")" "$EVIDENCE_DIR/tree-new.txt"); then
     # source: file churn is normal; what matters is the build-option surface
     surface_of "$WD_OLD" "$EVIDENCE_DIR/surface-old.txt"
     surface_of "$WD_NEW" "$EVIDENCE_DIR/surface-new.txt"
@@ -290,6 +296,13 @@ else
     else
         ok "build-option surface unchanged"
     fi
+elif [ "$DO_INSTALL" = 1 ]; then
+    log "surface diff unavailable (unpack blocked - pkg_setup needs build deps); relying on the emerge build gate"
+else
+    cleanup_fail
+    echo "== surface diff unavailable (unpack blocked, likely pkg_setup needs build deps)."
+    echo "== cannot verify the build-option surface without building; re-run with --install. =="
+    exit 3
 fi
 
 if [ "$DIFF_ONLY" = 1 ]; then
