@@ -324,6 +324,8 @@ fi
 # ---------- stage 7: finalize + QA + commit ----------
 cd "$REPO"
 git rm -q "$OLD_EBUILD"
+# drop the removed version's DIST entries (distfiles are all local, no refetch)
+( cd "$PKGDIR" && pkgdev manifest >/dev/null 2>&1 ) || { cleanup_fail; die "manifest regen after drop failed"; }
 git add "$PKGDIR"
 pkgcheck scan "$PKG" 2>/dev/null | sed -E 's/version [^:]+: //' | sort -u \
     > "$EVIDENCE_DIR/pkgcheck-after.txt"
