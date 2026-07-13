@@ -39,6 +39,14 @@ LIVE_OVERLAY=${AUTOBUMP_LIVE_OVERLAY:-/var/db/repos/gentoo-zh}
 UPSTREAM_REPO=${AUTOBUMP_UPSTREAM_REPO:-gentoo-zh/overlay}
 SUDO=$([ "$(id -u)" = 0 ] || echo sudo)
 cd "${REPO:?not inside a git checkout}" || exit 2
+# Is the live overlay a genuinely separate checkout (dev box), or the same tree
+# as REPO (CI registers the checkout itself)? Compare by realpath so that CI
+# pointing AUTOBUMP_LIVE_OVERLAY at a symlinked workspace still counts as "same"
+# and we skip the copy (a same-file cp would error).
+SEPARATE_OVERLAY=0
+[ -d "$LIVE_OVERLAY" ] && \
+    [ "$(realpath "$LIVE_OVERLAY" 2>/dev/null)" != "$(realpath "$REPO" 2>/dev/null)" ] && \
+    SEPARATE_OVERLAY=1
 # sync from the remote that points at the canonical repo; push to origin
 SYNC_REMOTE=${AUTOBUMP_SYNC_REMOTE:-$(git remote | grep -qx upstream && echo upstream || echo origin)}
 PUSH_REMOTE=${AUTOBUMP_PUSH_REMOTE:-origin}
@@ -219,7 +227,7 @@ cleanup_fail() { # abort: unstage, remove the copied ebuild, restore, drop branc
     git branch -qD "$BRANCH" 2>/dev/null
     # remove the --install spillover (all safe no-ops if that stage never ran)
     $SUDO rm -f "/etc/portage/package.accept_keywords/autobump-$PN" 2>/dev/null
-    [ -d "$LIVE_OVERLAY" ] && [ "$LIVE_OVERLAY" != "$REPO" ] && \
+    [ "$SEPARATE_OVERLAY" = 1 ] && \
         $SUDO rm -f "$LIVE_OVERLAY/$PKG/$PN-$NEWVER.ebuild" 2>/dev/null
 }
 # from here on the branch exists, so an interrupt (Ctrl-C, CI/harness SIGTERM)
@@ -396,7 +404,7 @@ SMOKE="not run (use --install)"
 if [ "$DO_INSTALL" = 1 ]; then
     # dev box: the configured overlay is a separate synced checkout, copy in.
     # CI: the checkout itself is registered in repos.conf - nothing to copy.
-    if [ -d "$LIVE_OVERLAY" ] && [ "$LIVE_OVERLAY" != "$REPO" ]; then
+    if [ "$SEPARATE_OVERLAY" = 1 ]; then
         $SUDO mkdir -p "$LIVE_OVERLAY/$PKG"
         $SUDO cp ./*.ebuild Manifest metadata.xml "$LIVE_OVERLAY/$PKG/"
         lic=$(grep -oE '^LICENSE="[^"]+"' "$(basename "$NEW_EBUILD")" | cut -d'"' -f2)
@@ -419,12 +427,18 @@ if [ "$DO_INSTALL" = 1 ]; then
             echo "== QA notice during emerge (would fail CI elog gate); evidence: $EVIDENCE_DIR/emerge.log =="
             exit 3
         fi
-        # smoke: the binary name is not always $PN (uv-bin installs uv). Try
-        # every installed executable's --version and look for NEWVER.
-        SMOKE="installed; no --version reported NEWVER (verify manually)"
+        # smoke: the binary name is not always $PN (uv-bin installs uv), and the
+        # version verb is not always --version (Go tools use a `version` subcommand
+        # - hysteria does). Try each installed exe with the common forms.
+        SMOKE="installed; no version output matched NEWVER (verify manually)"
         for bin in $(qlist "$PKG" 2>/dev/null | grep -E '/s?bin/[^/]+$'); do
-            out=$(timeout 20 "$bin" --version 2>&1 | head -1 || true)
-            if grep -qF "$NEWVER" <<<"$out"; then SMOKE="--version ok: $(basename "$bin"): $out"; break; fi
+            for vflag in --version version -V; do
+                out=$(timeout 20 "$bin" $vflag 2>&1 | head -3 || true)
+                if grep -qF "$NEWVER" <<<"$out"; then
+                    SMOKE="$vflag ok: $(basename "$bin"): $(grep -F "$NEWVER" <<<"$out" | head -1 | sed 's/^[[:space:]]*//')"
+                    break 2
+                fi
+            done
         done
         ok "emerge + smoke: $SMOKE"
         # linked-libs vs RDEPEND. Two directions, treated differently for a bump:
