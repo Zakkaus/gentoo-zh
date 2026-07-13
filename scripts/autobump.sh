@@ -42,6 +42,8 @@ cd "${REPO:?not inside a git checkout}" || exit 2
 # sync from the remote that points at the canonical repo; push to origin
 SYNC_REMOTE=${AUTOBUMP_SYNC_REMOTE:-$(git remote | grep -qx upstream && echo upstream || echo origin)}
 PUSH_REMOTE=${AUTOBUMP_PUSH_REMOTE:-origin}
+# per-operation ceiling so a huge download/build never hangs the run
+TMO="timeout ${AUTOBUMP_OP_TIMEOUT:-900}"
 
 CHECK_ONLY=0; DO_INSTALL=0; DO_PR=0; DIFF_ONLY=0; ACCEPT_SURFACE=0; ISSUE=""
 PKG=""; NEWVER=""
@@ -175,9 +177,9 @@ pkgcheck scan "$PKG" 2>/dev/null | sed -E 's/version [^:]+: //' | sort -u \
 
 # ---------- stage 4: fetch old artifacts, create new ebuild, fetch+manifest ----------
 cd "$PKGDIR"
-$SUDO ebuild "$(basename "$OLD_EBUILD")" fetch >/dev/null 2>&1 || die "fetch of OLD distfiles failed"
+$TMO $SUDO ebuild "$(basename "$OLD_EBUILD")" fetch >/dev/null 2>&1 || die "fetch of OLD distfiles failed"
 cp "$(basename "$OLD_EBUILD")" "$(basename "$NEW_EBUILD")"
-if ! $SUDO ebuild "$(basename "$NEW_EBUILD")" manifest > "$EVIDENCE_DIR/fetch.log" 2>&1; then
+if ! $TMO $SUDO ebuild "$(basename "$NEW_EBUILD")" manifest > "$EVIDENCE_DIR/fetch.log" 2>&1; then
     tail -5 "$EVIDENCE_DIR/fetch.log"
     git checkout -q master; git branch -qD "$BRANCH"
     die "fetch/manifest for $NEWVER failed (upstream file missing?)"
@@ -196,7 +198,7 @@ cleanup_fail() { # abort: unstage, remove new ebuild, restore, drop branch
 }
 
 tree_of() { # $1 = ebuild basename, $2 = out file; echoes the workdir
-    $SUDO ebuild "$1" clean unpack >/dev/null 2>&1 || return 1
+    $TMO $SUDO ebuild "$1" clean unpack >/dev/null 2>&1 || return 1
     local pvr=${1%.ebuild}; pvr=${pvr#${PN}-}
     local wd="/var/tmp/portage/${CAT}/${PN}-${pvr}/work"
     $SUDO find "$wd" -type f -printf '%P\n' 2>/dev/null | sort > "$2"
@@ -282,7 +284,7 @@ if [ "$DIFF_ONLY" = 1 ]; then
 fi
 
 # ---------- stage 6: build test ----------
-if ! $SUDO ebuild "$(basename "$NEW_EBUILD")" clean install > "$EVIDENCE_DIR/build.log" 2>&1; then
+if ! $TMO $SUDO ebuild "$(basename "$NEW_EBUILD")" clean install > "$EVIDENCE_DIR/build.log" 2>&1; then
     tail -20 "$EVIDENCE_DIR/build.log"
     cleanup_fail
     echo "== build failed; evidence: $EVIDENCE_DIR/build.log =="
@@ -307,7 +309,7 @@ if [ "$DO_INSTALL" = 1 ]; then
         if [ -f "$REPO/licenses/$lic" ]; then $SUDO cp "$REPO/licenses/$lic" "$LIVE_OVERLAY/licenses/$lic"; fi
     fi
     echo "$PKG ~amd64" | $SUDO tee "/etc/portage/package.accept_keywords/autobump-$PN" >/dev/null
-    if $SUDO emerge --oneshot --quiet "=$PKG-$NEWVER" > "$EVIDENCE_DIR/emerge.log" 2>&1; then
+    if $TMO $SUDO emerge --oneshot --quiet "=$PKG-$NEWVER" > "$EVIDENCE_DIR/emerge.log" 2>&1; then
         # smoke: the binary name is not always $PN (uv-bin installs uv). Try
         # every installed executable's --version and look for NEWVER.
         SMOKE="installed; no --version reported NEWVER (verify manually)"
