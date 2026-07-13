@@ -308,9 +308,13 @@ if [ "$DO_INSTALL" = 1 ]; then
     fi
     echo "$PKG ~amd64" | $SUDO tee "/etc/portage/package.accept_keywords/autobump-$PN" >/dev/null
     if $SUDO emerge --oneshot --quiet "=$PKG-$NEWVER" > "$EVIDENCE_DIR/emerge.log" 2>&1; then
-        binout=$(timeout 20 "$PN" --version 2>&1 | head -1 || true)
-        if grep -q "$NEWVER" <<<"$binout"; then SMOKE="--version ok: $binout";
-        else SMOKE="installed; --version said: ${binout:-<nothing>} (verify manually)"; fi
+        # smoke: the binary name is not always $PN (uv-bin installs uv). Try
+        # every installed executable's --version and look for NEWVER.
+        SMOKE="installed; no --version reported NEWVER (verify manually)"
+        for bin in $(qlist "$PKG" 2>/dev/null | grep -E '/s?bin/[^/]+$'); do
+            out=$(timeout 20 "$bin" --version 2>&1 | head -1 || true)
+            if grep -qF "$NEWVER" <<<"$out"; then SMOKE="--version ok: $(basename "$bin"): $out"; break; fi
+        done
         ok "emerge + smoke: $SMOKE"
         # linked-libs vs RDEPEND, both directions: undeclared new deps AND
         # no-longer-needed ones that should be dropped. Source packages only -
