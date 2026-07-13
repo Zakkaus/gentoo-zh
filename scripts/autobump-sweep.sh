@@ -19,7 +19,8 @@ UPSTREAM_REPO=${AUTOBUMP_UPSTREAM_REPO:-gentoo-zh/overlay}
 JUDGE=${AUTOBUMP_JUDGE:-}
 STATE_DIR=${XDG_STATE_HOME:-$HOME/.local/state}/autobump
 DONE="$STATE_DIR/done.list"
-mkdir -p "$STATE_DIR"; touch "$DONE"
+ATTEMPTS="$STATE_DIR/attempts"   # one line per transient (exit-2) attempt, to cap retries
+mkdir -p "$STATE_DIR"; touch "$DONE" "$ATTEMPTS"
 cd "$REPO" || exit 2
 
 PR=""; COMMENT=0; LIMIT=5; ISSUES=()
@@ -87,6 +88,10 @@ for n in "${ISSUES[@]}"; do
             if [ "$ec2" = 0 ]; then
                 echo "$pkg $ver bumped-after-judge $(date +%F)" >> "$DONE"
                 RESULT[$n]="bumped (judge accepted surface delta)"
+            elif [ "$ec2" = 2 ]; then
+                # transient on the retry (timeout / dep-resolution gap): do NOT
+                # record, so a later sweep tries again rather than giving up
+                RESULT[$n]="retry deferred transiently (exit 2) - not recorded"
             else
                 echo "$pkg $ver deferred $(date +%F)" >> "$DONE"
                 RESULT[$n]="deferred (retry failed, exit $ec2)"
@@ -103,9 +108,22 @@ for n in "${ISSUES[@]}"; do
         fi
         ;;
     *)
-        # precondition (branch exists, dirty tree, fetch error): not terminal,
-        # do not record; next sweep retries
-        RESULT[$n]="not attempted: $(tail -1 <<<"$out")"
+        # precondition / transient (dirty tree, fetch flake, emerge timeout,
+        # dep-resolution gap): not terminal, retry next sweep - but CAP the
+        # retries so a persistently-failing bump eventually reaches a human
+        # instead of burning a slot every day forever.
+        tries=$(grep -c -F "$pkg $ver " "$ATTEMPTS" 2>/dev/null); tries=${tries:-0}
+        echo "$pkg $ver $(date +%F)" >> "$ATTEMPTS"
+        if [ "$tries" -ge 2 ]; then
+            echo "$pkg $ver deferred-transient $(date +%F)" >> "$DONE"
+            RESULT[$n]="deferred after $((tries+1)) transient attempts: $(tail -1 <<<"$out")"
+            if [ "$COMMENT" = 1 ]; then
+                gh issue comment "$n" --repo "$UPSTREAM_REPO" --body \
+                  "autobump: could not apply after $((tries+1)) attempts (transient/build failures in CI - e.g. timeout or unresolved dep). A maintainer may need to bump this by hand."
+            fi
+        else
+            RESULT[$n]="not attempted (transient, try $((tries+1))): $(tail -1 <<<"$out")"
+        fi
         ;;
     esac
 done

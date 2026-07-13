@@ -260,9 +260,10 @@ tree_of() { # $1 = ebuild basename, $2 = out file; echoes the workdir
     local tmpd; tmpd=$(portageq envvar PORTAGE_TMPDIR 2>/dev/null); tmpd=${tmpd:-/var/tmp}
     local wd="$tmpd/portage/${CAT}/${PN}-${pvr}/work"
     $SUDO find "$wd" -type f -printf '%P\n' 2>/dev/null | sort > "$2"
-    # an empty listing means the workdir guess was wrong or unpack produced
-    # nothing - never let the caller read that as "no files changed"
-    [ -s "$2" ] || return 1
+    # An empty listing (wrong workdir guess, or an ebuild that populates nothing
+    # findable at unpack time) yields a 0-removed tree diff, so the payload check
+    # simply adds nothing and the ebuild-install/emerge build gate still runs -
+    # better than hard-deferring the bump. PORTAGE_TMPDIR above keeps this rare.
     echo "$wd"
 }
 
@@ -294,13 +295,15 @@ surface_of() { # $1 = workdir, $2 = out file
 # payload (repackaged binary) vs source decides which diff applies. Detect a
 # prebuilt payload by several signals, not just the archive extension: SRC_URI
 # may be indented (opencode-bin tab-indents it, so ^SRC_URI misses it), and a
-# plain binary .tar.gz has no telltale extension - so also trust the -bin PN
-# convention, QA_PREBUILT, RESTRICT=strip/bindist, and the unpacker eclass.
+# plain binary .tar.gz has no telltale extension - so also trust QA_PREBUILT (set
+# only by prebuilt ebuilds), the -bin PN convention, and the unpacker eclass.
+# NB: do NOT key off RESTRICT=bindist/strip - those are common on from-SOURCE
+# ebuilds (non-redistributable or debug-symbol packages) and would misroute them.
 PAYLOAD=0
 neweb=$(basename "$NEW_EBUILD")
 if grep -qE '\.(deb|AppImage|exe|dmg)' <(grep -A8 -E '^[[:space:]]*SRC_URI' "$neweb") \
    || grep -qE 'inherit.*unpacker' "$neweb" \
-   || grep -qE '^[[:space:]]*(QA_PREBUILT=|RESTRICT=.*(strip|bindist))' "$neweb" \
+   || grep -qE '^[[:space:]]*QA_PREBUILT=' "$neweb" \
    || [[ "$PN" == *-bin ]]; then
     PAYLOAD=1
 fi
@@ -534,6 +537,21 @@ fi
 
 # ---------- stage 8: PR ----------
 if [ "$DO_PR" = 1 ]; then
+    # same-repo branch -> plain head; fork -> owner:branch
+    owner=$(git remote get-url "$PUSH_REMOTE" | sed -E 's#\.git$##; s#/$##; s#.*[:/]([^/]+)/[^/]+$#\1#')
+    head="$BRANCH"
+    [ "$owner" != "${UPSTREAM_REPO%%/*}" ] && head="$owner:$BRANCH"
+    # If a PR is already open for this exact branch, a reviewer may have pushed
+    # fixups onto it. We just recreated the branch locally with a fresh single
+    # commit, so pushing (even --force-with-lease, which the earlier `git fetch`
+    # defeats) would clobber their work. Bail instead - the bump is already up.
+    if gh pr list --repo "$UPSTREAM_REPO" --head "$head" --state open \
+         --json number --jq '.[].number' 2>/dev/null | grep -q .; then
+        log "an open PR already exists for $BRANCH - not pushing (would clobber review)"
+        echo "== done; PR already open, nothing to push. Evidence: $EVIDENCE_DIR =="
+        exit 0
+    fi
+    # No open PR -> safe to (force-)push a fresh or leftover branch, then open it.
     git push -u --force-with-lease "$PUSH_REMOTE" "$BRANCH" || die "push failed"
     subj=$(git log -1 --format=%s)
     body="$EVIDENCE_DIR/pr-body.md"
@@ -553,10 +571,6 @@ if [ "$DO_PR" = 1 ]; then
     } > "$body"
     draftflag=""
     [ "$MULTIARCH" = 1 ] && draftflag="--draft"
-    # same-repo branch -> plain head; fork -> owner:branch
-    owner=$(git remote get-url "$PUSH_REMOTE" | sed -E 's#\.git$##; s#/$##; s#.*[:/]([^/]+)/[^/]+$#\1#')
-    head="$BRANCH"
-    [ "$owner" != "${UPSTREAM_REPO%%/*}" ] && head="$owner:$BRANCH"
     gh pr create --repo "$UPSTREAM_REPO" --base master --head "$head" \
         --title "$subj" --body-file "$body" $draftflag || die "gh pr create failed"
     ok "PR opened"

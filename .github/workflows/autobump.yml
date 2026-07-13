@@ -109,6 +109,9 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
         AUTOBUMP_LIVE_OVERLAY: ${{ github.workspace }}
+        # the job has 90 min and --limit 3, so allow a generous per-op ceiling -
+        # a heavy from-source build should finish, not time out and defer.
+        AUTOBUMP_OP_TIMEOUT: '2700'
       run: |
         bash scripts/autobump-sweep.sh \
           ${{ github.event.inputs.issues }} \
