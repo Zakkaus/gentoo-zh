@@ -108,6 +108,7 @@ OLD_EBUILD=$(ls "$PKGDIR"/*.ebuild 2>/dev/null | grep -vE -- '-9{4,}' | sort -V 
 [ -n "$OLD_EBUILD" ] || die "no release ebuild in $PKGDIR (live-only package?)"
 OLD_PVR=$(basename "$OLD_EBUILD" .ebuild); OLD_PVR=${OLD_PVR#${PN}-}
 OLD_PV=${OLD_PVR%-r[0-9]*}
+OLD_PVR_PRESYNC="$OLD_PVR"   # re-checked against synced master after the sync
 NEW_EBUILD="$PKGDIR/${PN}-${NEWVER}.ebuild"
 log "current: $OLD_PVR  ->  target: $NEWVER"
 
@@ -247,6 +248,21 @@ cleanup_fail() { # abort: unstage, remove the copied ebuild, restore, drop branc
 # from here on the branch exists, so an interrupt (Ctrl-C, CI/harness SIGTERM)
 # must not leave it orphaned. Disarmed once the commit is safely made (stage 7).
 trap 'cleanup_fail; exit 130' INT TERM
+
+# Re-read OLD_EBUILD from the now-synced tree. stage 1 read it from the working
+# tree's branch, which on a dev box may LAG canonical master (e.g. the autobump
+# branch still has pnpm-11.9.0 while master has 11.12.0 after a fresh bump). If
+# stale, OLD_EBUILD pointed at a version master has since dropped -> stage-4
+# `ebuild <old> fetch` failed on a nonexistent file. Take the real current
+# release from synced master. (CI checks out canonical master, so it was never
+# stale there - this is a dev-box correctness fix.)
+OLD_EBUILD=$(ls "$PKGDIR"/*.ebuild 2>/dev/null | grep -vE -- '-9{4,}' | sort -V | tail -1)
+[ -n "$OLD_EBUILD" ] || { cleanup_fail; die "no release ebuild in $PKGDIR after sync"; }
+OLD_PVR=$(basename "$OLD_EBUILD" .ebuild); OLD_PVR=${OLD_PVR#${PN}-}
+OLD_PV=${OLD_PVR%-r[0-9]*}
+[ "$OLD_PV" = "$NEWVER" ] && { cleanup_fail; die "already at $NEWVER on synced master"; }
+[ -f "$NEW_EBUILD" ] && { cleanup_fail; die "$NEW_EBUILD already exists on synced master"; }
+[ "$OLD_PVR" != "${OLD_PVR_PRESYNC:-$OLD_PVR}" ] && log "current updated after sync: -> $OLD_PVR"
 
 # pkgcheck baseline: pre-existing findings must not block a bump later;
 # only findings the bump introduces do (version prefix stripped to compare)
