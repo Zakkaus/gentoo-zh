@@ -270,14 +270,27 @@ if [ "$PAYLOAD" = 1 ]; then
     comm -13 "$EVIDENCE_DIR/tree-old.txt" "$EVIDENCE_DIR/tree-new.txt" > "$EVIDENCE_DIR/tree-added.txt"
     removed=$(wc -l < "$EVIDENCE_DIR/tree-removed.txt")
     added=$(wc -l < "$EVIDENCE_DIR/tree-added.txt")
-    # any removed path is dangerous (renamed .desktop broke claude-desktop)
+    # A removed path is dangerous (a renamed .desktop broke claude-desktop) UNLESS
+    # it only differs from an added path by the version string - that is a benign
+    # version-embedded rename (folo-bin-1.10.0.AppImage -> folo-bin-1.11.0.AppImage).
+    # Swap OLD_PV->NEWVER in each removed path; if the result was added, drop it.
     if [ "$removed" -gt 0 ]; then
-        head -20 "$EVIDENCE_DIR/tree-removed.txt"
-        cleanup_fail
-        echo "== payload layout changed ($removed removed / $added added); evidence: $EVIDENCE_DIR =="
-        exit 3
+        : > "$EVIDENCE_DIR/tree-removed-real.txt"
+        while IFS= read -r p; do
+            [ -n "$p" ] || continue
+            grep -qxF "${p//$OLD_PV/$NEWVER}" "$EVIDENCE_DIR/tree-added.txt" \
+                || printf '%s\n' "$p" >> "$EVIDENCE_DIR/tree-removed-real.txt"
+        done < "$EVIDENCE_DIR/tree-removed.txt"
+        realrm=$(grep -c . "$EVIDENCE_DIR/tree-removed-real.txt" 2>/dev/null || echo 0)
+        if [ "$realrm" -gt 0 ]; then
+            head -20 "$EVIDENCE_DIR/tree-removed-real.txt"
+            cleanup_fail
+            echo "== payload layout changed ($realrm real removals / $added added, version-renames ignored); evidence: $EVIDENCE_DIR =="
+            exit 3
+        fi
+        log "payload: $removed removed path(s) are version-embedded renames (benign)"
     fi
-    ok "payload tree: no removed paths ($added new files - see tree-added.txt)"
+    ok "payload tree: no real removed paths ($added new files - see tree-added.txt)"
 elif WD_OLD=$(tree_of "$(basename "$OLD_EBUILD")" "$EVIDENCE_DIR/tree-old.txt") \
      && WD_NEW=$(tree_of "$(basename "$NEW_EBUILD")" "$EVIDENCE_DIR/tree-new.txt"); then
     # source: file churn is normal; what matters is the build-option surface
@@ -392,6 +405,8 @@ if [ "$DO_INSTALL" = 1 ]; then
             else
                 ok "qa-vdb: RDEPEND matches linked libs"
             fi
+        elif [ "$PAYLOAD" = 1 ]; then
+            log "qa-vdb skipped: prebuilt payload (dlopen-heavy, RDEPEND vs NEEDED too noisy)"
         else
             log "qa-vdb not installed (app-portage/iwdevtools) - linked-libs/RDEPEND check skipped"
         fi
