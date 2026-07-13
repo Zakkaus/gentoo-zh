@@ -398,7 +398,7 @@ if [ "$DO_INSTALL" = 1 ]; then
         # compile failure. The former is a local-environment gap, not a defect in
         # the bump - portage never built anything. CI with full ~amd64 and the
         # container's python target resolves it. Defer (exit 2), do not condemn.
-        if grep -qE 'have been masked|masked packages|required to complete your request|Blocked Packages|not be installed' \
+        if grep -qE 'have been masked|masked packages|required to complete your request|no ebuilds to satisfy|Blocked Packages|not be installed' \
              "$EVIDENCE_DIR/emerge.log"; then
             echo "== cannot smoke-test locally: a build dep will not resolve here"
             echo "== (overlay ~amd64 dep or PYTHON_TARGET mismatch, e.g. mw2fcitx lacks"
