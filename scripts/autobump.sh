@@ -138,8 +138,13 @@ if grep -nE 'GIT_CRATES|_COMMIT=|_TAG=|[A-Z_]+_VER=' "$OLD_EBUILD" | grep -v '^#
     escalate_note "pinned/coupled variables found (see pins.txt) - must be diffed against upstream"
 fi
 
-# per-version external deps artifact must exist before anything else
-depsurl=$(grep -oE 'https://[^ "]*(gentoo-zh-drafts|gentoo-deps)[^ "]*' "$OLD_EBUILD" | head -1 || true)
+# per-version external deps artifact must exist before anything else. Detect it
+# by its FILENAME convention (a bundled deps/vendor/crates/node_modules tarball),
+# not by host - the packs live in several repos (gentoo-zh-drafts, gentoo-deps,
+# liuyujielol/gentoo-go-deps, ...) and a host allowlist misses them (v2rayA's
+# ${P}-deps.tar.xz on gentoo-go-deps slipped through and failed late at fetch
+# instead of deferring cleanly here).
+depsurl=$(grep -oE 'https://[^ "]+' "$OLD_EBUILD" | grep -E '(-deps|-vendor|-crates|node_modules)\.tar\.' | head -1 || true)
 if [ -n "$depsurl" ]; then
     # The URL usually carries literal ebuild vars (${P}/${PV}/${PN}); expand them
     # against the NEW version, then also swap any hardcoded old version. Without
