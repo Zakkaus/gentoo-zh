@@ -27,15 +27,21 @@
 #      issue and a human takes over. Never auto-edit RDEPEND/IUSE from a
 #      model guess.
 #
-# Requirements: run as normal user; sudo for ebuild/emerge/distfiles.
+# Requirements: run as normal user; $SUDO for ebuild/emerge/distfiles.
 
 set -uo pipefail
 
-REPO=/home/zakk/code/gentoo-zh
-DISTDIR=/var/cache/distfiles
-LIVE_OVERLAY=/var/db/repos/gentoo-zh
-UPSTREAM_REPO=gentoo-zh/overlay
-FORK_USER=Zakkaus
+# All of these can be overridden by env; defaults work both on a dev box
+# (fork clone, sudo, live overlay) and in CI (root, canonical checkout).
+REPO=${AUTOBUMP_REPO:-$(git rev-parse --show-toplevel 2>/dev/null)}
+DISTDIR=${AUTOBUMP_DISTDIR:-/var/cache/distfiles}
+LIVE_OVERLAY=${AUTOBUMP_LIVE_OVERLAY:-/var/db/repos/gentoo-zh}
+UPSTREAM_REPO=${AUTOBUMP_UPSTREAM_REPO:-gentoo-zh/overlay}
+SUDO=$([ "$(id -u)" = 0 ] || echo sudo)
+cd "${REPO:?not inside a git checkout}" || exit 2
+# sync from the remote that points at the canonical repo; push to origin
+SYNC_REMOTE=${AUTOBUMP_SYNC_REMOTE:-$(git remote | grep -qx upstream && echo upstream || echo origin)}
+PUSH_REMOTE=${AUTOBUMP_PUSH_REMOTE:-origin}
 
 CHECK_ONLY=0; DO_INSTALL=0; DO_PR=0; DIFF_ONLY=0; ACCEPT_SURFACE=0; ISSUE=""
 PKG=""; NEWVER=""
@@ -157,8 +163,8 @@ if git status --porcelain --untracked-files=no | grep -vE ' (scripts|docs)/' | g
     die "working tree has tracked modifications"
 fi
 git rev-parse --verify -q "$BRANCH" >/dev/null && die "branch $BRANCH already exists"
-git fetch upstream >/dev/null 2>&1 || die "git fetch upstream failed"
-git checkout -q master && git merge -q --ff-only upstream/master || die "master sync failed"
+git fetch "$SYNC_REMOTE" >/dev/null 2>&1 || die "git fetch $SYNC_REMOTE failed"
+git checkout -q master && git merge -q --ff-only "$SYNC_REMOTE/master" || die "master sync failed"
 git checkout -qb "$BRANCH" || die "cannot create $BRANCH"
 ok "branch $BRANCH off synced master"
 
@@ -169,14 +175,14 @@ pkgcheck scan "$PKG" 2>/dev/null | sed -E 's/version [^:]+: //' | sort -u \
 
 # ---------- stage 4: fetch old artifacts, create new ebuild, fetch+manifest ----------
 cd "$PKGDIR"
-sudo ebuild "$(basename "$OLD_EBUILD")" fetch >/dev/null 2>&1 || die "fetch of OLD distfiles failed"
+$SUDO ebuild "$(basename "$OLD_EBUILD")" fetch >/dev/null 2>&1 || die "fetch of OLD distfiles failed"
 cp "$(basename "$OLD_EBUILD")" "$(basename "$NEW_EBUILD")"
-if ! sudo ebuild "$(basename "$NEW_EBUILD")" manifest > "$EVIDENCE_DIR/fetch.log" 2>&1; then
+if ! $SUDO ebuild "$(basename "$NEW_EBUILD")" manifest > "$EVIDENCE_DIR/fetch.log" 2>&1; then
     tail -5 "$EVIDENCE_DIR/fetch.log"
     git checkout -q master; git branch -qD "$BRANCH"
     die "fetch/manifest for $NEWVER failed (upstream file missing?)"
 fi
-sudo chown "$(id -un):$(id -gn)" Manifest
+$SUDO chown "$(id -un):$(id -gn)" Manifest
 ok "distfiles fetched, Manifest regenerated"
 
 # ---------- stage 5: artifact diff ----------
@@ -190,10 +196,10 @@ cleanup_fail() { # abort: unstage, remove new ebuild, restore, drop branch
 }
 
 tree_of() { # $1 = ebuild basename, $2 = out file; echoes the workdir
-    sudo ebuild "$1" clean unpack >/dev/null 2>&1 || return 1
+    $SUDO ebuild "$1" clean unpack >/dev/null 2>&1 || return 1
     local pvr=${1%.ebuild}; pvr=${pvr#${PN}-}
     local wd="/var/tmp/portage/${CAT}/${PN}-${pvr}/work"
-    sudo find "$wd" -type f -printf '%P\n' 2>/dev/null | sort > "$2"
+    $SUDO find "$wd" -type f -printf '%P\n' 2>/dev/null | sort > "$2"
     echo "$wd"
 }
 
@@ -202,22 +208,22 @@ tree_of() { # $1 = ebuild basename, $2 = out file; echoes the workdir
 # may need a USE flag or a dependency - exactly what a blind bump misses when
 # configure auto-detects a host lib and "succeeds".
 surface_of() { # $1 = workdir, $2 = out file
-    local top; top=$(sudo find "$1" -maxdepth 1 -mindepth 1 -type d | head -1)
+    local top; top=$($SUDO find "$1" -maxdepth 1 -mindepth 1 -type d | head -1)
     [ -n "$top" ] || top="$1"
     {
-        sudo find "$top" -maxdepth 3 \( -name CMakeLists.txt -o -name '*.cmake' \) \
+        $SUDO find "$top" -maxdepth 3 \( -name CMakeLists.txt -o -name '*.cmake' \) \
             -exec grep -hoE '(option|cmake_dependent_option|find_package|pkg_check_modules)[[:space:]]*\([[:space:]]*[A-Za-z0-9_.-]+' {} + 2>/dev/null \
             | sed -E 's/[[:space:]]*\([[:space:]]*/:/' | sed 's/^/cmake-/'
-        sudo find "$top" -maxdepth 2 \( -name meson_options.txt -o -name meson.options \) \
+        $SUDO find "$top" -maxdepth 2 \( -name meson_options.txt -o -name meson.options \) \
             -exec grep -hoE "option[[:space:]]*\([[:space:]]*'[a-z0-9_-]+" {} + 2>/dev/null \
             | sed -E "s/option[[:space:]]*\([[:space:]]*'/meson-option:/"
-        sudo find "$top" -maxdepth 2 -name meson.build \
+        $SUDO find "$top" -maxdepth 2 -name meson.build \
             -exec grep -hoE "dependency[[:space:]]*\([[:space:]]*'[a-z0-9_.-]+" {} + 2>/dev/null \
             | sed -E "s/dependency[[:space:]]*\([[:space:]]*'/meson-dep:/"
-        sudo find "$top" -maxdepth 2 \( -name configure.ac -o -name configure.in \) \
+        $SUDO find "$top" -maxdepth 2 \( -name configure.ac -o -name configure.in \) \
             -exec grep -hoE '(AC_ARG_ENABLE|AC_ARG_WITH|PKG_CHECK_MODULES)\(\[?[A-Za-z0-9_-]+' {} + 2>/dev/null \
             | sed -E 's/\(\[?/:/' | sed 's/^/ac-/'
-        sudo find "$top" -maxdepth 2 -name Cargo.toml \
+        $SUDO find "$top" -maxdepth 2 -name Cargo.toml \
             -exec awk '/^\[features\]/{f=1;next}/^\[/{f=0}f&&/^[a-z0-9_-]+[[:space:]]*=/{print "cargo-feature:"$1}' {} + 2>/dev/null
     } | sort -u > "$2"
 }
@@ -276,7 +282,7 @@ if [ "$DIFF_ONLY" = 1 ]; then
 fi
 
 # ---------- stage 6: build test ----------
-if ! sudo ebuild "$(basename "$NEW_EBUILD")" clean install > "$EVIDENCE_DIR/build.log" 2>&1; then
+if ! $SUDO ebuild "$(basename "$NEW_EBUILD")" clean install > "$EVIDENCE_DIR/build.log" 2>&1; then
     tail -20 "$EVIDENCE_DIR/build.log"
     cleanup_fail
     echo "== build failed; evidence: $EVIDENCE_DIR/build.log =="
@@ -292,12 +298,16 @@ ok "ebuild install clean, no QA notices"
 
 SMOKE="not run (use --install)"
 if [ "$DO_INSTALL" = 1 ]; then
-    sudo mkdir -p "$LIVE_OVERLAY/$PKG"
-    sudo cp ./*.ebuild Manifest metadata.xml "$LIVE_OVERLAY/$PKG/"
-    lic=$(grep -oE '^LICENSE="[^"]+"' "$(basename "$NEW_EBUILD")" | cut -d'"' -f2)
-    if [ -f "$REPO/licenses/$lic" ]; then sudo cp "$REPO/licenses/$lic" "$LIVE_OVERLAY/licenses/$lic"; fi
-    echo "$PKG ~amd64" | sudo tee "/etc/portage/package.accept_keywords/autobump-$PN" >/dev/null
-    if sudo emerge --oneshot --quiet "=$PKG-$NEWVER" > "$EVIDENCE_DIR/emerge.log" 2>&1; then
+    # dev box: the configured overlay is a separate synced checkout, copy in.
+    # CI: the checkout itself is registered in repos.conf - nothing to copy.
+    if [ -d "$LIVE_OVERLAY" ] && [ "$LIVE_OVERLAY" != "$REPO" ]; then
+        $SUDO mkdir -p "$LIVE_OVERLAY/$PKG"
+        $SUDO cp ./*.ebuild Manifest metadata.xml "$LIVE_OVERLAY/$PKG/"
+        lic=$(grep -oE '^LICENSE="[^"]+"' "$(basename "$NEW_EBUILD")" | cut -d'"' -f2)
+        if [ -f "$REPO/licenses/$lic" ]; then $SUDO cp "$REPO/licenses/$lic" "$LIVE_OVERLAY/licenses/$lic"; fi
+    fi
+    echo "$PKG ~amd64" | $SUDO tee "/etc/portage/package.accept_keywords/autobump-$PN" >/dev/null
+    if $SUDO emerge --oneshot --quiet "=$PKG-$NEWVER" > "$EVIDENCE_DIR/emerge.log" 2>&1; then
         binout=$(timeout 20 "$PN" --version 2>&1 | head -1 || true)
         if grep -q "$NEWVER" <<<"$binout"; then SMOKE="--version ok: $binout";
         else SMOKE="installed; --version said: ${binout:-<nothing>} (verify manually)"; fi
@@ -375,11 +385,15 @@ if [ "$DO_PR" = 1 ]; then
     } > "$body"
     draftflag=""
     [ "$MULTIARCH" = 1 ] && draftflag="--draft"
-    gh pr create --repo "$UPSTREAM_REPO" --base master --head "$FORK_USER:$BRANCH" \
+    # same-repo branch -> plain head; fork -> owner:branch
+    owner=$(git remote get-url "$PUSH_REMOTE" | sed -E 's#\.git$##; s#/$##; s#.*[:/]([^/]+)/[^/]+$#\1#')
+    head="$BRANCH"
+    [ "$owner" != "${UPSTREAM_REPO%%/*}" ] && head="$owner:$BRANCH"
+    gh pr create --repo "$UPSTREAM_REPO" --base master --head "$head" \
         --title "$subj" --body-file "$body" $draftflag || die "gh pr create failed"
     ok "PR opened"
 else
-    log "committed on $BRANCH - review, then: git push -u origin $BRANCH && gh pr create ..."
+    log "committed on $BRANCH - review, then: git push -u $PUSH_REMOTE $BRANCH && gh pr create ..."
 fi
 
 echo "== done; evidence kept in $EVIDENCE_DIR =="

@@ -1,0 +1,113 @@
+# autobump: try the mechanical version bumps that nvchecker filed as issues.
+#
+# Design:
+# - Runs 2h after nvchecker's daily cron, so bumpbot has filed the issues.
+# - v1 uses NO model anywhere (AUTOBUMP_JUDGE is unset): whatever is not
+#   mechanically safe gets an evidence comment on its issue and stops.
+#   The judge hook exists in autobump-sweep.sh for later, where semantic
+#   judgment is worth a cheap model call - it is optional by design.
+# - Mechanical bumps become normal PRs (draft when multi-arch), so the
+#   existing emerge-on-pr + pkgcheck CI re-verifies everything and a human
+#   is still the only merger.
+# - State (which pkg/version was already bumped or deferred) is cached so
+#   the daily run never redoes work.
+#
+# Requires: repo setting "Allow GitHub Actions to create and approve pull
+# requests", and maintainer agreement that the bot pushes its topic branches
+# to this repo (autobump.sh names them <category>-<pn>-<version>).
+#
+# Known v1 limit: stage-6 build test is `ebuild install`, which does not
+# resolve build deps; source packages with missing deps in the container
+# defer with a "build failed" comment instead of bumping. Prebuilt packages
+# are unaffected. Tighten later if the noise matters.
+
+name: autobump
+
+on:
+  schedule:
+    - cron: '0 11 * * *'
+  workflow_dispatch:
+    inputs:
+      issues:
+        description: 'issue numbers, space separated (empty = all open)'
+        required: false
+        default: ''
+      limit:
+        description: 'max issues per run'
+        required: false
+        default: '3'
+
+concurrency:
+  group: autobump
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  sweep:
+    if: github.repository == 'gentoo-zh/overlay'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    container:
+      image: gentoo/stage3:amd64-desktop-openrc
+      options: --privileged
+
+    steps:
+    - name: sync gentoo main tree
+      run: emerge-webrsync
+
+    - name: setup portage
+      run: |
+        cat >> /etc/portage/make.conf << 'EOF'
+        FEATURES="${FEATURES} getbinpkg"
+        MAKEOPTS="${MAKEOPTS} -j$(nproc)"
+        PORTAGE_ELOG_CLASSES="qa warn error"
+        PORTAGE_ELOG_SYSTEM="save"
+        EOF
+        getuto
+        install -dm775 -o root -g portage /var/cache/distfiles
+
+    - name: install tooling
+      run: |
+        emerge --quiet --autounmask=y --autounmask-write=y --autounmask-continue=y \
+          app-portage/pkgdev app-portage/pkgcheck dev-vcs/github-cli app-misc/jq
+
+    - name: checkout
+      uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+
+    - name: register overlay
+      run: |
+        mkdir -p /etc/portage/repos.conf
+        cat > /etc/portage/repos.conf/repo.conf << EOF
+        [$(cat profiles/repo_name)]
+        location = $(realpath .)
+        priority = 0
+        EOF
+
+    - name: git identity
+      run: |
+        git config --global --add safe.directory "$(realpath .)"
+        git config user.name  "gentoo-zh-bot"
+        git config user.email "bot@gentoozh.org"
+
+    - name: restore state
+      uses: actions/cache@v4
+      with:
+        path: /root/.local/state/autobump
+        key: autobump-state-${{ github.run_id }}
+        restore-keys: autobump-state-
+
+    - name: sweep
+      env:
+        GH_TOKEN: ${{ github.token }}
+        AUTOBUMP_LIVE_OVERLAY: ${{ github.workspace }}
+      run: |
+        bash scripts/autobump-sweep.sh \
+          ${{ github.event.inputs.issues }} \
+          --limit ${{ github.event.inputs.limit || 3 }} \
+          --pr --comment

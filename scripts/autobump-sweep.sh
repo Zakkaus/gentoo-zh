@@ -12,8 +12,11 @@
 # version; a new upstream version gets a fresh attempt.
 
 set -uo pipefail
-REPO=/home/zakk/code/gentoo-zh
-UPSTREAM_REPO=gentoo-zh/overlay
+REPO=${AUTOBUMP_REPO:-$(git rev-parse --show-toplevel 2>/dev/null)}
+UPSTREAM_REPO=${AUTOBUMP_UPSTREAM_REPO:-gentoo-zh/overlay}
+# AUTOBUMP_JUDGE: empty (default) = no model at all, every escalation goes to
+# a human with the evidence. Set to "claude" to judge with a cheap model.
+JUDGE=${AUTOBUMP_JUDGE:-}
 STATE_DIR=${XDG_STATE_HOME:-$HOME/.local/state}/autobump
 DONE="$STATE_DIR/done.list"
 mkdir -p "$STATE_DIR"; touch "$DONE"
@@ -67,9 +70,17 @@ for n in "${ISSUES[@]}"; do
     3)
         ev=$(grep -oE '/tmp/autobump-[A-Za-z0-9._-]+' <<<"$out" | tail -1)
         old=$(sed -nE 's/^>> current: ([^ ]+) +-> +target:.*/\1/p' <<<"$out" | head -1)
-        verdict_json=$(bash "$TOOLS/autobump-judge.sh" "$ev" "$pkg" "${old:-?}" "$ver")
+        if [ -n "$JUDGE" ]; then
+            verdict_json=$(bash "$TOOLS/autobump-judge.sh" "$ev" "$pkg" "${old:-?}" "$ver")
+            echo "judge: $verdict_json"
+        else
+            # no model configured: straight to a human, evidence as the reason
+            reasons=$(paste -sd'; ' "$ev/escalations.txt" 2>/dev/null)
+            [ -n "$reasons" ] || reasons="see evidence in $ev"
+            verdict_json=$(jq -cn --arg r "$reasons" \
+                '{verdict:"human",reasons:[$r],use_flags_needed:[],deps_changed:[],issue_comment:("not mechanically safe: "+$r)}')
+        fi
         verdict=$(jq -r .verdict <<<"$verdict_json")
-        echo "judge: $verdict_json"
         if [ "$verdict" = proceed ]; then
             out2=$(bash "$TOOLS/autobump.sh" "$n" --accept-surface $PR 2>&1); ec2=$?
             echo "$out2" | tail -3

@@ -8,7 +8,11 @@
 set -uo pipefail
 E=${1:?evidence dir}; PKG=${2:?cat/pkg}; OLD=${3:?oldver}; NEW=${4:?newver}
 MODEL=${AUTOBUMP_JUDGE_MODEL:-claude-haiku-4-5-20251001}
-REPO=/home/zakk/code/gentoo-zh
+REPO=${AUTOBUMP_REPO:-$(git rev-parse --show-toplevel 2>/dev/null)}
+command -v claude >/dev/null || { # no CLI -> always a human
+    printf '{"verdict":"human","reasons":["no judge model available"],"use_flags_needed":[],"deps_changed":[],"issue_comment":""}\n'
+    exit 0
+}
 
 snip() { # bounded include of one evidence file
     [ -s "$E/$1" ] || return 0
