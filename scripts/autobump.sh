@@ -170,25 +170,7 @@ git checkout -q master && git merge -q --ff-only "$SYNC_REMOTE/master" || die "m
 git checkout -qb "$BRANCH" || die "cannot create $BRANCH"
 ok "branch $BRANCH off synced master"
 
-# pkgcheck baseline: pre-existing findings must not block a bump later;
-# only findings the bump introduces do (version prefix stripped to compare)
-pkgcheck scan "$PKG" 2>/dev/null | sed -E 's/version [^:]+: //' | sort -u \
-    > "$EVIDENCE_DIR/pkgcheck-baseline.txt"
-
-# ---------- stage 4: fetch old artifacts, create new ebuild, fetch+manifest ----------
-cd "$PKGDIR"
-$TMO $SUDO ebuild "$(basename "$OLD_EBUILD")" fetch >/dev/null 2>&1 || die "fetch of OLD distfiles failed"
-cp "$(basename "$OLD_EBUILD")" "$(basename "$NEW_EBUILD")"
-if ! $TMO $SUDO ebuild "$(basename "$NEW_EBUILD")" manifest > "$EVIDENCE_DIR/fetch.log" 2>&1; then
-    tail -5 "$EVIDENCE_DIR/fetch.log"
-    git checkout -q master; git branch -qD "$BRANCH"
-    die "fetch/manifest for $NEWVER failed (upstream file missing?)"
-fi
-$SUDO chown "$(id -un):$(id -gn)" Manifest
-ok "distfiles fetched, Manifest regenerated"
-
-# ---------- stage 5: artifact diff ----------
-cleanup_fail() { # abort: unstage, remove new ebuild, restore, drop branch
+cleanup_fail() { # abort: unstage, remove the copied ebuild, restore, drop branch
     cd "$REPO"
     git reset -q -- "$PKGDIR" 2>/dev/null
     rm -f "$NEW_EBUILD"
@@ -197,6 +179,26 @@ cleanup_fail() { # abort: unstage, remove new ebuild, restore, drop branch
     git branch -qD "$BRANCH" 2>/dev/null
 }
 
+# pkgcheck baseline: pre-existing findings must not block a bump later;
+# only findings the bump introduces do (version prefix stripped to compare)
+pkgcheck scan "$PKG" 2>/dev/null | sed -E 's/version [^:]+: //' | sort -u \
+    > "$EVIDENCE_DIR/pkgcheck-baseline.txt"
+
+# ---------- stage 4: fetch old artifacts, create new ebuild, fetch+manifest ----------
+cd "$PKGDIR"
+$TMO $SUDO ebuild "$(basename "$OLD_EBUILD")" fetch >/dev/null 2>&1 || { cleanup_fail; die "fetch of OLD distfiles failed"; }
+cp "$(basename "$OLD_EBUILD")" "$(basename "$NEW_EBUILD")"
+if ! $TMO $SUDO ebuild "$(basename "$NEW_EBUILD")" manifest > "$EVIDENCE_DIR/fetch.log" 2>&1; then
+    tail -5 "$EVIDENCE_DIR/fetch.log"
+    cleanup_fail
+    # exit 2 (not 3): a fetch/mirror failure is usually transient, so the
+    # sweep retries next run rather than recording a permanent defer
+    die "fetch/manifest for $NEWVER failed (missing upstream file or slow mirror)"
+fi
+$SUDO chown "$(id -un):$(id -gn)" Manifest
+ok "distfiles fetched, Manifest regenerated"
+
+# ---------- stage 5: artifact diff ----------
 tree_of() { # $1 = ebuild basename, $2 = out file; echoes the workdir
     $TMO $SUDO ebuild "$1" clean unpack >/dev/null 2>&1 || return 1
     local pvr=${1%.ebuild}; pvr=${pvr#${PN}-}
