@@ -73,7 +73,10 @@ jobs:
     - name: install tooling
       run: |
         emerge --quiet --autounmask=y --autounmask-write=y --autounmask-continue=y \
-          app-portage/pkgdev app-portage/pkgcheck dev-vcs/github-cli app-misc/jq
+          app-portage/pkgdev app-portage/pkgcheck app-portage/portage-utils \
+          app-portage/iwdevtools dev-vcs/github-cli app-misc/jq
+        # qlist (portage-utils) drives the --version smoke; qa-vdb (iwdevtools)
+        # checks RDEPEND vs linked libs on source packages
 
     - name: checkout
       uses: actions/checkout@v7
