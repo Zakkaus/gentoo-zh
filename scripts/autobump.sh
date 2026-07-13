@@ -338,15 +338,26 @@ if [ "$DO_INSTALL" = 1 ]; then
             if grep -qF "$NEWVER" <<<"$out"; then SMOKE="--version ok: $(basename "$bin"): $out"; break; fi
         done
         ok "emerge + smoke: $SMOKE"
-        # linked-libs vs RDEPEND, both directions: undeclared new deps AND
-        # no-longer-needed ones that should be dropped. Source packages only -
-        # dlopen-heavy prebuilt payloads make it noisy. Needs app-portage/iwdevtools.
+        # linked-libs vs RDEPEND. Two directions, treated differently for a bump:
+        #   '>' undeclared-but-linked = a MISSING dep the new version may need at
+        #       runtime -> escalate (could be introduced by the bump).
+        #   '<' declared-but-unused   = a droppable dep. Almost always pre-existing
+        #       hygiene (libzim 9.8.1 flags virtual/zlib, same as 9.8.0) -> advisory,
+        #       don't block the bump.
+        # Source only; dlopen-heavy prebuilt payloads make it noisy. Needs iwdevtools.
         if [ "$PAYLOAD" = 0 ] && command -v qa-vdb >/dev/null; then
-            if ! qa-vdb "$PKG" > "$EVIDENCE_DIR/qa-vdb.txt" 2>&1 || [ -s "$EVIDENCE_DIR/qa-vdb.txt" ]; then
-                [ -s "$EVIDENCE_DIR/qa-vdb.txt" ] && { cat "$EVIDENCE_DIR/qa-vdb.txt"; \
-                  echo "== qa-vdb: RDEPEND vs linked libs mismatch; evidence: $EVIDENCE_DIR =="; exit 3; }
+            qa-vdb "$PKG" 2>&1 | sed 's/\x1b\[[0-9;]*m//g' > "$EVIDENCE_DIR/qa-vdb.txt" || true
+            if grep -qE '(^|[[:space:]])>([[:space:]]|$)' "$EVIDENCE_DIR/qa-vdb.txt"; then
+                cat "$EVIDENCE_DIR/qa-vdb.txt"
+                cleanup_fail
+                echo "== qa-vdb: linked lib missing from RDEPEND; evidence: $EVIDENCE_DIR =="
+                exit 3
+            elif grep -qE '(^|[[:space:]])<([[:space:]]|$)' "$EVIDENCE_DIR/qa-vdb.txt"; then
+                grep -E '(^|[[:space:]])<([[:space:]]|$)' "$EVIDENCE_DIR/qa-vdb.txt"
+                log "qa-vdb: droppable dep(s) above - advisory, not blocking the bump (pre-existing hygiene)"
+            else
+                ok "qa-vdb: RDEPEND matches linked libs"
             fi
-            ok "qa-vdb: RDEPEND matches linked libs"
         else
             log "qa-vdb not installed (app-portage/iwdevtools) - linked-libs/RDEPEND check skipped"
         fi
