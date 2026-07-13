@@ -459,6 +459,34 @@ if [ "$DO_INSTALL" = 1 ]; then
             done
         done
         ok "emerge + smoke: $SMOKE"
+        # GUI launch probe (ADVISORY - never blocks). A GUI app can install clean
+        # yet crash on start; launch it under a headless Xvfb display (so it never
+        # pops a window on a real session) with software GL, and fold the outcome
+        # into the PR. It does NOT escalate: a crash under Xvfb is often just a
+        # missing GPU/GL, not a broken bump, so this informs the reviewer instead
+        # of auto-rejecting. Runs only where Xvfb exists (else the PR's GUI note
+        # tells the human to launch it). See docs: enable with x11-base/xorg-server[xvfb].
+        if [ "$GUI" = 1 ] && command -v Xvfb >/dev/null 2>&1; then
+            Xvfb :99 -screen 0 1280x1024x24 >/dev/null 2>&1 & _xvfb=$!
+            sleep 1
+            gres="started headless, no crash"
+            for bin in $(qlist "$PKG" 2>/dev/null | grep -E '/s?bin/[^/]+$'); do
+                perr=$(DISPLAY=:99 LIBGL_ALWAYS_SOFTWARE=1 timeout 15 "$bin" </dev/null 2>&1 >/dev/null); prc=$?
+                if grep -q 'no-sandbox' <<<"$perr"; then   # Electron as root
+                    perr=$(DISPLAY=:99 LIBGL_ALWAYS_SOFTWARE=1 timeout 15 "$bin" --no-sandbox --disable-gpu </dev/null 2>&1 >/dev/null); prc=$?
+                fi
+                if grep -qiE 'error while loading shared librar|symbol lookup error|undefined symbol|GLIBC_[0-9.]+.? not found' <<<"$perr"; then
+                    gres="$(basename "$bin") MISSING A LIBRARY at runtime - likely broken"; break
+                fi
+                case "$prc" in
+                    132|134|135|136|139) gres="$(basename "$bin") crashed on start (signal $((prc-128))) - verify (could be headless GL)"; break ;;
+                    124)                 gres="ran 15s headless without crashing"; break ;;
+                esac
+            done
+            kill "$_xvfb" 2>/dev/null; wait "$_xvfb" 2>/dev/null
+            log "GUI launch probe: $gres"
+            SMOKE="$SMOKE | GUI launch probe: $gres"
+        fi
         # linked-libs vs RDEPEND. Two directions, treated differently for a bump:
         #   '>' undeclared-but-linked = a MISSING dep the new version may need at
         #       runtime -> escalate (could be introduced by the bump).
