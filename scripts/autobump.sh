@@ -153,14 +153,17 @@ if ls "$PKGDIR"/files/*.patch >/dev/null 2>&1; then
     fi
 fi
 
-# multi-arch: not fatal, but PR must be draft + say untested
+# multi-arch: not fatal, but PR must be draft + say untested.
+# The KEYWORDS line may be tab/space-indented (opencode-bin is), so allow leading
+# whitespace - anchoring at ^KEYWORDS misses it and would ship a non-draft PR for
+# a multi-arch package with the non-amd64 arch untested.
 MULTIARCH=0
-if [ "$(grep -oE '~[a-z0-9]+' <(grep '^KEYWORDS=' "$OLD_EBUILD") | wc -l)" -gt 1 ]; then
+if [ "$(grep -oE '~[a-z0-9]+' <(grep -E '^[[:space:]]*KEYWORDS=' "$OLD_EBUILD") | wc -l)" -gt 1 ]; then
     MULTIARCH=1
     log "multi-arch KEYWORDS: non-amd64 will be marked untested, PR will be draft"
 fi
 
-grep '^KEYWORDS=' "$OLD_EBUILD" >> "$CLS" 2>/dev/null || true
+grep -E '^[[:space:]]*KEYWORDS=' "$OLD_EBUILD" >> "$CLS" 2>/dev/null || true
 
 if [ "${#ESCALATIONS[@]}" -gt 0 ]; then
     printf '%s\n' "${ESCALATIONS[@]}" > "$EVIDENCE_DIR/escalations.txt"
