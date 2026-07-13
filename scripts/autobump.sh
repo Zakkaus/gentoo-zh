@@ -288,19 +288,27 @@ if [ "$DIFF_ONLY" = 1 ]; then
 fi
 
 # ---------- stage 6: build test ----------
-if ! $TMO $SUDO ebuild "$(basename "$NEW_EBUILD")" clean install > "$EVIDENCE_DIR/build.log" 2>&1; then
-    tail -20 "$EVIDENCE_DIR/build.log"
-    cleanup_fail
-    echo "== build failed; evidence: $EVIDENCE_DIR/build.log =="
-    exit 3
+# Prebuilt: `ebuild install` needs no deps and is a fast, sufficient gate.
+# Source: `ebuild install` does NOT resolve DEPEND, so meson/cmake configure
+# fails on any uninstalled build dep - the real gate for source is the
+# dep-resolving `emerge` in the --install block below.
+if [ "$PAYLOAD" = 1 ]; then
+    if ! $TMO $SUDO ebuild "$(basename "$NEW_EBUILD")" clean install > "$EVIDENCE_DIR/build.log" 2>&1; then
+        tail -20 "$EVIDENCE_DIR/build.log"
+        cleanup_fail
+        echo "== build failed; evidence: $EVIDENCE_DIR/build.log =="
+        exit 3
+    fi
+    if grep -q 'QA Notice' "$EVIDENCE_DIR/build.log"; then
+        grep -A5 'QA Notice' "$EVIDENCE_DIR/build.log" | head -20
+        cleanup_fail
+        echo "== QA notice during install (would fail CI elog gate); evidence: $EVIDENCE_DIR/build.log =="
+        exit 3
+    fi
+    ok "ebuild install clean, no QA notices"
+elif [ "$DO_INSTALL" != 1 ]; then
+    log "source package: not build-tested without --install (surface-diff only); --pr implies --install"
 fi
-if grep -q 'QA Notice' "$EVIDENCE_DIR/build.log"; then
-    grep -A5 'QA Notice' "$EVIDENCE_DIR/build.log" | head -20
-    cleanup_fail
-    echo "== QA notice during install (would fail CI elog gate); evidence: $EVIDENCE_DIR/build.log =="
-    exit 3
-fi
-ok "ebuild install clean, no QA notices"
 
 SMOKE="not run (use --install)"
 if [ "$DO_INSTALL" = 1 ]; then
@@ -314,6 +322,14 @@ if [ "$DO_INSTALL" = 1 ]; then
     fi
     echo "$PKG ~amd64" | $SUDO tee "/etc/portage/package.accept_keywords/autobump-$PN" >/dev/null
     if $TMO $SUDO emerge --oneshot --quiet "=$PKG-$NEWVER" > "$EVIDENCE_DIR/emerge.log" 2>&1; then
+        # source packages skip stage 6, so the emerge is where a QA notice would
+        # surface (it fails the CI elog gate). Prebuilt already checked at stage 6.
+        if [ "$PAYLOAD" = 0 ] && grep -q 'QA Notice' "$EVIDENCE_DIR/emerge.log"; then
+            grep -A5 'QA Notice' "$EVIDENCE_DIR/emerge.log" | head -20
+            cleanup_fail
+            echo "== QA notice during emerge (would fail CI elog gate); evidence: $EVIDENCE_DIR/emerge.log =="
+            exit 3
+        fi
         # smoke: the binary name is not always $PN (uv-bin installs uv). Try
         # every installed executable's --version and look for NEWVER.
         SMOKE="installed; no --version reported NEWVER (verify manually)"
@@ -336,6 +352,7 @@ if [ "$DO_INSTALL" = 1 ]; then
         fi
     else
         tail -20 "$EVIDENCE_DIR/emerge.log"
+        cleanup_fail
         echo "== emerge failed; evidence: $EVIDENCE_DIR/emerge.log =="
         exit 3
     fi
