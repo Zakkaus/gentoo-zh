@@ -11,6 +11,8 @@
 #     --check           classify only, no repo writes
 #     --diff-only       stop after artifact/build-option diff, clean up branch
 #     --accept-surface  judge approved a build-option surface delta; continue
+#     --accept-payload  human verified the removed payload paths are harmless
+#                       (e.g. a dropped icon size); continue past the tree check
 #     --install         after build test, emerge --oneshot and run --version smoke
 #     --pr              push branch and open the PR (default stops after commit)
 #
@@ -53,7 +55,7 @@ PUSH_REMOTE=${AUTOBUMP_PUSH_REMOTE:-origin}
 # per-operation ceiling so a huge download/build never hangs the run
 TMO="timeout ${AUTOBUMP_OP_TIMEOUT:-900}"
 
-CHECK_ONLY=0; DO_INSTALL=0; DO_PR=0; DIFF_ONLY=0; ACCEPT_SURFACE=0; ISSUE=""
+CHECK_ONLY=0; DO_INSTALL=0; DO_PR=0; DIFF_ONLY=0; ACCEPT_SURFACE=0; ACCEPT_PAYLOAD=0; ISSUE=""
 PKG=""; NEWVER=""
 
 log()  { printf '>> %s\n' "$*"; }
@@ -69,6 +71,7 @@ for a in "$@"; do
         --check) CHECK_ONLY=1 ;;
         --diff-only) DIFF_ONLY=1 ;;
         --accept-surface) ACCEPT_SURFACE=1 ;;
+        --accept-payload) ACCEPT_PAYLOAD=1 ;;
         --install) DO_INSTALL=1 ;;
         --pr) DO_PR=1 ;;
         */*) PKG="$a" ;;
@@ -344,15 +347,23 @@ if [ "$PAYLOAD" = 1 ]; then
                 || printf '%s\n' "$p" >> "$EVIDENCE_DIR/tree-removed-real.txt"
         done < "$EVIDENCE_DIR/tree-removed.txt"
         realrm=$(wc -l < "$EVIDENCE_DIR/tree-removed-real.txt")
-        if [ "$realrm" -gt 0 ]; then
+        if [ "$realrm" -gt 0 ] && [ "$ACCEPT_PAYLOAD" != 1 ]; then
             head -20 "$EVIDENCE_DIR/tree-removed-real.txt"
             cleanup_fail
-            echo "== payload layout changed ($realrm real removals / $added added, version-renames ignored); evidence: $EVIDENCE_DIR =="
+            echo "== payload layout changed ($realrm real removals / $added added, version-renames ignored);"
+            echo "== a removed path may be a real break (renamed .desktop) or benign (dropped icon size)."
+            echo "== inspect tree-removed-real.txt, then re-run with --accept-payload if harmless."
+            echo "== evidence: $EVIDENCE_DIR =="
             exit 3
         fi
-        log "payload: $removed removed path(s) are version-embedded renames (benign)"
+        if [ "$realrm" -gt 0 ]; then
+            head -20 "$EVIDENCE_DIR/tree-removed-real.txt"
+            log "payload: $realrm removed path(s) accepted as harmless (--accept-payload)"
+        elif [ "$removed" -gt 0 ]; then
+            log "payload: $removed removed path(s) are version-embedded renames (benign)"
+        fi
     fi
-    ok "payload tree: no real removed paths ($added new files - see tree-added.txt)"
+    ok "payload tree: no blocking removed paths ($added new files - see tree-added.txt)"
 elif WD_OLD=$(tree_of "$(basename "$OLD_EBUILD")" "$EVIDENCE_DIR/tree-old.txt") \
      && WD_NEW=$(tree_of "$(basename "$NEW_EBUILD")" "$EVIDENCE_DIR/tree-new.txt"); then
     # source: file churn is normal; what matters is the build-option surface
