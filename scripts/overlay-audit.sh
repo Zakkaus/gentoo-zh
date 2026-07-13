@@ -80,9 +80,42 @@ else
 fi
 echo '```' >> "$OUT"
 
+# ---- 4. archived / gone upstreams (deprecation candidates) ----
+# A github-tracked package whose upstream repo is archived or 404 will silently
+# stop getting bump issues (nvchecker goes quiet); flag it so a human can decide
+# to deprecate/last-rite it (e.g. net-proxy/yass, issue #10832). --net only.
+{
+    echo
+    echo "## 4. archived / gone upstreams (deprecation candidates)"
+    echo
+} >> "$OUT"
+if [ "$NET" = 1 ] && command -v gh >/dev/null; then
+    MAP=$(mktemp)
+    awk '
+      /^\["/ { pkg=$0; gsub(/^\["|"\].*/,"",pkg); next }
+      /^github *=/ { r=$0; sub(/^github *= *"/,"",r); sub(/".*/,"",r); if(pkg!=""){print pkg" "r; pkg=""} }
+    ' .github/workflows/overlay.toml | sort -u > "$MAP"
+    echo "checking $(wc -l < "$MAP") github upstreams..." >&2
+    # query in parallel (authenticated gh api is well within rate limits)
+    while read -r pkg repo; do printf '%s\t%s\n' "$pkg" "$repo"; done < "$MAP" \
+      | xargs -P 6 -d '\n' -I{} bash -c '
+          pkg=$(cut -f1 <<<"{}"); repo=$(cut -f2 <<<"{}")
+          resp=$(gh api "repos/$repo" 2>/dev/null); rc=$?
+          if [ $rc -ne 0 ]; then
+              echo "- $pkg: upstream $repo NOT FOUND (deleted/renamed?) - verify"
+          elif [ "$(jq -r .archived <<<"$resp")" = true ]; then
+              echo "- $pkg: upstream $repo is ARCHIVED - deprecation candidate"
+          fi
+      ' | sort >> "$OUT"
+    rm -f "$MAP"
+else
+    echo "_(run with --net to check upstream archive/404 status)_" >> "$OUT"
+fi
+
 rm -f "$ALLPKG" "$RELPKG" "$LIVEPKG" "$TOML"
 
 # summary to stdout
 echo "report: $OUT"
 grep -cE '^- ' "$OUT" | xargs -I{} echo "coverage findings: {}"
 grep -c 'incorrect RDEPEND' "$OUT" | xargs -I{} echo "dep-rot packages: {}"
+grep -cE '^- .*(ARCHIVED|NOT FOUND)' "$OUT" | xargs -I{} echo "archived/gone upstreams: {}"
