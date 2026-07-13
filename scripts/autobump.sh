@@ -174,7 +174,12 @@ if git status --porcelain --untracked-files=no | grep -vE ' (scripts|docs)/' | g
 fi
 git rev-parse --verify -q "$BRANCH" >/dev/null && die "branch $BRANCH already exists"
 git fetch "$SYNC_REMOTE" >/dev/null 2>&1 || die "git fetch $SYNC_REMOTE failed"
-git checkout -q master && git merge -q --ff-only "$SYNC_REMOTE/master" || die "master sync failed"
+# scripts/ and docs/ live only on the tooling branch; master has neither, so an
+# uncommitted change to them makes `checkout master` refuse. That is the usual
+# cause when iterating on the tool - say so instead of a vague "sync failed".
+git checkout -q master 2>/dev/null || \
+    die "cannot checkout master - commit/stash your scripts/ or docs/ changes first (the tool switches to master, where those files do not exist)"
+git merge -q --ff-only "$SYNC_REMOTE/master" || die "master is not a fast-forward of $SYNC_REMOTE/master (diverged?)"
 git checkout -qb "$BRANCH" || die "cannot create $BRANCH"
 ok "branch $BRANCH off synced master"
 
