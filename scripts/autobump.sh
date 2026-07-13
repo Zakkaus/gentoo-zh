@@ -413,17 +413,18 @@ if [ "$DO_INSTALL" = 1 ]; then
     else
         tail -20 "$EVIDENCE_DIR/emerge.log"
         cleanup_fail
-        # Distinguish a dependency-resolution failure (a build dep is masked /
-        # unkeyworded / incompatible with the local PYTHON_TARGET) from a real
-        # compile failure. The former is a local-environment gap, not a defect in
-        # the bump - portage never built anything. CI with full ~amd64 and the
-        # container's python target resolves it. Defer (exit 2), do not condemn.
-        if grep -qE 'have been masked|masked packages|required to complete your request|no ebuilds to satisfy|Blocked Packages|not be installed' \
+        # Distinguish a dependency-resolution failure - a build dep is masked /
+        # unkeyworded / incompatible with the local PYTHON_TARGET, or needs a USE
+        # change on a transitive dep (piliplus-bin pulls libdbusmenu[gtk3]) - from
+        # a real compile failure. Resolution failures are a local-environment gap,
+        # not a defect in the bump: portage never built anything, and CI with full
+        # ~amd64 and its own profile/USE resolves them. Defer (exit 2), not condemn.
+        if grep -qE 'have been masked|masked packages|required to complete your request|no ebuilds to satisfy|Blocked Packages|not be installed|USE changes are necessary|autounmask' \
              "$EVIDENCE_DIR/emerge.log"; then
-            echo "== cannot smoke-test locally: a build dep will not resolve here"
-            echo "== (overlay ~amd64 dep or PYTHON_TARGET mismatch, e.g. mw2fcitx lacks"
-            echo "==  python3_14). Not a bump defect; CI will resolve. Deferring."
-            echo "== evidence: $EVIDENCE_DIR/emerge.log =="
+            echo "== cannot smoke-test locally: dependency resolution needs a change here"
+            echo "== (overlay ~amd64 dep, PYTHON_TARGET mismatch e.g. mw2fcitx lacks"
+            echo "==  python3_14, or a transitive-dep USE flag). Not a bump defect;"
+            echo "== CI resolves it. Deferring - see evidence: $EVIDENCE_DIR/emerge.log =="
             exit 2
         fi
         echo "== emerge failed; evidence: $EVIDENCE_DIR/emerge.log =="
