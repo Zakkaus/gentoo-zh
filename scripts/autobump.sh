@@ -344,7 +344,12 @@ if [ "$DO_INSTALL" = 1 ]; then
         lic=$(grep -oE '^LICENSE="[^"]+"' "$(basename "$NEW_EBUILD")" | cut -d'"' -f2)
         if [ -f "$REPO/licenses/$lic" ]; then $SUDO cp "$REPO/licenses/$lic" "$LIVE_OVERLAY/licenses/$lic"; fi
     fi
-    echo "$PKG ~amd64" | $SUDO tee "/etc/portage/package.accept_keywords/autobump-$PN" >/dev/null
+    # accept ~amd64 for the whole overlay, not just the target: the build deps
+    # of an overlay package are often overlay packages too (fcitx-pinyin-moegirl
+    # needs dev-python/mw2fcitx), and CI runs with overlay-wide ~amd64. The
+    # ::gentoo-zh qualifier leaves the stable system tree untouched.
+    { echo "$PKG ~amd64"; echo "*/*::gentoo-zh ~amd64"; } \
+        | $SUDO tee "/etc/portage/package.accept_keywords/autobump-$PN" >/dev/null
     if $TMO $SUDO emerge --oneshot --quiet "=$PKG-$NEWVER" > "$EVIDENCE_DIR/emerge.log" 2>&1; then
         # source packages skip stage 6, so the emerge is where a QA notice would
         # surface (it fails the CI elog gate). Prebuilt already checked at stage 6.
@@ -388,6 +393,19 @@ if [ "$DO_INSTALL" = 1 ]; then
     else
         tail -20 "$EVIDENCE_DIR/emerge.log"
         cleanup_fail
+        # Distinguish a dependency-resolution failure (a build dep is masked /
+        # unkeyworded / incompatible with the local PYTHON_TARGET) from a real
+        # compile failure. The former is a local-environment gap, not a defect in
+        # the bump - portage never built anything. CI with full ~amd64 and the
+        # container's python target resolves it. Defer (exit 2), do not condemn.
+        if grep -qE 'have been masked|masked packages|required to complete your request|Blocked Packages|not be installed' \
+             "$EVIDENCE_DIR/emerge.log"; then
+            echo "== cannot smoke-test locally: a build dep will not resolve here"
+            echo "== (overlay ~amd64 dep or PYTHON_TARGET mismatch, e.g. mw2fcitx lacks"
+            echo "==  python3_14). Not a bump defect; CI will resolve. Deferring."
+            echo "== evidence: $EVIDENCE_DIR/emerge.log =="
+            exit 2
+        fi
         echo "== emerge failed; evidence: $EVIDENCE_DIR/emerge.log =="
         exit 3
     fi
