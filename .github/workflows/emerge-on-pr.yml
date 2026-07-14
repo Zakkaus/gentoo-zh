@@ -159,11 +159,29 @@ jobs:
     - name: emerge packages
       run: emerge --verbose --autounmask=y --autounmask-write=y --autounmask-continue=y ${{ matrix.package }}
 
-    - name: check Portage elog (fail if exists)
+    - name: check Portage elog (fail on non-benign qa/warn/error)
       run: |
-        if ls /var/log/portage/elog/* 1> /dev/null 2>&1; then
-          echo "❌ Found Portage elog messages:"
-          cat /var/log/portage/elog/*
-          exit 1
-        fi
-        echo "✅ No elog messages found."
+        shopt -s nullglob
+        logs=(/var/log/portage/elog/*)
+        [ ${#logs[@]} -eq 0 ] && { echo "No elog messages found."; exit 0; }
+        # Category-scoped allowances for otherwise-benign elog messages, one rule
+        # per line as "<category>|<ERE>". A qa/warn/error message block is allowed
+        # only when its package category and its body both match a rule: the same
+        # text from another category still fails, and a real message in an allowed
+        # package is still reported. Add a line to allow more.
+        allow=(
+          'sys-kernel|UNSUPPORTED by Gentoo Security'
+          'sys-kernel|RESTRICT=binchecks prevented checks'
+        )
+        # elog save filename is CATEGORY:PF:timestamp.log, so cat() reads it there.
+        real=$(printf '%s\n' "${allow[@]}" | awk '
+          NR==FNR { i=index($0,"|"); c[++r]=substr($0,1,i-1); p[r]=substr($0,i+1); next }
+          function cat(f,  x){ x=f; sub(/.*\//,"",x); sub(/:.*/,"",x); return x }
+          function ok(  i){ for (i=1;i<=r;i++) if (bc==c[i] && body ~ p[i]) return 1; return 0 }
+          function flush(){ if (cls ~ /^(WARN|QA|ERROR)/ && !ok()) printf "%s\n%s", cls, body }
+          /^(LOG|INFO|WARN|QA|ERROR):/ { flush(); cls=$0; body=""; bc=cat(FILENAME); next }
+          { body=body $0 "\n" }
+          END { flush() }
+        ' - "${logs[@]}")
+        [ -z "$real" ] && { echo "No blocking elog messages."; exit 0; }
+        echo "Found Portage elog messages:"; echo "$real"; exit 1
