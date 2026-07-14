@@ -463,18 +463,22 @@ if [ "$DO_INSTALL" = 1 ]; then
     $SUDO mkdir -p /etc/portage/package.accept_keywords 2>/dev/null
     { echo "$PKG ~amd64"; echo "*/*::gentoo-zh ~amd64"; } \
         | $SUDO tee "/etc/portage/package.accept_keywords/autobump-$PN" >/dev/null
-    $TMO $SUDO emerge --oneshot --quiet "=$PKG-$NEWVER" > "$EVIDENCE_DIR/emerge.log" 2>&1; erc=$?
+    # run with CI's exact elog config (qa/warn/error, isolated LOGDIR) so we can
+    # gate on the elog the same way CI does. `sudo env` passes the vars through
+    # sudo's env reset.
+    $TMO $SUDO env PORTAGE_ELOG_CLASSES="qa warn error" PORTAGE_ELOG_SYSTEM="save" \
+        PORTAGE_LOGDIR="$EVIDENCE_DIR/plog" \
+        emerge --oneshot --quiet "=$PKG-$NEWVER" > "$EVIDENCE_DIR/emerge.log" 2>&1; erc=$?
     if [ "$erc" = 0 ]; then
-        # QA-notice gate on the emerge (RDEPEND is now installed):
-        #   source  -> any QA notice fails the CI elog gate.
-        #   prebuilt-> re-check only the unresolved-soname class deferred from
-        #     stage 6; a soname still missing after RDEPEND install is a real
-        #     dep gap. Other prebuilt QA notices (dlopen advisories) are too noisy.
-        if [ "$PAYLOAD" = 0 ]; then qapat='QA Notice'; else qapat='Unresolved soname'; fi
-        if grep -q "$qapat" "$EVIDENCE_DIR/emerge.log"; then
-            grep -A5 "$qapat" "$EVIDENCE_DIR/emerge.log" | head -20
+        # THE elog gate, byte-for-byte what CI checks: with CLASSES=qa/warn/error
+        # any saved elog file is a real qa/warn/error and fails the merge. This is
+        # authoritative - the go-module "go.mod specifies go 1.26 / update BDEPEND"
+        # QA notice is qa-class and goes ONLY to elog, so grepping the emerge
+        # stdout missed it twice (v2rayA, chezmoi). Applies to prebuilt + source.
+        if $SUDO find "$EVIDENCE_DIR/plog/elog" -type f 2>/dev/null | grep -q .; then
+            $SUDO find "$EVIDENCE_DIR/plog/elog" -type f -exec cat {} + 2>/dev/null | head -25
             cleanup_fail
-            echo "== QA notice during emerge (would fail CI elog gate); evidence: $EVIDENCE_DIR/emerge.log =="
+            echo "== emerge produced a qa/warn/error elog (fails the CI elog gate); evidence: $EVIDENCE_DIR/plog/elog =="
             exit 3
         fi
         # smoke: the binary name is not always $PN (uv-bin installs uv), and the
