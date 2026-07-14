@@ -49,8 +49,21 @@ SEPARATE_OVERLAY=0
 [ -d "$LIVE_OVERLAY" ] && \
     [ "$(realpath "$LIVE_OVERLAY" 2>/dev/null)" != "$(realpath "$REPO" 2>/dev/null)" ] && \
     SEPARATE_OVERLAY=1
-# sync from the remote that points at the canonical repo; push to origin
-SYNC_REMOTE=${AUTOBUMP_SYNC_REMOTE:-$(git remote | grep -qx upstream && echo upstream || echo origin)}
+# Sync master from the CANONICAL repo, never from whatever `origin` happens to
+# be. A fresh clone of the fork has origin=fork (its master can lag); a fresh
+# clone of canonical has origin=canonical and no `upstream` remote at all. So:
+# honour an explicit AUTOBUMP_SYNC_REMOTE, else pick the remote whose URL is
+# UPSTREAM_REPO, else add a throwaway remote pointing at it. This keeps the sync
+# correct on a bare CI checkout that only has `origin`, fork or not.
+SYNC_REMOTE=${AUTOBUMP_SYNC_REMOTE:-}
+[ -z "$SYNC_REMOTE" ] && SYNC_REMOTE=$(git remote -v | \
+    awk -v u="$UPSTREAM_REPO" '$2 ~ u && $3 == "(fetch)" {print $1; exit}')
+if [ -z "$SYNC_REMOTE" ]; then
+    git remote | grep -qx autobump-canonical \
+        && git remote set-url autobump-canonical "https://github.com/$UPSTREAM_REPO.git" \
+        || git remote add autobump-canonical "https://github.com/$UPSTREAM_REPO.git"
+    SYNC_REMOTE=autobump-canonical
+fi
 PUSH_REMOTE=${AUTOBUMP_PUSH_REMOTE:-origin}
 # per-operation ceiling so a huge download/build never hangs the run
 TMO="timeout ${AUTOBUMP_OP_TIMEOUT:-900}"
@@ -64,6 +77,22 @@ die()  { printf '!! %s\n' "$*" >&2; exit 2; }
 
 ESCALATIONS=()
 escalate_note() { ESCALATIONS+=("$1"); printf 'ESCALATE: %s\n' "$1"; }
+
+# metadata.xml maintainer emails -> GitHub @handles, so a bot PR can cc the
+# package's owners. GitHub wants a login; metadata gives an email. Map one to the
+# other via a commit that email authored (its author.login is the account).
+# Unresolvable emails (no linked account) fall back to the raw address.
+# Best-effort - never fatal, called only at PR time.
+maintainer_ccs() {
+    local mx="$PKGDIR/metadata.xml" em login out=""
+    [ -f "$mx" ] || return 0
+    for em in $(grep -oE '<email>[^<]+</email>' "$mx" | sed -E 's#</?email>##g' | sort -u); do
+        login=$(gh api -X GET "repos/$UPSTREAM_REPO/commits" \
+                  -f "author=$em" -f per_page=1 --jq '.[0].author.login // empty' 2>/dev/null)
+        [ -n "$login" ] && out+=" @$login" || out+=" $em"
+    done
+    printf '%s' "${out# }"
+}
 
 # ---------- args ----------
 for a in "$@"; do
@@ -596,6 +625,15 @@ if [ -s "$EVIDENCE_DIR/pkgcheck-new.txt" ]; then
     echo "== pkgcheck findings introduced by the bump; evidence: $EVIDENCE_DIR =="
     exit 3
 fi
+# Bot identity: CI exports AUTOBUMP_BOT_{NAME,EMAIL} so automated bumps are
+# attributed to the bot account, not whatever git identity the runner carries.
+# Unset (dev box) -> the ambient git config (the maintainer) is used, unchanged.
+if [ -n "${AUTOBUMP_BOT_EMAIL:-}" ]; then
+    export GIT_AUTHOR_NAME="${AUTOBUMP_BOT_NAME:-gentoo-zh autobump}" \
+           GIT_AUTHOR_EMAIL="$AUTOBUMP_BOT_EMAIL" \
+           GIT_COMMITTER_NAME="${AUTOBUMP_BOT_NAME:-gentoo-zh autobump}" \
+           GIT_COMMITTER_EMAIL="$AUTOBUMP_BOT_EMAIL"
+fi
 pkgdev commit --scan false --signoff || { cleanup_fail; die "pkgdev commit failed"; }
 trap - INT TERM   # commit is made; an interrupt now must NOT discard it
 ok "committed: $(git log -1 --format=%s)"
@@ -646,6 +684,8 @@ if [ "$DO_PR" = 1 ]; then
         [ "$MULTIARCH" = 1 ] && echo "Only amd64 was built and run; other keyworded arches untested."
         [ "$GUI" = 1 ] && echo "⚠️ GUI app: installed cleanly but NOT launch-tested here - please verify it actually starts before merging."
         [ -n "$ISSUE" ] && { echo; echo "Closes #$ISSUE"; }
+        # cc the package maintainers (metadata.xml) so the owner is notified
+        ccs=$(maintainer_ccs); [ -n "$ccs" ] && { echo; echo "cc $ccs"; }
         echo
         echo "---"
         echo
