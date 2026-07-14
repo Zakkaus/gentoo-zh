@@ -78,19 +78,39 @@ die()  { printf '!! %s\n' "$*" >&2; exit 2; }
 ESCALATIONS=()
 escalate_note() { ESCALATIONS+=("$1"); printf 'ESCALATE: %s\n' "$1"; }
 
-# metadata.xml maintainer emails -> GitHub @handles, so a bot PR can cc the
-# package's owners. GitHub wants a login; metadata gives an email. Map one to the
-# other via a commit that email authored (its author.login is the account).
-# Unresolvable emails (no linked account) fall back to the raw address.
-# Best-effort - never fatal, called only at PR time.
+# metadata.xml maintainers -> GitHub @handles, so a bot PR can cc the package's
+# owners. GitHub wants a login; metadata gives an email + a name. Best-effort,
+# never fatal, called only at PR time.
 maintainer_ccs() {
-    local mx="$PKGDIR/metadata.xml" em login out=""
+    local mx="$PKGDIR/metadata.xml" em nm login out=""
     [ -f "$mx" ] || return 0
-    for em in $(grep -oE '<email>[^<]+</email>' "$mx" | sed -E 's#</?email>##g' | sort -u); do
-        login=$(gh api -X GET "repos/$UPSTREAM_REPO/commits" \
-                  -f "author=$em" -f per_page=1 --jq '.[0].author.login // empty' 2>/dev/null)
-        [ -n "$login" ] && out+=" @$login" || out+=" $em"
-    done
+    while IFS=$'\t' read -r em nm; do
+        [ -n "$em$nm" ] || continue
+        login=""
+        # 1) resolve by the metadata email: a commit that email authored carries
+        #    the account in .author.login.
+        [ -n "$em" ] && login=$(gh api -X GET "repos/$UPSTREAM_REPO/commits" \
+            -f "author=$em" -f per_page=1 --jq '.[0].author.login // empty' 2>/dev/null)
+        # 2) the metadata email often differs from the git commit email (liquorix
+        #    lists raymond@zozx.top but Raymond commits from a gmail, so step 1
+        #    finds nothing). Fall back to the maintainer NAME: scan the package's
+        #    commit history on GitHub - not local git, a shallow CI clone has none
+        #    - for a commit whose author name matches, and take its login.
+        if [ -z "$login" ] && [ -n "$nm" ]; then
+            login=$(gh api -X GET "repos/$UPSTREAM_REPO/commits" \
+                -f "path=$PKG" -f per_page=50 2>/dev/null \
+                | jq -r --arg n "$nm" \
+                    'map(select(.commit.author.name==$n).author.login)|map(select(.!=null))|first // empty' 2>/dev/null)
+        fi
+        if   [ -n "$login" ]; then out+=" @$login"
+        elif [ -n "$em" ];    then out+=" $em"
+        else                       out+=" $nm"; fi
+    done < <(awk '
+        /<maintainer/{e="";n=""}
+        /<email>/{t=$0; gsub(/.*<email>[[:space:]]*|[[:space:]]*<\/email>.*/,"",t); e=t}
+        /<name>/ {t=$0; gsub(/.*<name>[[:space:]]*|[[:space:]]*<\/name>.*/,"",t);  n=t}
+        /<\/maintainer>/{print e "\t" n}
+    ' "$mx")
     printf '%s' "${out# }"
 }
 
