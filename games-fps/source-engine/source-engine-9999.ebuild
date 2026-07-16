@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_11 python3_12 )
+PYTHON_COMPAT=( python3_{12..14} )
 PYTHON_REQ_USE='threads(+)'
 
 inherit waf-utils git-r3 python-any-r1

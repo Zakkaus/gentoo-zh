@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{8..15} )
+PYTHON_COMPAT=( python3_{12..15} )
 
 inherit cmake python-single-r1
 
