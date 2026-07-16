@@ -129,6 +129,12 @@ jobs:
       with:
         path: 'gentoo-zh'
 
+    - name: Checkout deps-table
+      uses: actions/checkout@v7
+      with:
+        ref: deps-table
+        path: deps-table
+
     - name: update issues
       timeout-minutes: 1
       env:
@@ -137,4 +143,4 @@ jobs:
         oldver: ${{ matrix.oldver }}
         GITHUB_TOKEN: ${{ secrets.GENTOO_ZH_NVCHECKER_PAT }} # https://github.com/gentoo-zh/overlay/pull/3130
       run: |
-        go run . --file gentoo-zh/.github/workflows/overlay.toml --name "$name" --newver "$newver" --oldver "$oldver"
+        go run . --file gentoo-zh/.github/workflows/overlay.toml --relation deps-table/relation.md --name "$name" --newver "$newver" --oldver "$oldver"
