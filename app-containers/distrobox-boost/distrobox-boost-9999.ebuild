@@ -40,13 +40,13 @@ inherit cargo
 DESCRIPTION="A container runtimer wrapper for OCI (distrobox/toolbox, also podman/docker)"
 # Double check the homepage as the cargo_metadata crate
 # does not provide this value so instead repository is used
-HOMEPAGE="https://github.com/xz-dev/distrobox-boost"
+HOMEPAGE="https://github.com/xz-dev/distrobox-plus"
 SRC_URI="${CARGO_CRATE_URIS}"
 if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
-	EGIT_REPO_URI="https://github.com/xz-dev/${PN}.git"
+	EGIT_REPO_URI="https://github.com/xz-dev/distrobox-plus.git"
 else
-	SRC_URI+=" https://github.com/xz-dev/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+	SRC_URI+=" https://github.com/xz-dev/distrobox-plus/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 fi
 
 # License set may be more restrictive as OR is not respected
