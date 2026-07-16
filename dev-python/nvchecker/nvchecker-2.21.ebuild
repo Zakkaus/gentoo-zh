@@ -18,9 +18,8 @@ IUSE="ini notify"
 RESTRICT="test"
 
 RDEPEND="
-	dev-python/appdirs[$PYTHON_USEDEP]
+	dev-python/platformdirs[$PYTHON_USEDEP]
 	dev-python/structlog[$PYTHON_USEDEP]
-	dev-python/tomli[$PYTHON_USEDEP]
 	>=dev-python/tornado-6[${PYTHON_USEDEP}]
 	ini? (
 		dev-python/iniconfig[$PYTHON_USEDEP]
