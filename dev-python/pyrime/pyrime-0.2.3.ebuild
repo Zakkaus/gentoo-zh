@@ -34,6 +34,9 @@ RDEPEND="
 BDEPEND="
 	dev-python/autopxd2[${PYTHON_USEDEP}]
 	dev-python/cython[${PYTHON_USEDEP}]
+	test? (
+		dev-python/prompt-toolkit[${PYTHON_USEDEP}]
+	)
 "
 
 EPYTEST_PLUGINS=( )
