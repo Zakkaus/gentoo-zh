@@ -16,7 +16,7 @@ S="${WORKDIR}/${PN}-${MY_PV}"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="X wayland pipewire pulseaudio +backtrace gnome host obs"
+IUSE="+X wayland +pipewire pulseaudio +backtrace gnome host obs"
 REQUIRED_USE="|| ( X wayland )
 	|| ( pipewire pulseaudio )"
 
