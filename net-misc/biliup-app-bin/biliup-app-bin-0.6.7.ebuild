@@ -9,8 +9,8 @@ MY_PN="biliup-app"
 
 DESCRIPTION="A Tool for Upload video to bilibili"
 
-HOMEPAGE="https://github.com/ForgQi/biliup-app"
-SRC_URI="https://github.com/ForgQi/${MY_PN}/releases/download/app-v${PV}/${MY_PN}_${PV}_amd64.deb"
+HOMEPAGE="https://github.com/biliup/biliup-app"
+SRC_URI="https://github.com/biliup/${MY_PN}/releases/download/app-v${PV}/${MY_PN}_${PV}_amd64.deb"
 
 S="${WORKDIR}"
 

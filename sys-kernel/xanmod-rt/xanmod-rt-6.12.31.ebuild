@@ -36,7 +36,7 @@ SRC_URI="
 		https://dev.gentoo.org/~mpagano/dist/genpatches/${GENPATCHES_P}.experimental.tar.xz
 	)
 	amd64? (
-		https://github.com/projg2/gentoo-kernel-config/archive/${GENTOO_CONFIG_VER}.tar.gz
+		https://github.com/gentoo/gentoo-kernel-config/archive/${GENTOO_CONFIG_VER}.tar.gz
 			-> gentoo-kernel-config-${GENTOO_CONFIG_VER}.tar.gz
 	)
 	https://raw.githubusercontent.com/projg2/fedora-kernel-config-for-gentoo/${CONFIG_VER}/kernel-x86_64-fedora.config
