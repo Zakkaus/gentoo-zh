@@ -8,6 +8,9 @@ EAPI=8
 CRATES="
 "
 
+# Whole workspace uses edition = "2024", which requires Rust >= 1.85.
+RUST_MIN_VER="1.85.0"
+
 inherit cargo
 
 DESCRIPTION="Upload video to bilibili"
