@@ -6,7 +6,7 @@
 		<name>xz-dev</name>
 	</maintainer>
 	<upstream>
-		<remote-id type="github">xz-dev/distrobox-boost</remote-id>
+		<remote-id type="github">xz-dev/distrobox-plus</remote-id>
 	</upstream>
 	<longdescription>
 		A container runtimer wrapper for OCI (distrobox/toolbox, also podman/docker).
