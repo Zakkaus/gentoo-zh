@@ -14,7 +14,7 @@ EGIT_REPO_URI="https://github.com/fcitx/fcitx5.git"
 LICENSE="LGPL-2+ Unicode-DFS-2016"
 SLOT="5"
 KEYWORDS=""
-IUSE="+autostart doc +emoji +enchant +keyboard presage +server systemd test wayland +X"
+IUSE="+autostart doc +emoji +enchant +keyboard presage +server systemd system-yoga test wayland +X"
 REQUIRED_USE="
 	|| ( wayland X )
 	X? ( keyboard )
@@ -40,7 +40,7 @@ RDEPEND="
 	keyboard? (
 		app-text/iso-codes
 		dev-libs/expat
-		dev-libs/json-c:=
+		dev-cpp/nlohmann_json
 		x11-misc/xkeyboard-config
 		x11-libs/libxkbcommon[X?,wayland?]
 	)
@@ -50,6 +50,9 @@ RDEPEND="
 	!systemd? (
 		dev-libs/libuv
 		sys-apps/dbus
+	)
+	system-yoga? (
+		dev-libs/yoga
 	)
 	wayland? (
 		dev-libs/glib:2
@@ -92,6 +95,7 @@ src_configure() {
 		-DENABLE_X11=$(usex X)
 		-DENABLE_DOC=$(usex doc)
 		-DUSE_SYSTEMD=$(usex systemd)
+		-DUSE_SYSTEM_YOGA=$(usex system-yoga)
 	)
 	cmake_src_configure
 }
