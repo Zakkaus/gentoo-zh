@@ -1,4 +1,4 @@
-# Copyright 2022-2024 Gentoo Authors
+# Copyright 2022-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -20,3 +20,8 @@ DEPEND="
 	llvm-core/lldb
 "
 RDEPEND="${DEPEND}"
+
+PATCHES=(
+	# CMake 4 no longer accepts cmake_minimum_required < 3.5
+	"${FILESDIR}"/${P}-cmake4.patch
+)
