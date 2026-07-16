@@ -13,7 +13,7 @@ S="${WORKDIR}/the-slimy-lichmummy-698f45f25c72f172434fe3ca5fce8e5df7f1e189"
 LICENSE="TSL BSD"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="allegro ncurses"
+IUSE="allegro +ncurses"
 REQUIRED_USE="|| ( allegro ncurses )"
 
 # TSL leverages shell scripts explicitly calling "gcc". We are most displeased.
