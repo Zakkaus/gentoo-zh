@@ -9,7 +9,7 @@ CRATES="
 "
 
 declare -A GIT_CRATES=(
-	[dark-light]='https://github.com/frewsxcv/rust-dark-light;b8edef9072f7d38ae879129cde03bb1f40750c4c;dark-light-%commit%'
+	[dark-light]='https://github.com/rust-dark-light/dark-light;b8edef9072f7d38ae879129cde03bb1f40750c4c;dark-light-%commit%'
 )
 
 PLOCALES="en_US it_IT zh_CN"
@@ -19,7 +19,7 @@ inherit cargo desktop gnome2-utils plocale xdg
 
 DESCRIPTION="Simple On Screen lyrics Display for linux/unix"
 HOMEPAGE="
-	https://waylyrics.github.io/waylyrics/waylyrics
+	https://waylyrics.github.io/waylyrics/waylyrics/
 	https://github.com/waylyrics/waylyrics
 "
 
