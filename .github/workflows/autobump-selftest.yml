@@ -1,0 +1,72 @@
+# Self-test: prove the autobump CI chain actually runs in a real gentoo container
+# WITHOUT opening any PR — the container setup (make.conf/tooling/repos.conf fixes),
+# the autobump-rb clone, and the Ruby engine's --check on the real live nvchecker
+# queue. Manual only. Delete once autobump.yml has run for real, or keep as a
+# pre-deploy smoke test.
+name: autobump-selftest
+
+on:
+  workflow_dispatch:
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    container:
+      image: gentoo/stage3:amd64-desktop-openrc
+      options: --privileged
+
+    steps:
+    - name: sync gentoo main tree
+      run: emerge-webrsync
+
+    - name: setup portage
+      run: |
+        {
+          echo 'FEATURES="${FEATURES} getbinpkg"'
+          echo "MAKEOPTS=\"\${MAKEOPTS} -j$(nproc)\""
+        } >> /etc/portage/make.conf
+        getuto
+        install -dm775 -o root -g portage /var/cache/distfiles
+
+    - name: install tooling
+      run: |
+        emerge --quiet --getbinpkg --autounmask=y --autounmask-write=y --autounmask-continue=y \
+          dev-lang/ruby dev-vcs/git dev-util/pkgdev dev-util/pkgcheck \
+          app-portage/portage-utils dev-util/github-cli app-misc/jq net-misc/curl
+
+    - name: checkout overlay
+      uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+
+    - name: fetch autobump-rb (the Ruby engine)
+      uses: actions/checkout@v7
+      with:
+        repository: gentoo-zh/autobump-rb
+        path: autobump-rb
+
+    - name: register overlay
+      run: |
+        mkdir -p /etc/portage/repos.conf
+        cat > /etc/portage/repos.conf/gentoo.conf << EOF
+        [DEFAULT]
+        main-repo = gentoo
+
+        [gentoo]
+        location = $(portageq get_repo_path / gentoo)
+        EOF
+        cat > /etc/portage/repos.conf/repo.conf << EOF
+        [$(cat profiles/repo_name)]
+        location = $(realpath .)
+        priority = 0
+        EOF
+        git config --global --add safe.directory "$(realpath .)"
+
+    - name: dry-run — engine --check over the live queue (no bump, no PR)
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        # runs the engine --check over every open nvchecker issue and reports the
+        # mechanical/escalate/defer breakdown. Non-destructive: no writes, no build.
+        AUTOBUMP_REPO="$(realpath .)" bash autobump-rb/tools/shadow-check.sh

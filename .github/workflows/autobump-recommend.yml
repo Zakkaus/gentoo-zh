@@ -1,0 +1,115 @@
+# autobump-recommend: surface packages worth opting into autobump -- WITHOUT spamming.
+#
+# Two read-only signals, no bump and no PR:
+#   discover  scans git history for packages whose recent bumps were purely mechanical
+#             (ebuild rename + Manifest, nothing else) yet are not opted in.
+#   probe     runs the engine `--check` over the live nvchecker queue and lists the open
+#             issues it judges mechanical but that are not opted in (real, actionable now).
+#
+# Output goes to the run's job summary AND is upserted into a SINGLE fixed issue (found by
+# title, body replaced in place) -- so a maintainer sees one always-current list, never a
+# stream of new issues. A human still reviews and adds `autobump = true` by hand.
+#
+# Cheap: --check needs no portage, so this runs on plain ubuntu (ruby+git+curl+gh), not a
+# gentoo container. Uses the default GITHUB_TOKEN (issues: write) -- no App secret needed.
+name: autobump-recommend
+
+on:
+  # weekly, disabled for the initial rollout: run manually first, then uncomment.
+  # schedule:
+  #   - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      probe_limit:
+        description: 'max open issues to probe (0 = all)'
+        required: false
+        default: '0'
+
+concurrency:
+  group: autobump-recommend
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  recommend:
+    if: github.repository == 'gentoo-zh/overlay' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: checkout overlay
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0        # discover scans git history
+
+      - name: fetch autobump-rb (the engine)
+        uses: actions/checkout@v7
+        with:
+          repository: gentoo-zh/autobump-rb
+          path: autobump-rb
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+
+      - name: discover + probe -> single issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          AUTOBUMP_ENGINE: ruby autobump-rb/bin/autobump
+          AUTOBUMP_REPO: ${{ github.workspace }}
+          PROBE_LIMIT: ${{ github.event.inputs.probe_limit || '0' }}
+        run: |
+          set -uo pipefail
+          git config --global --add safe.directory "$(realpath .)"
+
+          # discover reads git history; point it at the branch this checkout is on.
+          disc=$(AUTOBUMP_DISCOVER_REF=HEAD bash scripts/autobump-discover.sh 300 3 80 2>&1) || true
+          [ -n "$disc" ] || disc="(no new mechanical-bump candidates from history this run)"
+
+          plim=(); case "$PROBE_LIMIT" in ''|0) ;; *) plim=(--limit "$PROBE_LIMIT") ;; esac
+          prob=$(bash scripts/autobump-probe.sh "${plim[@]}" 2>&1) || true
+          # keep only probe's "mechanical bump candidates" block, dropping opted-in lines
+          cand=$(printf '%s\n' "$prob" | awk '/mechanical bump candidates/{f=1} /^-- escalate/{f=0} f' \
+                 | grep -vE 'opted-in|mechanical bump candidates' | sed '/^[[:space:]]*$/d')
+          [ -n "$cand" ] || cand="(no not-yet-opted-in mechanical candidates in the open queue)"
+
+          TITLE='autobump candidates: packages that could opt into mechanical bumps (auto-updated, do not rename)'
+          body=$(cat <<EOF
+          Auto-updated periodically by \`autobump-recommend\` (**one issue, body replaced in place -- no spam**).
+          Lists packages **not yet opted into** autobump that look mechanically bumpable. **Recommendation
+          only**: a maintainer reviews and adds \`autobump = true\` in \`.github/workflows/overlay.toml\` by
+          hand -- nothing is enabled automatically.
+
+          ## A. From git history
+          Packages whose recent bumps were purely mechanical (ebuild rename + Manifest, nothing else):
+
+          \`\`\`
+          $disc
+          \`\`\`
+
+          ## B. Live in the open queue (engine \`--check\`)
+          Open issues the engine judges mechanical right now, but that are not opted in:
+
+          \`\`\`
+          $cand
+          \`\`\`
+
+          <sub>updated $(date -u '+%Y-%m-%d %H:%M UTC') · run ${{ github.run_id }}</sub>
+          EOF
+          )
+
+          printf '%s\n' "$body" >> "$GITHUB_STEP_SUMMARY"
+
+          # upsert: find the single fixed issue by exact title, replace body in place; else create.
+          num=$(gh issue list --repo "$REPO" --state open --search "\"$TITLE\" in:title" \
+                  --json number,title --jq "map(select(.title==\"$TITLE\"))|.[0].number // empty")
+          if [ -n "$num" ]; then
+            gh issue edit "$num" --repo "$REPO" --body "$body"
+            echo "updated existing recommendation issue #$num"
+          else
+            gh issue create --repo "$REPO" --title "$TITLE" --body "$body"
+            echo "created recommendation issue"
+          fi

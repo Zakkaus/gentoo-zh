@@ -1,0 +1,200 @@
+# autobump: try the mechanical version bumps that nvchecker filed as issues.
+#
+# Design:
+# - Runs 2h after nvchecker's daily cron, so bumpbot has filed the issues.
+# - v1 uses NO model anywhere (AUTOBUMP_JUDGE is unset): whatever is not
+#   mechanically safe gets an evidence comment on its issue and stops.
+#   The judge hook exists in autobump-sweep.sh for later, where semantic
+#   judgment is worth a cheap model call - it is optional by design.
+# - Mechanical bumps become normal PRs (draft when multi-arch), so the
+#   existing emerge-on-pr + pkgcheck CI re-verifies everything and a human
+#   is still the only merger.
+# - State (which pkg/version was already bumped or deferred) is cached so
+#   the daily run never redoes work.
+#
+# Requires: repo setting "Allow GitHub Actions to create and approve pull
+# requests", and maintainer agreement that the bot pushes its topic branches
+# to this repo (the engine names them <category>-<pn>-<version>).
+#
+# Engine: autobump-rb (Ruby, cloned per-run, github.com/gentoo-zh/autobump-rb), driven via
+# AUTOBUMP_ENGINE. Its stage-6 build test is a real `emerge` (build deps via getbinpkg), so
+# from-source packages are actually build-tested, not just `ebuild install`; it also
+# escalates hackport/haskell-cabal bumps (dep bounds come from the upstream .cabal).
+
+name: autobump
+
+on:
+  # cron disabled for the initial rollout: run manually via workflow_dispatch and watch a
+  # few sweeps first, then uncomment to enable the daily run.
+  # schedule:
+  #   - cron: '0 11 * * *'
+  workflow_dispatch:
+    inputs:
+      issues:
+        description: 'issue numbers, space separated (empty = all open)'
+        required: false
+        default: ''
+      limit:
+        description: 'max issues per run'
+        required: false
+        default: '3'
+
+concurrency:
+  group: autobump
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  sweep:
+    if: github.repository == 'gentoo-zh/overlay' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    # limit(3) x AUTOBUMP_OP_TIMEOUT(2700s=45min)=135min worst case + ~10min setup; keep the
+    # job ceiling above it so a tail of heavy from-source builds is not cut off mid-run.
+    timeout-minutes: 150
+    container:
+      image: gentoo/stage3:amd64-desktop-openrc
+      options: --privileged
+
+    steps:
+    - name: sync gentoo main tree
+      run: emerge-webrsync
+
+    - name: setup portage
+      run: |
+        # expand $(nproc) HERE, not in make.conf: a literal $(...) there trips portage's
+        # config parser ("$: bad substitution") and breaks the whole config. FEATURES/
+        # MAKEOPTS keep their ${...} so portage appends to the stage3 defaults.
+        {
+          echo 'FEATURES="${FEATURES} getbinpkg"'
+          echo "MAKEOPTS=\"\${MAKEOPTS} -j$(nproc)\""
+          echo 'PORTAGE_ELOG_CLASSES="qa warn error"'
+          echo 'PORTAGE_ELOG_SYSTEM="save"'
+          # accept all licenses: several opted-in packages are non-free (-bin blobs,
+          # CC-BY-NC, vendor EULAs). Without this emerge masks them and the bump churns
+          # its retries then defers with a misleading "build failure" comment, forever.
+          echo 'ACCEPT_LICENSE="*"'
+        } >> /etc/portage/make.conf
+        # Align heavy-dep USE to the official binhost's binpkgs so getbinpkg actually USES them,
+        # instead of rejecting a USE mismatch and rebuilding from source (which would blow the
+        # op-timeout): the binhost builds webkit-gtk +keyring and qtwebengine +bindist, but the
+        # desktop profile defaults them off. Keep this list in sync with emerge-on-pr's; extend
+        # it if a heavy dep still shows [ebuild] in a real bump.
+        mkdir -p /etc/portage/package.use
+        cat > /etc/portage/package.use/ci-binhost << 'EOF'
+        dev-qt/qtwebengine bindist
+        net-libs/webkit-gtk keyring
+        EOF
+        getuto
+        install -dm775 -o root -g portage /var/cache/distfiles
+
+    - name: install tooling
+      run: |
+        # Xvfb (minimal xorg-server) powers the advisory GUI launch probe: a GUI
+        # bump is launched headless to see it does not crash on start. Remove the
+        # xorg-server line + package.use if the build cost is not worth it - the
+        # probe then just skips and the PR still flags GUI apps for a manual check.
+        mkdir -p /etc/portage/package.use
+        echo "x11-base/xorg-server xvfb minimal -xorg" > /etc/portage/package.use/autobump-xvfb
+        # pkgdev/pkgcheck are dev-util/ now (pkgcore tools moved category); dev-lang/ruby
+        # runs the engine. --getbinpkg keeps the tool install fast.
+        emerge --quiet --getbinpkg --autounmask=y --autounmask-write=y --autounmask-continue=y \
+          dev-lang/ruby dev-vcs/git dev-util/pkgdev dev-util/pkgcheck app-portage/portage-utils \
+          app-portage/iwdevtools dev-util/github-cli app-misc/jq net-misc/curl \
+          x11-base/xorg-server
+        # curl: the engine's finalize stage re-checks pkgcheck DeadUrl hits with curl;
+        # stage3 ships only wget, so without it that probe crashes and defers the bump.
+        # qlist (portage-utils) drives the --version smoke; qa-vdb (iwdevtools)
+        # checks RDEPEND vs linked libs on source packages; Xvfb the GUI probe
+
+    - name: checkout
+      uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+
+    - name: fetch autobump-rb (the Ruby engine)
+      uses: actions/checkout@v7
+      with:
+        repository: gentoo-zh/autobump-rb
+        path: autobump-rb
+
+    - name: register overlay
+      run: |
+        mkdir -p /etc/portage/repos.conf
+        # pkgcore (pkgdev/pkgcheck) reads /etc/portage/repos.conf/ but NOT portage's
+        # built-in default, so the gentoo repo must be declared here explicitly or
+        # `pkgdev manifest` aborts with "default repo 'gentoo' is undefined or invalid".
+        cat > /etc/portage/repos.conf/gentoo.conf << EOF
+        [DEFAULT]
+        main-repo = gentoo
+
+        [gentoo]
+        location = $(portageq get_repo_path / gentoo)
+        EOF
+        cat > /etc/portage/repos.conf/repo.conf << EOF
+        [$(cat profiles/repo_name)]
+        location = $(realpath .)
+        priority = 0
+        EOF
+
+    # Mint an installation token for the gentoo-zh-autobump GitHub App. A PR opened with
+    # the default GITHUB_TOKEN (github-actions[bot]) does NOT trigger emerge-on-pr/pkgcheck
+    # -- GitHub blocks recursive workflow triggers -- so the verification safety net would
+    # never run. An App token opens the PR as gentoo-zh-autobump[bot], which DOES trigger it.
+    - name: mint app token
+      id: app-token
+      uses: actions/create-github-app-token@v3
+      with:
+        client-id: ${{ secrets.APP_CLIENT_ID }}
+        private-key: ${{ secrets.APP_PRIVATE_KEY }}
+        # the App is installed on gentoo-zh/overlay; name it explicitly so the token
+        # resolves whether this workflow runs on the overlay or on a fork (dispatch test).
+        owner: gentoo-zh
+        repositories: overlay
+
+    - name: git identity
+      run: |
+        git config --global --add safe.directory "$(realpath .)"
+        git config user.name  "gentoo-zh-bot"
+        git config user.email "bot@gentoozh.org"
+
+    - name: restore state
+      uses: actions/cache@v6
+      with:
+        path: /root/.local/state/autobump
+        key: autobump-state-${{ github.run_id }}
+        restore-keys: autobump-state-
+
+    - name: sweep
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        # sync master from origin: after deploy, origin IS gentoo-zh/overlay, so this pulls
+        # the latest master to bump against. LIVE_OVERLAY is left at its default -- the CI
+        # overlay checkout is itself the registered repo, so separate_overlay is false and
+        # the emerge runs against the workspace directly (no host-path ${{ github.workspace }}).
+        AUTOBUMP_SYNC_REMOTE: origin
+        # relative path on purpose: in a CONTAINER job ${{ github.workspace }} expands to
+        # the HOST path (/home/runner/work/...), but the container mounts the workspace at
+        # /__w/..., so an absolute host path does not exist inside the container. The sweep
+        # cd's into the overlay (= the workspace), so a path relative to it always resolves.
+        AUTOBUMP_ENGINE: ruby autobump-rb/bin/autobump
+        # the job has 90 min and --limit 3, so allow a generous per-op ceiling -
+        # a heavy from-source build should finish, not time out and defer.
+        AUTOBUMP_OP_TIMEOUT: '2700'
+        # pin the state dir to match the cache path above: in a container job HOME is
+        # /github/home (not /root), so the default $HOME/.local/state would diverge from
+        # the cached /root/.local/state and done.list would never persist across runs.
+        XDG_STATE_HOME: /root/.local/state
+        # dispatch inputs via env, NOT inlined into the command below: this job holds a
+        # write-scoped App token, so a crafted input must not be able to inject shell.
+        ISSUES: ${{ github.event.inputs.issues }}
+        LIMIT: ${{ github.event.inputs.limit || 3 }}
+      run: |
+        # validate before use: ISSUES is space-separated issue numbers, LIMIT an int.
+        case "$ISSUES" in *[!0-9\ ]*) echo "issues must be numbers: $ISSUES" >&2; exit 1;; esac
+        case "$LIMIT" in ''|*[!0-9]*) echo "limit must be a number: $LIMIT" >&2; exit 1;; esac
+        # $ISSUES intentionally unquoted so it word-splits into positional args (validated above).
+        bash scripts/autobump-sweep.sh $ISSUES --limit "$LIMIT" --pr --comment
