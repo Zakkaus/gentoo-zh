@@ -5,6 +5,9 @@ EAPI=8
 
 MY_PN="fcitx5"
 
+# fcitx5's top-level CMakeLists still requires only cmake 3.13; the ECM < 3.16
+# compatibility warning is upstream's to bump, not patchable on a live ebuild.
+CMAKE_QA_COMPAT_SKIP=1
 inherit cmake flag-o-matic git-r3 toolchain-funcs xdg
 
 DESCRIPTION="Fcitx 5 is a generic input method framework"
