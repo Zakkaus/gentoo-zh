@@ -27,7 +27,6 @@ BDEPEND="${PYTHON_DEPS}
 
 src_configure() {
 	local conf=(
-		'-8'
 		$(usex debug '-T debug' '-T release')
 	)
 	waf-utils_src_configure "${conf[@]}"
