@@ -10,6 +10,9 @@ inherit cmake flag-o-matic git-r3 toolchain-funcs xdg
 DESCRIPTION="Fcitx 5 is a generic input method framework"
 HOMEPAGE="https://fcitx-im.org/ https://github.com/fcitx/fcitx5"
 EGIT_REPO_URI="https://github.com/fcitx/fcitx5.git"
+# fcitx5 fetches the English spell dictionary during the build; provide the
+# pinned tarball so the build succeeds under the network sandbox.
+SRC_URI="https://download.fcitx-im.org/data/en_dict-20121020.tar.gz"
 
 LICENSE="LGPL-2+ Unicode-DFS-2016"
 SLOT="5"
@@ -75,6 +78,17 @@ BDEPEND="
 	virtual/pkgconfig
 	kde-frameworks/extra-cmake-modules:0
 "
+
+src_prepare() {
+	cmake_src_prepare
+
+	# fcitx5's spell module downloads en_dict-20121020.tar.gz at build time,
+	# which the network sandbox blocks. Drop the pre-fetched copy into the
+	# source tree where fcitx5_download looks for it (matching hash), the same
+	# way upstream's *_dict release tarball ships it, so cmake skips the fetch.
+	cp "${DISTDIR}"/en_dict-20121020.tar.gz \
+		"${S}"/src/modules/spell/ || die
+}
 
 src_configure() {
 	if [[ $(tc-get-cxx-stdlib) == "libc++" ]]; then
