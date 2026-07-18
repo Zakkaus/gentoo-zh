@@ -28,9 +28,10 @@ src_install() {
 }
 
 pkg_postinst() {
-	sed	's/^NROFF.*\/usr\/bin\/nroff -mandoc/NROFF\t\t\/usr\/bin\/groff-utf8 -Tutf8 -c -mandoc/' -i /etc/man.conf || die
-}
-
-pkg_postrm(){
-	sed	's/groff-utf8 -Tutf8 -c -mandoc/nroff -mandoc/g' -i /etc/man.conf || die
+	elog "man-db renders UTF-8 man pages itself (via preconv) in a UTF-8"
+	elog "locale, so this wrapper is normally not required. To route man"
+	elog "through groff-utf8 anyway, change the nroff definition in"
+	elog "/etc/man_db.conf to:"
+	elog
+	elog "    DEFINE nroff groff-utf8 -Tutf8 -c -mandoc"
 }
