@@ -49,11 +49,11 @@ RDEPEND="${DEPEND}
 BDEPEND="
 	dev-lang/perl
 	>=dev-util/patchelf-liblol-0.1.9
-	test? ( $(python_gen_any_dep 'dev-python/passlib[${PYTHON_USEDEP}]') )
+	test? ( $(python_gen_any_dep 'dev-python/libpass[${PYTHON_USEDEP}]') )
 "
 
 python_check_deps() {
-	python_has_version "dev-python/passlib[${PYTHON_USEDEP}]"
+	python_has_version "dev-python/libpass[${PYTHON_USEDEP}]"
 }
 
 pkg_pretend() {
