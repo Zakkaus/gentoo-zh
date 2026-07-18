@@ -16,12 +16,11 @@ LICENSE="GPL-3"
 
 SLOT="0"
 
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="-* ~amd64 ~x86"
 
 BDEPEND="app-arch/unzip"
 
-DEPEND="
-	${COMMON_DEPENDS}
+RDEPEND="
 	media-libs/libvorbis
 	net-misc/curl
 	media-libs/openal
