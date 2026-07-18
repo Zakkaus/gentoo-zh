@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>zakk@gentoozh.org</email>
+		<name>Zakk</name>
+	</maintainer>
+	<longdescription lang="en">
+		RStudio is an integrated development environment (IDE) for R and Python,
+		with a console, a syntax-highlighting editor that supports direct code
+		execution, and tools for plotting, history, debugging and workspace
+		management. This is the prebuilt open-source desktop edition.
+	</longdescription>
+	<upstream>
+		<remote-id type="github">rstudio/rstudio</remote-id>
+	</upstream>
+</pkgmetadata>
