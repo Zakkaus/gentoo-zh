@@ -41,3 +41,10 @@ app-misc/ccal
 # no remaining target to protect
 # Removal on 2026-08-13
 sec-policy/apparmor-profile-deepinwine
+
+# Zakk <zakk@gentoozh.org> (2026-07-18)
+# Upstream is archived and EOL; it directs users to biliup/biliup. We plan to
+# follow the upstream migration to biliup/biliup, which is not yet packaged
+# here.
+# Masked for removal in 2026-08-18
+net-misc/biliup-rs
