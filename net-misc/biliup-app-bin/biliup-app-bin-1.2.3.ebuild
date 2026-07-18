@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Gentoo Authors
+# Copyright 2023-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -9,8 +9,8 @@ MY_PN="biliup-app"
 
 DESCRIPTION="A Tool for Upload video to bilibili"
 
-HOMEPAGE="https://github.com/ForgQi/biliup-app"
-SRC_URI="https://github.com/ForgQi/${MY_PN}/releases/download/app-v${PV}/${MY_PN}_${PV}_amd64.deb"
+HOMEPAGE="https://github.com/biliup/biliup-app-new"
+SRC_URI="https://github.com/biliup/biliup-app-new/releases/download/app-v${PV}/${MY_PN}_${PV}_amd64.deb"
 
 S="${WORKDIR}"
 
@@ -24,10 +24,7 @@ RDEPEND="
 	x11-libs/gtk+:3
 "
 
-MY_PREFIX="opt/apps/${MY_PN}"
-
-src_install()
-{
+src_install() {
 	insinto /
 	doins -r .
 	fperms 0755 /usr/bin/biliup-app

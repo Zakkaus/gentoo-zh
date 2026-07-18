@@ -1771,13 +1771,12 @@ github_account = "123485k"
 # prefix = "v"
 # github_account = "gouwazi"
 
-# upstream archived, no new releases
-# ["net-misc/biliup-app-bin"]
-# source = "github"
-# github = "ForgQi/biliup-app"
-# use_latest_release = true
-# prefix = "app-v"
-# github_account = "123485k"
+["net-misc/biliup-app-bin"]
+source = "github"
+github = "biliup/biliup-app-new"
+use_latest_release = true
+prefix = "app-v"
+github_account = "123485k"
 
 # upstream archived, no new releases
 # ["net-misc/biliup-rs"]
