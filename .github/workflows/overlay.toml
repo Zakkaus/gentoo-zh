@@ -2215,9 +2215,11 @@ github_account = "gouwazi"
 
 ["sys-kernel/cachyos-sources"]
 source = "github"
-github = "blackteahamburger/gentoo-CachyOS-kernel-patches-tarball"
+github = "CachyOS/linux"
 use_latest_release = true
-github_account = "blackteahamburger"
+from_pattern = "cachyos-([0-9.]+)-[0-9]+"
+to_pattern = "\\1"
+github_account = ["blackteahamburger", "Zakkaus"]
 
 ["sys-kernel/liquorix-sources"]
 source = "github"
