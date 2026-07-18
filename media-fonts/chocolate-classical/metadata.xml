@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>zakk@gentoozh.org</email>
+		<name>Zakk</name>
+	</maintainer>
+	<longdescription lang="en">
+		Chocolate Classical Sans is an open-source Traditional Chinese font
+		based on Adobe and Google's Source Han Sans, with glyphs reshaped to
+		traditional (inherited) Chinese forms and some missing characters added.
+	</longdescription>
+	<upstream>
+		<remote-id type="github">MoonlitOwen/ChocolateSans</remote-id>
+	</upstream>
+</pkgmetadata>
