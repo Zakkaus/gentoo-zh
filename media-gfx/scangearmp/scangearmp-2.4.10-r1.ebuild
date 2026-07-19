@@ -1,9 +1,9 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-inherit autotools udev
+inherit autotools flag-o-matic udev
 
 MY_P1=$( ver_cut 1 )
 MY_P2=$( ver_cut 2- )
@@ -38,6 +38,11 @@ QA_PREBUILT="
 
 src_prepare()
 {
+	# GCC now defaults to -std=gnu23, where "bool" is a reserved keyword.
+	# The bundled Canon headers still "typedef ... bool", which C23 rejects:
+	#   include/libcnnet2_type.h:51:14: error: 'bool' cannot be defined via 'typedef'
+	append-flags -std=gnu17
+
 	sed -i -e '/^CFLAGS/d' configure.in || die
 	sed -i -e '/AC_INIT/s/in/ac/' configure.in || die
 	mv configure.{in,ac} || die
