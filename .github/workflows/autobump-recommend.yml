@@ -1,17 +1,22 @@
 # autobump-recommend: surface packages worth opting into autobump -- WITHOUT spamming.
 #
-# Two read-only signals, no bump and no PR:
+# Three signals, no bump and no PR:
 #   discover  scans git history for packages whose recent bumps were purely mechanical
-#             (ebuild rename + Manifest, nothing else) yet are not opted in.
-#   probe     runs the engine `--check` over the live nvchecker queue and lists the open
-#             issues it judges mechanical but that are not opted in (real, actionable now).
+#             (ebuild rename, or a byte-identical add-only kept version, + Manifest and nothing
+#             else) yet are not opted in.  [section A]
+#   probe     runs the engine `--check` over the live nvchecker queue and lists the open issues
+#             it judges mechanical but that are not opted in (real, actionable now).  [section B]
+#   trial     build-tests a small batch of those not-opted-in candidates in a gentoo container
+#             (real emerge + install + pkgcheck) and lists the ones that actually built -- the
+#             strongest opt-in signal, since it goes past classify to a real build.  [section C]
 #
 # Output goes to the run's job summary AND is upserted into a SINGLE fixed issue (found by
 # title, body replaced in place) -- so a maintainer sees one always-current list, never a
 # stream of new issues. A human still reviews and adds `autobump = true` by hand.
 #
-# Cheap: --check needs no portage, so this runs on plain ubuntu (ruby+git+curl+gh), not a
-# gentoo container. Uses the default GITHUB_TOKEN (issues: write) -- no App secret needed.
+# discover/probe are cheap (--check needs no portage), so the `recommend` job runs on plain
+# ubuntu; section C needs a real emerge, so the `trial-build` job runs in the gentoo container
+# (setup copied from autobump.yml). Both use the default GITHUB_TOKEN -- no App secret needed.
 name: autobump-recommend
 
 on:
@@ -24,6 +29,10 @@ on:
         description: 'max open issues to probe (0 = all)'
         required: false
         default: '0'
+      trial_batch:
+        description: 'how many not-opted-in mechanical candidates to build-trial for section C'
+        required: false
+        default: '3'
 
 concurrency:
   group: autobump-recommend
@@ -34,8 +43,117 @@ permissions:
   issues: write
 
 jobs:
-  recommend:
+  # section C: build-trial a small batch of not-opted-in mechanical candidates in the gentoo
+  # container (real emerge + install + pkgcheck), so the recommendation can say which candidates
+  # actually BUILD, not just classify. Container setup is copied from autobump.yml -- keep in sync.
+  trial-build:
     if: github.repository == 'gentoo-zh/overlay' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    container:
+      image: gentoo/stage3:amd64-desktop-openrc
+      options: --privileged
+    outputs:
+      built: ${{ steps.trial.outputs.built }}
+    steps:
+      - name: sync gentoo main tree
+        run: emerge-webrsync
+
+      - name: setup portage
+        run: |
+          {
+            echo 'FEATURES="${FEATURES} getbinpkg"'
+            echo "MAKEOPTS=\"\${MAKEOPTS} -j$(nproc)\""
+            echo 'PORTAGE_ELOG_CLASSES="qa warn error"'
+            echo 'PORTAGE_ELOG_SYSTEM="save"'
+            echo 'ACCEPT_LICENSE="*"'
+          } >> /etc/portage/make.conf
+          mkdir -p /etc/portage/package.use
+          cat > /etc/portage/package.use/ci-binhost << 'EOF'
+          dev-qt/qtwebengine bindist
+          net-libs/webkit-gtk keyring
+          EOF
+          getuto
+          install -dm775 -o root -g portage /var/cache/distfiles
+
+      - name: install tooling
+        run: |
+          mkdir -p /etc/portage/package.use
+          echo "x11-base/xorg-server xvfb minimal -xorg" > /etc/portage/package.use/autobump-xvfb
+          emerge --quiet --getbinpkg --autounmask=y --autounmask-write=y --autounmask-continue=y \
+            dev-lang/ruby dev-vcs/git dev-util/pkgdev dev-util/pkgcheck app-portage/portage-utils \
+            app-portage/iwdevtools dev-util/github-cli app-misc/jq net-misc/curl \
+            x11-base/xorg-server
+
+      - name: checkout overlay
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: fetch autobump-rb (the engine)
+        uses: actions/checkout@v7
+        with:
+          repository: gentoo-zh/autobump-rb
+          path: autobump-rb
+
+      - name: register overlay
+        run: |
+          mkdir -p /etc/portage/repos.conf
+          cat > /etc/portage/repos.conf/gentoo.conf << EOF
+          [DEFAULT]
+          main-repo = gentoo
+
+          [gentoo]
+          location = $(portageq get_repo_path / gentoo)
+          EOF
+          cat > /etc/portage/repos.conf/repo.conf << EOF
+          [$(cat profiles/repo_name)]
+          location = $(realpath .)
+          priority = 0
+          EOF
+
+      - name: trial-build a small batch of not-opted-in mechanical candidates
+        id: trial
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AUTOBUMP_ENGINE: ruby autobump-rb/bin/autobump   # autobump-probe.sh requires it (${AUTOBUMP_ENGINE:?})
+          AUTOBUMP_UPSTREAM_REPO: gentoo-zh/overlay
+          AUTOBUMP_SYNC_REMOTE: origin
+          AUTOBUMP_OP_TIMEOUT: '2700'
+          TRIAL_BATCH: ${{ github.event.inputs.trial_batch || '3' }}
+        run: |
+          set +e -uo pipefail   # +e: a candidate the engine escalates (exit 3) must not abort the batch
+          git config --global --add safe.directory "$(realpath .)"
+          export AUTOBUMP_REPO="$(realpath .)"   # container-safe, NOT ${{ github.workspace }} (host path)
+          # take the issue numbers from probe's not-opted-in mechanical block
+          prob=$(bash scripts/autobump-probe.sh 2>&1) || true
+          nums=$(printf '%s\n' "$prob" \
+                 | awk '/mechanical bump candidates/{f=1} /^-- escalate/{f=0} f' \
+                 | grep -vE 'opted-in|mechanical bump candidates' \
+                 | sed -nE 's/^[[:space:]]*#([0-9]+).*/\1/p' | head -n "$TRIAL_BATCH")
+          built=""
+          for n in $nums; do
+            git checkout -q master 2>/dev/null || true
+            title=$(gh issue view "$n" --repo "$AUTOBUMP_UPSTREAM_REPO" --json title --jq .title 2>/dev/null || true)
+            pkg=$(sed -nE 's/^\[nvchecker\] ([a-z0-9-]+\/[A-Za-z0-9_.+-]+) can be bump to .*/\1/p' <<<"$title")
+            ver=$(sed -nE 's/.* can be bump to ([A-Za-z0-9._+-]+)$/\1/p' <<<"$title")
+            [ -n "$pkg" ] && [ -n "$ver" ] || continue
+            echo "==== trial #$n  $pkg -> $ver ===="
+            ruby autobump-rb/bin/autobump "$n" --install; ec=$?   # build+install+pkgcheck, no --pr, no opt-in
+            [ "$ec" = 0 ] && built="${built}- #${n}  ${pkg} -> ${ver}"$'\n'
+          done
+          [ -n "$built" ] || built='(no not-opted-in candidate built OK this run)'
+          {                              # multiline job output MUST use the heredoc form
+            echo 'built<<SECC_EOF'
+            printf '%s\n' "$built"
+            echo 'SECC_EOF'
+          } >> "$GITHUB_OUTPUT"
+          { echo '## C. Trial-built OK'; echo; printf '%s\n' "$built"; } >> "$GITHUB_STEP_SUMMARY"
+
+  recommend:
+    needs: [trial-build]
+    # always(): a section-C container failure must still let A+B publish (C falls back to a note)
+    if: ${{ always() && (github.repository == 'gentoo-zh/overlay' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -61,6 +179,7 @@ jobs:
           AUTOBUMP_ENGINE: ruby autobump-rb/bin/autobump
           AUTOBUMP_REPO: ${{ github.workspace }}
           PROBE_LIMIT: ${{ github.event.inputs.probe_limit || '0' }}
+          SECTION_C: ${{ needs.trial-build.outputs.built }}
         run: |
           set -uo pipefail
           git config --global --add safe.directory "$(realpath .)"
@@ -73,8 +192,10 @@ jobs:
           prob=$(bash scripts/autobump-probe.sh "${plim[@]}" 2>&1) || true
           # keep only probe's "mechanical bump candidates" block, dropping opted-in lines
           cand=$(printf '%s\n' "$prob" | awk '/mechanical bump candidates/{f=1} /^-- escalate/{f=0} f' \
-                 | grep -vE 'opted-in|mechanical bump candidates' | sed '/^[[:space:]]*$/d')
+                 | grep -vE 'opted-in|mechanical bump candidates' | sed '/^[[:space:]]*$/d') || true  # grep -v exits 1 on no match; errexit is on
           [ -n "$cand" ] || cand="(no not-yet-opted-in mechanical candidates in the open queue)"
+          # section C comes from the trial-build job's output; always() means it may be empty
+          [ -n "$SECTION_C" ] || SECTION_C="(trial batch unavailable this run)"
 
           TITLE='autobump candidates: packages that could opt into mechanical bumps (auto-updated, do not rename)'
           body=$(cat <<EOF
@@ -95,6 +216,13 @@ jobs:
 
           \`\`\`
           $cand
+          \`\`\`
+
+          ## C. Trial-built OK (real emerge in a gentoo container)
+          Not-opted-in mechanical candidates a build-trial actually built + installed clean this run:
+
+          \`\`\`
+          $SECTION_C
           \`\`\`
 
           <sub>updated $(date -u '+%Y-%m-%d %H:%M UTC') · run ${{ github.run_id }}</sub>

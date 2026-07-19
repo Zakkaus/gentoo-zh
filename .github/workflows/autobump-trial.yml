@@ -1,0 +1,149 @@
+# autobump-trial: build-test a candidate package WITHOUT opting it in or opening a PR.
+#
+# Given nvchecker issue numbers, it runs the engine's real build trial (bump + emerge build +
+# install + pkgcheck) in the same gentoo container autobump.yml uses, then reports PASS/FAIL per
+# target. It calls `bin/autobump <issue> --install` directly, so it bypasses the `autobump = true`
+# opt-in gate (which lives only in autobump-sweep.sh) and passes no `--pr` -- nothing is pushed,
+# no PR is opened, no state is kept. Use it to prove a not-yet-whitelisted package builds
+# mechanically before a maintainer adds `autobump = true` in overlay.toml.
+#
+# The container setup is copied verbatim from autobump.yml (getbinpkg/ci-binhost/getuto +
+# ACCEPT_LICENSE + full tooling) -- the minimal selftest setup would defer non-free or heavy-dep
+# trials. No App token: the trial only reads issues, so the default GITHUB_TOKEN is enough.
+name: autobump-trial
+
+on:
+  workflow_dispatch:
+    inputs:
+      targets:
+        description: 'nvchecker issue numbers, space separated'
+        required: true
+
+concurrency:
+  group: autobump-trial
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: read
+
+jobs:
+  trial:
+    if: github.repository == 'gentoo-zh/overlay' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    container:
+      image: gentoo/stage3:amd64-desktop-openrc
+      options: --privileged
+
+    steps:
+    - name: sync gentoo main tree
+      run: emerge-webrsync
+
+    - name: setup portage
+      run: |
+        # expand $(nproc) HERE, not in make.conf: a literal $(...) there trips portage's
+        # config parser ("$: bad substitution") and breaks the whole config. FEATURES/
+        # MAKEOPTS keep their ${...} so portage appends to the stage3 defaults.
+        {
+          echo 'FEATURES="${FEATURES} getbinpkg"'
+          echo "MAKEOPTS=\"\${MAKEOPTS} -j$(nproc)\""
+          echo 'PORTAGE_ELOG_CLASSES="qa warn error"'
+          echo 'PORTAGE_ELOG_SYSTEM="save"'
+          # accept all licenses: many candidates are non-free (-bin blobs, CC-BY-NC, vendor
+          # EULAs). Without this emerge masks them and the trial DEFERS with a misleading reason.
+          echo 'ACCEPT_LICENSE="*"'
+        } >> /etc/portage/make.conf
+        # Align heavy-dep USE to the binhost's binpkgs so getbinpkg USES them instead of
+        # rebuilding from source (which would blow the op-timeout). Keep in sync with autobump.yml.
+        mkdir -p /etc/portage/package.use
+        cat > /etc/portage/package.use/ci-binhost << 'EOF'
+        dev-qt/qtwebengine bindist
+        net-libs/webkit-gtk keyring
+        EOF
+        getuto
+        install -dm775 -o root -g portage /var/cache/distfiles
+
+    - name: install tooling
+      run: |
+        mkdir -p /etc/portage/package.use
+        echo "x11-base/xorg-server xvfb minimal -xorg" > /etc/portage/package.use/autobump-xvfb
+        emerge --quiet --getbinpkg --autounmask=y --autounmask-write=y --autounmask-continue=y \
+          dev-lang/ruby dev-vcs/git dev-util/pkgdev dev-util/pkgcheck app-portage/portage-utils \
+          app-portage/iwdevtools dev-util/github-cli app-misc/jq net-misc/curl \
+          x11-base/xorg-server
+
+    - name: checkout
+      uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+
+    - name: fetch autobump-rb (the Ruby engine)
+      uses: actions/checkout@v7
+      with:
+        repository: gentoo-zh/autobump-rb
+        path: autobump-rb
+
+    - name: register overlay
+      run: |
+        mkdir -p /etc/portage/repos.conf
+        cat > /etc/portage/repos.conf/gentoo.conf << EOF
+        [DEFAULT]
+        main-repo = gentoo
+
+        [gentoo]
+        location = $(portageq get_repo_path / gentoo)
+        EOF
+        cat > /etc/portage/repos.conf/repo.conf << EOF
+        [$(cat profiles/repo_name)]
+        location = $(realpath .)
+        priority = 0
+        EOF
+
+    - name: build-trial each target (no PR, no opt-in gate)
+      env:
+        GH_TOKEN: ${{ github.token }}
+        AUTOBUMP_SYNC_REMOTE: origin
+        AUTOBUMP_UPSTREAM_REPO: gentoo-zh/overlay
+        AUTOBUMP_OP_TIMEOUT: '2700'
+        # passed via env, never inlined into the script (shell-injection hygiene)
+        TARGETS: ${{ github.event.inputs.targets }}
+      run: |
+        set +e -uo pipefail              # +e: GitHub's default run shell is `bash -e`; a FAIL
+                                         # trial (engine exit 3) must not abort the whole batch
+        git config --global --add safe.directory "$(realpath .)"
+        # validate first, THEN word-split $TARGETS unquoted on purpose (digits + spaces only)
+        case "$TARGETS" in
+          '')          echo 'no targets given' >&2; exit 1 ;;
+          *[!0-9\ ]*)  echo "targets must be issue numbers: $TARGETS" >&2; exit 1 ;;
+        esac
+        {
+          echo '## autobump build-trial'
+          echo
+          echo '| issue | package | → version | exit | result |'
+          echo '|------:|---------|-----------|:----:|--------|'
+        } >> "$GITHUB_STEP_SUMMARY"
+        for n in $TARGETS; do            # intentionally unquoted -> word-split (validated above)
+          git checkout -q master 2>/dev/null || true    # deterministic clean start per target
+          title=$(gh issue view "$n" --repo "$AUTOBUMP_UPSTREAM_REPO" --json title --jq .title 2>/dev/null || true)
+          pkg=$(sed -nE 's/^\[nvchecker\] ([a-z0-9-]+\/[A-Za-z0-9_.+-]+) can be bump to .*/\1/p' <<<"$title")
+          ver=$(sed -nE 's/.* can be bump to ([A-Za-z0-9._+-]+)$/\1/p' <<<"$title")
+          if [ -z "$pkg" ] || [ -z "$ver" ]; then
+            printf '| #%s | (unparseable title) |  | - | SKIP |\n' "$n" >> "$GITHUB_STEP_SUMMARY"
+            continue
+          fi
+          echo "==== #$n  $pkg -> $ver ===="
+          ruby autobump-rb/bin/autobump "$n" --install; ec=$?   # build+install+pkgcheck, no --pr, no opt-in
+          case "$ec" in
+            0)   res='✅ PASS — mechanical, built + installed + pkgcheck clean' ;;
+            3)   res='❌ FAIL — escalate / build-fail (major jump, deps, patch, vendor, or emerge/QA/pkgcheck failure)' ;;
+            2)   res='⏸ DEFER — transient (fetch / network / dep-gap / timeout / precondition)' ;;
+            130) res='⚠ interrupted (signal)' ;;
+            *)   res="⚠ unexpected exit $ec" ;;
+          esac
+          printf '| #%s | `%s` | %s | %s | %s |\n' "$n" "$pkg" "$ver" "$ec" "$res" >> "$GITHUB_STEP_SUMMARY"
+        done
+        {
+          echo
+          echo 'Exit codes: **0** mechanical-built · **2** defer · **3** escalate/build-fail — the engine contract is 0/2/3 only.'
+        } >> "$GITHUB_STEP_SUMMARY"
