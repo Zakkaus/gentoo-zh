@@ -79,6 +79,21 @@ autobump_enabled() {
     ' .github/workflows/overlay.toml
 }
 
+# keep-old opt-in: a package that must KEEP older versions (a real multi-version slot, or an
+# upstream that leaves old distfiles fetchable) marks `keep_old = N`; the sweep forwards
+# --keep-old=N so the engine keeps the N most-recent versions (0 or true = keep all). Independent
+# of autobump (a package is only swept when opted in); same header-match + inline-comment strip.
+keep_old_value() {  # print the package's keep_old value (true, or an integer N), else nothing
+    awk -v want="[\"$1\"]" '
+        {h=$0; sub(/[[:space:]]*#.*/,"",h); gsub(/[[:space:]]+$/,"",h)}
+        h==want {in_pkg=1; next}
+        /^\[/   {in_pkg=0}
+        in_pkg && /^[[:space:]]*keep_old[[:space:]]*=/ {
+            v=h; sub(/^[^=]*=[[:space:]]*/,"",v); print v; exit   # h already had the inline comment + trailing space stripped
+        }
+    ' .github/workflows/overlay.toml
+}
+
 attempts=0
 for n in "${ISSUES[@]}"; do
     # in fetch mode, stop once LIMIT engine attempts are spent (the skips below are free)
@@ -90,6 +105,12 @@ for n in "${ISSUES[@]}"; do
     ver=$(sed -nE 's/.* can be bump to ([A-Za-z0-9._+-]+)$/\1/p' <<<"$title")
     if [ -z "$pkg" ] || [ -z "$ver" ]; then RESULT[$n]="unparseable title"; continue; fi
     if ! autobump_enabled "$pkg"; then RESULT[$n]="skip (not opted in: no autobump=true)"; continue; fi
+    # unquoted below (like $PR) so an empty value word-splits away instead of passing a literal ''
+    KEEP_OLD=""; kov=$(keep_old_value "$pkg")
+    case "$kov" in
+        true)   KEEP_OLD="--keep-old" ;;         # keep all prior versions
+        [0-9]*) KEEP_OLD="--keep-old=$kov" ;;     # keep the N most-recent versions
+    esac
 
     if prior=$(grep -m1 -F "$pkg $ver " "$DONE"); then
         RESULT[$n]="skip ($prior)"; continue
@@ -97,7 +118,7 @@ for n in "${ISSUES[@]}"; do
 
     attempts=$((attempts + 1))
     echo "==== #$n $pkg -> $ver ($attempts/$LIMIT) ===="
-    out=$($ENGINE "$n" $PR 2>&1); ec=$?
+    out=$($ENGINE "$n" $KEEP_OLD $PR 2>&1); ec=$?
     echo "$out" | tail -4
 
     case "$ec" in
@@ -136,7 +157,7 @@ for n in "${ISSUES[@]}"; do
         fi
         verdict=$(jq -r .verdict <<<"$verdict_json")
         if [ "$verdict" = proceed ]; then
-            out2=$($ENGINE "$n" --accept-surface --accept-payload $PR 2>&1); ec2=$?
+            out2=$($ENGINE "$n" --accept-surface --accept-payload $KEEP_OLD $PR 2>&1); ec2=$?
             echo "$out2" | tail -3
             if [ "$ec2" = 0 ]; then
                 echo "$pkg $ver bumped-after-judge $(date +%F)" >> "$DONE"
