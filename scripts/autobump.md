@@ -22,24 +22,36 @@ Packages without it are not autobumped. If one keeps opening bad PRs, remove the
 candidates: `-bin` prebuilt packages, single-file source packages, rust / npm packages with a stable
 vendor bundle.
 
+For a package that intentionally keeps several versions, add `keep_old = N` alongside `autobump = true`:
+the bump keeps the N most-recent versions (adds the new ebuild, drops anything older) instead of
+replacing just the top one — `app-misc/go-yq-bin` and `media-fonts/sarasa-gothic` use `keep_old = 2`.
+`keep_old = 0` keeps every version.
+
 ## Finding opt-in candidates (recommendations)
 
 The `autobump-recommend` workflow (Actions → autobump-recommend → Run workflow) periodically collects
 packages that are **not yet opted in but look mechanically bumpable** into **one fixed issue**,
-replacing its body in place — so it never spams. Two signals:
+replacing its body in place — so it never spams. Three signals:
 
 - `scripts/autobump-discover.sh` — scans git history for packages whose recent bumps were purely
   mechanical.
 - `scripts/autobump-probe.sh` — runs the engine `--check` over the open nvchecker issues and lists the
   ones it judges mechanical **right now** but that are not opted in.
+- **Trial-built OK** — a small batch of not-opted-in mechanical candidates that a real build trial
+  (gentoo container, in a separate `trial-build` job) actually built and installed clean. The strongest
+  signal, since it goes past classify to a real build.
 
-Both are recommendations only; you review and add `autobump = true` by hand — nothing is enabled
-automatically. Both scripts can also be run locally.
+These are recommendations only; you review and add `autobump = true` by hand — nothing is enabled
+automatically. The discover and probe scripts can also be run locally.
 
 ## Usage
 
 - **Manual**: repo → Actions → autobump → Run workflow. Empty `issues` = process every open nvchecker
   issue (not-opted-in ones are skipped); `limit` = how many at most this run.
+- **Build-test a candidate** (not opted in): repo → Actions → autobump-trial → Run workflow, `targets`
+  = nvchecker issue numbers (space-separated). Runs a real bump + emerge + install + pkgcheck per target
+  in the CI container and reports PASS/FAIL — no PR, no opt-in needed. Use it to confirm a package builds
+  mechanically before adding `autobump = true`.
 - **Local**: clone the engine into the overlay root (`git clone https://github.com/gentoo-zh/autobump-rb`),
   install `dev-lang/ruby`, then
   `AUTOBUMP_ENGINE='ruby autobump-rb/bin/autobump' bash scripts/autobump-sweep.sh [issue#...] [--limit N] [--pr]`.
