@@ -93,8 +93,6 @@ submodule_uris
 pkg_pretend() {
 	if ! use hwaccel; then
 		ewarn "USE=hwaccel not set, using software rendering, but it will affect performance."
-	else
-		ewarn "USE=hwaccel set, if your system does not support OpenGL(ES), this is useless."
 	fi
 }
 
