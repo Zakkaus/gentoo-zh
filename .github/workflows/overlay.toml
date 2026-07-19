@@ -2236,12 +2236,14 @@ gitlab = "archlinux/mkinitcpio/mkinitcpio"
 use_max_tag = true
 prefix = "v"
 
-["sys-kernel/xanmod-kernel"]
-source = "gitlab"
-gitlab = "xanmod/linux"
-use_max_tag = true
-from_pattern = "(.*)-xanmod(.*)"
-to_pattern = "\\1"
+# xanmod-kernel and xanmod-sources track the same repo (xanmod/linux) and are
+# always bumped together, so track only the source xanmod-sources.
+# ["sys-kernel/xanmod-kernel"]
+# source = "gitlab"
+# gitlab = "xanmod/linux"
+# use_max_tag = true
+# from_pattern = "(.*)-xanmod(.*)"
+# to_pattern = "\\1"
 
 #["sys-kernel/xanmod-rt"]
 
