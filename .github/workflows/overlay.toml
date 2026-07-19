@@ -9,6 +9,7 @@ mirror = "https://downloads.1password.com/linux/debian/amd64"
 suite = "stable"
 # strip_release = true
 github_account = ["yangmame", "peeweep", "gouwazi"]
+autobump = true
 
 ["app-admin/chezmoi"]
 source = "github"
@@ -94,6 +95,8 @@ source = "github"
 github = "outloudvi/mw2fcitx"
 use_latest_release = true
 github_account = "blackteahamburger"
+autobump = true
+keep_old = 3
 
 ["app-dicts/fcitx-pinyin-sougou-dict"]
 source = "github"
@@ -125,6 +128,7 @@ source = "github"
 github = "AppFlowy-IO/AppFlowy"
 use_latest_release = true
 github_account = ["Linerre", "gouwazi"]
+autobump = true
 
 ["app-editors/edit"]
 source = "github"
@@ -567,6 +571,8 @@ github = "mikefarah/yq"
 use_latest_release = true
 prefix = "v"
 github_account = "gouwazi"
+autobump = true
+keep_old = 2
 
 ["app-misc/gpick"]
 source = "github"
@@ -628,6 +634,7 @@ prefix = "v"
 use_max_tag = true
 exclude_regex = ".*-(alpha|beta)"
 github_account = ["xz-dev", "gouwazi"]
+autobump = true
 
 # curl https://www.feishu.cn/api/downloads | jq --raw-output '.versions.Linux_deb_x64.download_link'
 # curl https://www.feishu.cn/api/downloads | jq --raw-output '.versions.Linux_deb_x64.version_number'
@@ -717,6 +724,7 @@ github = "readest/readest"
 use_latest_release = true
 prefix = "v"
 github_account = "gouwazi"
+autobump = true
 
 # dead upstream
 #["app-text/groff-utf8"]
@@ -1047,6 +1055,7 @@ source = "aur"
 aur = "jetbrains-toolbox"
 strip_release = true
 github_account = "gouwazi"
+autobump = true
 
 ["dev-util/kimi-cli-bin"]
 source = "github"
@@ -1076,6 +1085,7 @@ source = "github"
 github = "openSUSE/osc"
 use_latest_tag = true
 github_account = ["douglarek", "gouwazi", "peeweep"]
+autobump = true
 
 ["dev-util/pack-cli"]
 source = "github"
@@ -1187,12 +1197,15 @@ github = "sourcegit-scm/sourcegit"
 use_latest_release = true
 prefix = "v"
 github_account = "gouwazi"
+autobump = true
+keep_old = 3
 
 ["games-action/vintagestory"]
 source = "regex"
 url = "https://api.vintagestory.at/lateststable.txt"
 regex = "([\\d.]+)"
 github_account = "liuyujielol"
+autobump = true
 
 ["games-arcade/osu-lazer-bin"]
 source = "github"
@@ -1310,6 +1323,8 @@ github = "lxgw/LxgwNeoXiHei"
 use_latest_release = true
 prefix = "v"
 github_account = "Linerre"
+autobump = true
+keep_old = 2
 
 ["media-fonts/lxgw-neo-zhisong"]
 source = "github"
@@ -1317,6 +1332,7 @@ github = "lxgw/LxgwNeoZhiSong"
 use_latest_release = true
 prefix = "v"
 github_account = "vowstar"
+autobump = true
 
 # TODO: upstream no tags
 #["media-fonts/misans"]
@@ -1340,6 +1356,8 @@ github = "be5invis/sarasa-gothic"
 use_latest_release = true
 prefix = "v"
 github_account = "Linerre"
+autobump = true
+keep_old = 2
 
 ["media-fonts/sarasa-term-sc-nerd"]
 source = "github"
@@ -1589,6 +1607,7 @@ prefix = "v"
 from_pattern = "(.*)-(.*)"
 to_pattern = '\1_p\2'
 github_account = "gouwazi"
+autobump = true
 
 ["media-video/davinci-resolve"]
 source = "regex"
@@ -1765,6 +1784,7 @@ source = "regex"
 url = "https://api.apifox.com/api/v1/configs/client-updates/2/mac/latest-mac.yml"
 regex = 'version: (.*)'
 github_account = ["gouwazi"]
+autobump = true
 
 ["net-misc/baidunetdisk"]
 source = "regex"
@@ -1807,6 +1827,7 @@ github = "usebruno/bruno"
 use_latest_release = true
 prefix = "v"
 github_account = "gouwazi"
+autobump = true
 
 ["net-misc/flyctl-bin"]
 source = "github"
@@ -1829,6 +1850,7 @@ use_latest_release = true
 from_pattern = 'v(.*)-(.*)$'
 to_pattern = '\1.\2'
 github_account = "gouwazi"
+autobump = true
 
 ["net-misc/immich-go"]
 source = "github"
@@ -2208,6 +2230,7 @@ github = "ventoy/Ventoy"
 use_latest_release = true
 prefix = "v"
 github_account = ["st0nie", "gouwazi"]
+autobump = true
 
 ["sys-fs/jmtpfs"]
 source = "github"
@@ -2352,6 +2375,7 @@ github = "alireza0/s-ui"
 use_latest_release = true
 prefix = "v"
 github_account = "gouwazi"
+autobump = true
 
 # live package only
 #["www-servers/woof"]
@@ -2409,6 +2433,7 @@ source = "jq"
 url = "https://formulae.brew.sh/api/cask/termius.json"
 filter = ".version"
 github_account = "zakkaus"
+autobump = true
 
 ["x11-terms/wezterm-bin"]
 source = "github"
