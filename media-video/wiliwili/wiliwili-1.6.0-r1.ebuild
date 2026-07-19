@@ -77,8 +77,13 @@ BDEPEND="
 CMAKE_QA_COMPAT_SKIP=1
 
 submodule_uris() {
+	# Split with an array, not `read <<<`: a here-string needs a temp file,
+	# which the sandboxed depend phase (metadata) cannot create (bug #978846).
+	local line url commit
+	local -a fields
 	for line in "${SUBMODULES[@]}"; do
-		read -r dep proj url commit <<< "${line}" || die
+		fields=( ${line} )
+		url=${fields[2]} commit=${fields[3]}
 		SRC_URI+=" ${url}/archive/${commit}.tar.gz -> ${url##*/}-${commit}.tar.gz"
 	done
 }
