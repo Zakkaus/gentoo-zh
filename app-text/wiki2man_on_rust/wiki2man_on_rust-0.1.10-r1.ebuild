@@ -114,13 +114,17 @@ DUMP_CHUNKS=(
 	"ja:jawiki:p2410004p5212524"
 )
 
+# Split with parameter expansion, not `read <<<`: a here-string needs a temp
+# file in ${PWD}, and the depend (metadata) phase can run with an unwritable
+# CWD, which trips the sandbox.
 for wiki in "${WIKIS[@]}"; do
-	IFS=":" read -r l10n_code _ <<< "${wiki}"
-	IUSE+=" l10n_${l10n_code}"
+	IUSE+=" l10n_${wiki%%:*}"
 done
 
 for dump in "${DUMP_CHUNKS[@]}"; do
-	IFS=":" read -r l10n_code wiki_id chunk <<< "${dump}"
+	l10n_code="${dump%%:*}"
+	wiki_id="${dump#*:}"; wiki_id="${wiki_id%%:*}"
+	chunk="${dump##*:}"
 	SRC_URI+=" l10n_${l10n_code}? ( ${DUMP_BASE_URL}/${wiki_id}/${DUMP_DATE}/xml/bzip2/${wiki_id}-${DUMP_DATE}-${chunk}.xml.bz2 )"
 done
 
