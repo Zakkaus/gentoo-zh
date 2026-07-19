@@ -1,0 +1,122 @@
+diff -ruN a/src/err.c b/src/err.c
+--- a/src/err.c	2026-07-19 23:52:30.725563534 -0000
++++ b/src/err.c	2026-07-19 23:53:21.053101006 -0000
+@@ -104,7 +104,7 @@
+ 	fflush(debug_f2);
+ 	va_end (ap);
+ #endif
+-	return 0;
++	return;
+ }
+ 
+ void
+diff -ruN a/src/filteropt/filter_option.c b/src/filteropt/filter_option.c
+--- a/src/filteropt/filter_option.c	2026-07-19 23:52:30.727387153 -0000
++++ b/src/filteropt/filter_option.c	2026-07-19 23:53:20.988371065 -0000
+@@ -16,6 +16,7 @@
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
+ #include <cups/cups.h>
++#include "err.h"
+ #include "debuglog.h"
+ #include "memory.h"
+ #include "filter_option.h"
+diff -ruN a/src/main.c b/src/main.c
+--- a/src/main.c	2026-07-19 23:52:30.725442829 -0000
++++ b/src/main.c	2026-07-19 23:53:21.048364835 -0000
+@@ -20,6 +20,7 @@
+ #endif
+ 
+ #include <cups/cups.h>
++#include "err.h"
+ #include <cups/ppd.h>
+ #include <cups/raster.h>
+ #include <unistd.h>
+diff -ruN a/src/memory/memory.c b/src/memory/memory.c
+--- a/src/memory/memory.c	2026-07-19 23:52:30.727212141 -0000
++++ b/src/memory/memory.c	2026-07-19 23:53:20.994847627 -0000
+@@ -20,6 +20,7 @@
+ #endif
+ 
+ #include <stdio.h>
++#include "err.h"
+ #include <stdlib.h>
+ #include <string.h>
+ #include "memory.h"
+diff -ruN a/src/pagemanager/pagemanager.c b/src/pagemanager/pagemanager.c
+--- a/src/pagemanager/pagemanager.c	2026-07-19 23:52:30.725975925 -0000
++++ b/src/pagemanager/pagemanager.c	2026-07-19 23:53:21.026665126 -0000
+@@ -20,6 +20,7 @@
+ #endif
+ 
+ #include <string.h>
++#include "err.h"
+ 
+ #include "epcgdef.h"
+ #include "debuglog.h"
+diff -ruN a/src/pagemanager/subpagemanager.c b/src/pagemanager/subpagemanager.c
+--- a/src/pagemanager/subpagemanager.c	2026-07-19 23:52:30.725821695 -0000
++++ b/src/pagemanager/subpagemanager.c	2026-07-19 23:53:21.033331792 -0000
+@@ -20,6 +20,7 @@
+ #endif
+ 
+ #include "epcgdef.h"
++#include "err.h"
+ #include "debuglog.h"
+ #include "memory.h"
+ #include "subpagemanager.h"
+diff -ruN a/src/raster/fetch-pool.c b/src/raster/fetch-pool.c
+--- a/src/raster/fetch-pool.c	2026-07-19 23:52:30.726641987 -0000
++++ b/src/raster/fetch-pool.c	2026-07-19 23:53:21.001741189 -0000
+@@ -20,6 +20,7 @@
+ #endif
+ 
+ #include <string.h>
++#include "err.h"
+ #include "fetch-pool.h"
+ 
+ typedef struct EpsFetchDataList {
+diff -ruN a/src/raster/raster-helper.c b/src/raster/raster-helper.c
+--- a/src/raster/raster-helper.c	2026-07-19 23:52:30.726566325 -0000
++++ b/src/raster/raster-helper.c	2026-07-19 23:53:21.006665126 -0000
+@@ -20,6 +20,7 @@
+ #endif
+ 
+ #include <stdio.h>
++#include "err.h"
+ #include <stdlib.h>
+ #include <string.h>
+ #include "memory.h"
+diff -ruN a/src/raster/raster.c b/src/raster/raster.c
+--- a/src/raster/raster.c	2026-07-19 23:52:30.726142280 -0000
++++ b/src/raster/raster.c	2026-07-19 23:53:21.021348495 -0000
+@@ -20,6 +20,7 @@
+ #endif
+ 
+ #include <stdio.h>
++#include "err.h"
+ #include <stdlib.h>
+ #include <string.h>
+ #include "raster.h"
+diff -ruN a/src/raster/scale.c b/src/raster/scale.c
+--- a/src/raster/scale.c	2026-07-19 23:52:30.726193592 -0000
++++ b/src/raster/scale.c	2026-07-19 23:53:21.013331792 -0000
+@@ -20,6 +20,7 @@
+ #endif
+ 
+ #include <stdio.h>
++#include "err.h"
+ #include <stdlib.h>
+ #include <string.h>
+ #include "memory.h"
+diff -ruN a/src/raster_to_epson.c b/src/raster_to_epson.c
+--- a/src/raster_to_epson.c	2026-07-19 23:52:30.725670311 -0000
++++ b/src/raster_to_epson.c	2026-07-19 23:53:21.041287817 -0000
+@@ -20,6 +20,7 @@
+ #endif
+ 
+ #include <stdio.h>
++#include "err.h"
+ #include <unistd.h>
+ #include <time.h>
+ #include <fcntl.h>
