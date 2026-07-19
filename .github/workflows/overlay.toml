@@ -112,6 +112,7 @@ source = "github"
 github = "vitaly-zdanevich/reeknote"
 use_latest_release = true
 github_account = "vitaly-zdanevich"
+autobump = true
 
 ["app-editors/antigravity"]
 source = "regex"
@@ -188,6 +189,7 @@ use_max_tag = true
 include_regex = "^v\\d+\\.\\d+\\.\\d+$"
 prefix = "v"
 github_account = "douglarek"
+autobump = true
 
 ["app-office/evernote-repack"]
 source = "github"
@@ -304,6 +306,7 @@ source = "github"
 github = "conda/menuinst"
 use_latest_release = true
 github_account = "OriPoin"
+autobump = true
 
 ["dev-python/microfs2"]
 source = "github"
@@ -361,6 +364,7 @@ github_account = "peeweep"
 source = "regex"
 url = "https://registry.npmjs.org/@google/gemini-cli"
 regex = '"latest":"([\d.]+)"'
+autobump = true
 
 ["app-editors/marktext-bin"]
 source = "github"
@@ -533,6 +537,7 @@ suite = "stable"
 repo = "main"
 pkg = "claude-desktop"
 github_account = "zakkaus"
+autobump = true
 
 ["app-misc/codex-auth"]
 source = "github"
@@ -540,6 +545,7 @@ github = "Loongphy/codex-auth"
 use_latest_release = true
 prefix = "v"
 github_account = "liangyongxiang"
+autobump = true
 
 ["app-misc/cc-switch-cli"]
 source = "github"
@@ -980,6 +986,7 @@ github = "astral-sh/uv"
 use_latest_release = true
 prefix = "v"
 github_account = "gouwazi"
+autobump = true
 
 ["dev-libs/singleapplication"]
 source = "github"
@@ -1015,6 +1022,7 @@ github = "openai/codex"
 use_latest_release = true
 prefix = "rust-v"
 github_account = "vowstar"
+autobump = true
 
 ["dev-util/gitea-cli"]
 source = "gitea"
@@ -1030,6 +1038,7 @@ github = "ogulcancelik/herdr"
 use_latest_release = true
 prefix = "v"
 github_account = "gouwazi"
+autobump = true
 
 # TODO:
 # https://data.services.jetbrains.com/products/releases?code=TBA&latest=true&type=release
@@ -1044,6 +1053,7 @@ source = "github"
 github = "MoonshotAI/kimi-cli"
 use_latest_release = true
 github_account = "liangyongxiang"
+autobump = true
 
 ["dev-util/maixvision"]
 source = "regex"
@@ -1059,6 +1069,7 @@ source = "github"
 github = "openSUSE/obs-build"
 use_latest_tag = true
 github_account = ["peeweep"]
+autobump = true
 
 ["dev-util/osc"]
 source = "github"
@@ -1089,6 +1100,7 @@ github = "badlogic/pi-mono"
 use_latest_release = true
 prefix = "v"
 github_account = "douglarek"
+autobump = true
 
 ["dev-util/reasonix-bin"]
 source = "github"
@@ -1097,6 +1109,7 @@ use_max_release = true
 include_regex = "v\\d+\\.\\d+\\.\\d+"
 prefix = "v"
 github_account = "xz-dev"
+autobump = true
 
 ["dev-util/redpanda-cpp"]
 source = "github"
@@ -1147,6 +1160,7 @@ use_max_tag = true
 include_regex = "v\\d+\\.\\d+\\.\\d+"
 prefix = "v"
 github_account = "liangyongxiang"
+autobump = true
 
 ["dev-util/zprint-bin"]
 source = "github"
@@ -1187,6 +1201,7 @@ use_latest_release = true
 from_pattern = '^(\d{4}\.\d{3,4}\.\d+)-lazer$'
 to_pattern = '\1'
 github_account = "Puqns67"
+autobump = true
 
 ["games-emulation/conty"]
 source = "github"
@@ -1874,6 +1889,7 @@ github = "reqable/reqable-app"
 use_latest_release = true
 prefix = "v"
 github_account = "gouwazi"
+autobump = true
 
 ["net-misc/rustdesk"]
 source = "github"
@@ -1893,6 +1909,7 @@ github = "trzsz/tsshd"
 use_latest_release = true
 prefix = "v"
 github_account = "locez"
+autobump = true
 
 ["net-misc/yaak-bin"]
 source = "github"
@@ -2181,6 +2198,7 @@ github = "pnpm/pnpm"
 use_latest_release = true
 prefix = "v"
 github_account = ["st0nie", "gouwazi"]
+autobump = true
 
 # live package only
 #["sys-apps/wait-online"]
@@ -2273,6 +2291,7 @@ github = "CherryHQ/cherry-studio"
 use_latest_release = true
 prefix = "v"
 github_account = "gouwazi"
+autobump = true
 
 ["www-apps/dufs"]
 source = "github"
@@ -2288,6 +2307,7 @@ use_max_release = true
 include_regex = "desktop/v.*"
 prefix = "desktop/v"
 github_account = "gouwazi"
+autobump = true
 
 ["www-client/adspower-global"]
 source = "regex"
@@ -2301,12 +2321,14 @@ aur = "brave-bin"
 strip_release = true
 prefix = "1:"
 github_account = ["irort", "Zakkaus", "gouwazi"]
+autobump = true
 
 ["www-client/zen-browser-bin"]
 source = "github"
 github = "zen-browser/desktop"
 use_latest_release = true
 github_account = ["zakkaus", "gouwazi"]
+autobump = true
 
 ["www-servers/darkhttpd"]
 source = "github"
@@ -2462,3 +2484,4 @@ github = "anomalyco/opencode"
 use_latest_release = true
 prefix = "v"
 github_account = ["xz-dev", "gouwazi", "peeweep" ]
+autobump = true
