@@ -656,6 +656,16 @@ url = "https://linux.wps.cn/wpslinuxlog"
 regex = "wps-office_([\\d.]+)_amd64.deb"
 github_account = ["Universebenzene", "gouwazi", "zakkaus"]
 
+# The edu channel has no version-log page like linux.wps.cn/wpslinuxlog; piggyback
+# on the AUR package that already tracks it instead. strip_release drops AUR's
+# trailing "-pkgrel" so the reported version matches our PV (e.g. 12.1.2.25882,
+# not 12.1.2.25882-1).
+["app-office/wps-office365-edu"]
+source = "aur"
+aur = "wps-office-365-edu"
+strip_release = true
+github_account = "zakkaus"
+
 # live package only
 #["app-pda/ipadcharge"]
 #source = "github"
