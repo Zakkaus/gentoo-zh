@@ -57,6 +57,7 @@ source = "github"
 github = "openzim/libzim"
 use_latest_release = true
 github_account = ["liangyongxiang", "gouwazi"]
+autobump = true
 
 ["app-backup/restic-rest-server"]
 source = "github"
@@ -1759,6 +1760,7 @@ github = "oven-sh/bun"
 use_latest_release = true
 prefix = "bun-v"
 github_account = "douglarek"
+autobump = true
 
 # live package only
 #["net-libs/jzmq"]
@@ -1794,7 +1796,8 @@ source = "regex"
 url = "https://api.apifox.com/api/v1/configs/client-updates/2/mac/latest-mac.yml"
 regex = 'version: (.*)'
 github_account = ["gouwazi"]
-autobump = true
+# autobump off: Cloudflare blocks the download UA (fetches the CF challenge
+# page instead of the .deb, so the payload looks changed) — needs a manual bump.
 
 ["net-misc/baidunetdisk"]
 source = "regex"
