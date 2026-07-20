@@ -81,7 +81,9 @@ fold() {  # collapse a reason to one short line so a status comment never dumps 
 
 status_comment() {  # $1=issue $2=body ; edit the bot's marked comment in place, else create one
     [ "$COMMENT" = 1 ] || return 0
-    local n=$1 body="$2"$'\n\n'"$STATUS_MARKER" cid i
+    local n=$1 body="$2" cid i
+    [ -n "${AB_FOOTER:-}" ] && body="$body"$'\n'"$AB_FOOTER"
+    body="$body"$'\n\n'"$STATUS_MARKER"
     # the FIND must be reliable: if a transient API error left cid empty we'd post a DUPLICATE.
     # retry, and if it never succeeds, skip this update rather than risk a second comment.
     cid=SKIP
@@ -147,6 +149,13 @@ for n in "${ISSUES[@]}"; do
         true)   KEEP_OLD="--keep-old" ;;         # keep all prior versions
         [0-9]*) KEEP_OLD="--keep-old=$kov" ;;     # keep the N most-recent versions
     esac
+    # opt-in marker appended to every status comment for this issue, so watchers can see at a
+    # glance that the package is auto-managed (and whether old versions are kept).
+    AB_FOOTER="— \`autobump\` enabled"
+    case "$kov" in
+        true|0) AB_FOOTER="$AB_FOOTER · keep_old=all" ;;
+        [1-9]*) AB_FOOTER="$AB_FOOTER · keep_old=$kov" ;;
+    esac
 
     if prior=$(grep -m1 -F "$pkg $ver " "$DONE"); then
         RESULT[$n]="skip ($prior)"; continue
@@ -154,7 +163,7 @@ for n in "${ISSUES[@]}"; do
 
     attempts=$((attempts + 1))
     echo "==== #$n $pkg -> $ver ($attempts/$LIMIT) ===="
-    status_comment "$n" "🔄 **autobump** is bumping \`$pkg\` → \`$ver\`…$(run_link)"
+    status_comment "$n" "**autobump** is bumping \`$pkg\` → \`$ver\`…$(run_link)"
     out=$($ENGINE "$n" $KEEP_OLD $PR 2>&1); ec=$?
     echo "$out" | tail -4
 
@@ -163,7 +172,7 @@ for n in "${ISSUES[@]}"; do
         echo "$pkg $ver bumped $(date +%F)" >> "$DONE"
         RESULT[$n]="bumped$([ -n "$PR" ] && echo ' + PR')"
         pr_url=$(grep -oE 'https://github.com/[^ ]+/pull/[0-9]+' <<<"$out" | tail -1)
-        status_comment "$n" "✅ **autobump** bumped \`$pkg\` → \`$ver\`${pr_url:+ — opened $pr_url}$(run_link)"
+        status_comment "$n" "**autobump** bumped \`$pkg\` → \`$ver\`${pr_url:+ — opened $pr_url}$(run_link)"
         ;;
     3)
         # parse the anchor the engine prints ("evidence: <dir> =="), not a hard-coded /tmp
@@ -210,7 +219,7 @@ for n in "${ISSUES[@]}"; do
                 if [ "$tries" -ge 2 ]; then
                     echo "$pkg $ver deferred-transient $(date +%F)" >> "$DONE"
                     RESULT[$n]="deferred after $((tries+1)) judge-retry transients"
-                    status_comment "$n" "⚠️ **autobump** accepted the surface delta for \`$pkg\` → \`$ver\` but the retry hit transient failures $((tries+1)) times. A maintainer may need to bump it by hand.$(run_link)"
+                    status_comment "$n" "**autobump** accepted the surface delta for \`$pkg\` → \`$ver\` but the retry hit transient failures $((tries+1)) times. A maintainer may need to bump it by hand.$(run_link)"
                 else
                     RESULT[$n]="judge-retry deferred transiently (try $((tries+1)))"
                 fi
@@ -226,7 +235,7 @@ for n in "${ISSUES[@]}"; do
             case "$clear" in ''|"see evidence in $ev") clear=$(jq -r '.reasons | join("; ")' <<<"$verdict_json") ;; esac
             case "$clear" in ''|"see evidence in $ev") clear="needs a manual bump" ;; esac
             RESULT[$n]="escalated: $clear"
-            body="⚠️ **autobump** can't bump \`$pkg\` → \`$ver\` mechanically: **$(fold "$clear")**. Needs a manual bump.$(run_link log)"
+            body="**autobump** can't bump \`$pkg\` → \`$ver\` mechanically: **$(fold "$clear")**. Needs a manual bump.$(run_link log)"
             # collapse the raw evidence into <details> so the comment stays short but the detail is one click away
             ev_txt=$(sed 's/```//g' "$ev/escalations.txt" 2>/dev/null | grep -v '^[[:space:]]*$' | head -25)
             [ -n "$ev_txt" ] && body="$body"$'\n\n'"<details><summary>evidence</summary>"$'\n\n''```'$'\n'"$ev_txt"$'\n''```'$'\n'"</details>"
@@ -248,10 +257,10 @@ for n in "${ISSUES[@]}"; do
             if [ "$tries" -ge 2 ]; then
                 echo "$pkg $ver deferred-transient $(date +%F)" >> "$DONE"
                 RESULT[$n]="deferred after $((tries+1)) transient attempts: $reason"
-                status_comment "$n" "⚠️ **autobump** gave up on \`$pkg\` → \`$ver\` after $((tries+1)) tries: $(fold "$reason"). A maintainer may need to bump it by hand.$(run_link log)"
+                status_comment "$n" "**autobump** gave up on \`$pkg\` → \`$ver\` after $((tries+1)) tries: $(fold "$reason"). A maintainer may need to bump it by hand.$(run_link log)"
             else
                 RESULT[$n]="not attempted (transient, try $((tries+1))): $reason"
-                status_comment "$n" "⏸ **autobump** deferred \`$pkg\` → \`$ver\` (transient: $(fold "$reason")). Will retry automatically.$(run_link)"
+                status_comment "$n" "**autobump** deferred \`$pkg\` → \`$ver\` (transient: $(fold "$reason")). Will retry automatically.$(run_link)"
             fi
         fi
         ;;
