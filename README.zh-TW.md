@@ -83,11 +83,6 @@ https://github.com/gentoo-zh/overlay/blob/deps-table/relation.md
 GENTOO_MIRRORS="${GENTOO_MIRRORS} https://distfiles.gentoozh.org"
 ```
 
-重慶大學鏡像：
-```
-GENTOO_MIRRORS="${GENTOO_MIRRORS} https://mirrors.cqu.edu.cn/gentoo-zh"
-```
-
 南京大學鏡像：
 ```
 GENTOO_MIRRORS="${GENTOO_MIRRORS} https://mirrors.nju.edu.cn/gentoo-zh"
