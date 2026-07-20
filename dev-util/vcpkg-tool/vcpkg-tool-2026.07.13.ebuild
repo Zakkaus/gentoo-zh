@@ -25,39 +25,46 @@ KEYWORDS="~amd64"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
-DEPEND="dev-libs/libfmt:0/11.2.0"
-RDEPEND="${DEPEND}"
+DEPEND="dev-libs/libfmt:=
+	net-misc/curl"
+RDEPEND="${DEPEND}
+	app-arch/zip"
 BDEPEND="dev-util/cmakerc"
 
 src_prepare() {
-	sed -i \
-		-e 's/cmake_minimum_required(VERSION 3\.7\.2)/cmake_minimum_required(VERSION 3.10)/' \
-		azure-pipelines/e2e-ports/broken-symlink/src/CMakeLists.txt \
-		azure-pipelines/e2e-ports/vcpkg-cmake-config-many-targets/src/CMakeLists.txt \
-		azure-pipelines/e2e-ports/vcpkg-hello-world-1/src/CMakeLists.txt \
-		azure-pipelines/e2e-ports/vcpkg-hello-world-2/src/CMakeLists.txt \
-		|| die
+	# Bump the ancient cmake_minimum_required in the e2e-port test fixtures so the
+	# cmake eclass < 3.10 QA scan stays quiet. Match them all rather than a fixed
+	# list, since upstream keeps adding such ports.
+	find azure-pipelines/e2e-ports -name CMakeLists.txt \
+		-exec sed -i -e 's/cmake_minimum_required(VERSION 3\.7\.2)/cmake_minimum_required(VERSION 3.10)/' {} + || die
 
 	cmake_src_prepare
 }
 
 src_configure() {
+	local preset value
 	local mycmakeargs=(
 		"-DBUILD_TESTING=$(usex test)"
-		"-DVCPKG_ARTIFACTS_SHA=775c0b327487c04180e43f61813caf097da9a1f223030a486425e2ffbea255c48ba22e4add10401c8aa6e1e9bd53f182d694f363942ce99d7dd5dfafe9cc07fb"
-		"-DVCPKG_STANDALONE_BUNDLE_SHA=$(grep -E 'VCPKG_STANDALONE_BUNDLE_SHA"' CMakePresets.json | cut '-d"' -f4)"
 		-DCMAKE_POLICY_VERSION_MINIMUM=3.5
 		-DBUILD_SHARED_LIBS=OFF
-		-DVCPKG_BASE_VERSION=2024-01-11
 		-DVCPKG_BUILD_TLS12_DOWNLOADER=OFF
 		-DVCPKG_DEPENDENCY_CMAKERC=ON
 		-DVCPKG_DEPENDENCY_EXTERNAL_FMT=ON
+		-DVCPKG_LIBCURL_DLSYM=OFF
 		-DVCPKG_DEVELOPMENT_WARNINGS=OFF
 		-DVCPKG_EMBED_GIT_SHA=OFF
 		-DVCPKG_OFFICIAL_BUILD=ON
 		-DVCPKG_WARNINGS_AS_ERRORS=OFF
 		-DCMAKE_DISABLE_PRECOMPILE_HEADERS=OFF
 	)
+
+	for preset in VCPKG_ARTIFACTS_SHA VCPKG_BASE_VERSION VCPKG_STANDALONE_BUNDLE_SHA; do
+		value=$(awk -F '"' -v key="${preset}" '$2 == key { print $4; exit }' \
+			CMakePresets.json) || die
+		[[ -n ${value} ]] || die "missing ${preset} in CMakePresets.json"
+		mycmakeargs+=( "-D${preset}=${value}" )
+	done
+
 	cmake_src_configure
 }
 
