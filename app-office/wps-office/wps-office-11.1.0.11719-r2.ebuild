@@ -31,6 +31,8 @@ BDEPEND="dev-util/patchelf"
 # The previous list was still the deps of the 2017 10.1.0.5707 rpm. Regenerate
 # with: scanelf -nBF '%n' -R office6 (then drop bundled/glibc sonames).
 RDEPEND="
+	!!app-office/wps-office365
+	!!app-office/wps-office365-edu
 	app-accessibility/at-spi2-core:2
 	app-arch/xz-utils
 	dev-db/sqlite

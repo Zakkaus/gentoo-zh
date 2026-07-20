@@ -39,6 +39,7 @@ BDEPEND="dev-util/patchelf"
 # libraries under nplibs/ link libpulse).
 RDEPEND="
 	!!app-office/wps-office
+	!!app-office/wps-office365-edu
 	app-accessibility/at-spi2-core:2
 	app-arch/bzip2:0
 	app-arch/xz-utils
@@ -185,8 +186,12 @@ pkg_postinst() {
 	xdg_pkg_postinst
 	elog "WPS 365 opens a sign-in dialog on first launch that has no close"
 	elog "button; press Esc to dismiss it. WPS 365 may require an account, so"
-	elog "some features may be unavailable without signing in."
+	elog "some features may be unavailable without signing in. If you do not"
+	elog "want to sign in at all, app-office/wps-office365-edu (the education"
+	elog "edition) works fully without an account."
 	elog ""
 	elog "WPS 365 首次启动会弹出登入框且无关闭按钮，按 Esc 可关闭；"
 	elog "但 WPS 365 可能强制要求登入，未登入可能无法使用部分功能。"
+	elog "完全不想登入的话，可以改用 app-office/wps-office365-edu（教育版），"
+	elog "教育版不需要登入即可正常使用。"
 }

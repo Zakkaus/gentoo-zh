@@ -14,6 +14,10 @@ S="${WORKDIR}"
 
 LICENSE="WPS-EULA"
 SLOT="0"
+# This revision is amd64-only: upstream's dogfood.gnupg.uk mirror for
+# 12.1.2.26885 only publishes an amd64 build. The older 11.1.0.11719-r2
+# revision of this package still covers arm64/loong via a different source;
+# app-office/wps-office365[-edu] also cover arm64/loong on this release line.
 KEYWORDS="~amd64"
 IUSE="systemd"
 
@@ -28,6 +32,8 @@ BDEPEND="dev-util/patchelf"
 # bundled Qt plugins and CEF, minus what is bundled under office6/. Regenerate
 # with: scanelf -nBF '%n' -R office6 (then drop bundled/glibc sonames).
 RDEPEND="
+	!!app-office/wps-office365
+	!!app-office/wps-office365-edu
 	app-accessibility/at-spi2-core:2
 	app-arch/bzip2:0
 	app-arch/xz-utils
