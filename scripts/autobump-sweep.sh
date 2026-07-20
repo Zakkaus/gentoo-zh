@@ -64,6 +64,42 @@ cp scripts/autobump-judge.sh "$TOOLS/"
 # autobump-rb is the single engine, there is no in-tree fallback to default to.
 ENGINE=${AUTOBUMP_ENGINE:?set AUTOBUMP_ENGINE, e.g. ruby autobump-rb/bin/autobump}
 
+# ONE editable status comment per issue (upserted by a hidden marker -- never a stream of new
+# comments), so a maintainer sees "autobumping / opened PR / needs a manual bump / deferred"
+# on the issue itself. Gated by --comment (set in autobump.yml); a link to the run is added when
+# in Actions. Keep the wording terse and English, matching the PR body.
+STATUS_MARKER='<!-- autobump-status -->'
+run_link() {  # markdown " · [LABEL](url)" to the Actions run when in CI, else nothing. $1=label (default run)
+    [ -n "${GITHUB_RUN_ID:-}" ] || return 0
+    printf ' · [%s](%s/%s/actions/runs/%s)' "${1:-run}" "${GITHUB_SERVER_URL:-https://github.com}" \
+        "${GITHUB_REPOSITORY:-$UPSTREAM_REPO}" "$GITHUB_RUN_ID"
+}
+fold() {  # collapse a reason to one short line so a status comment never dumps evidence
+    local s; s=$(printf '%s' "$1" | tr '\n' ' ' | sed -E 's/[[:space:]]+/ /g; s/^ //; s/ $//')
+    if [ "${#s}" -gt 200 ]; then printf '%s…' "${s:0:199}"; else printf '%s' "$s"; fi
+}
+
+status_comment() {  # $1=issue $2=body ; edit the bot's marked comment in place, else create one
+    [ "$COMMENT" = 1 ] || return 0
+    local n=$1 body="$2"$'\n\n'"$STATUS_MARKER" cid i
+    # the FIND must be reliable: if a transient API error left cid empty we'd post a DUPLICATE.
+    # retry, and if it never succeeds, skip this update rather than risk a second comment.
+    cid=SKIP
+    for i in 1 2 3; do
+        if cid=$(gh api "repos/$UPSTREAM_REPO/issues/$n/comments" --paginate \
+                --jq "map(select(.body|contains(\"$STATUS_MARKER\")))|.[0].id // empty" 2>/dev/null); then
+            break
+        fi
+        cid=SKIP; sleep 3
+    done
+    [ "$cid" = SKIP ] && return 0
+    if [ -n "$cid" ]; then
+        for i in 1 2 3; do gh api -X PATCH "repos/$UPSTREAM_REPO/issues/comments/$cid" -f body="$body" >/dev/null 2>&1 && return 0; sleep 3; done
+    else
+        for i in 1 2 3; do gh issue comment "$n" --repo "$UPSTREAM_REPO" --body "$body" >/dev/null 2>&1 && return 0; sleep 3; done
+    fi
+}
+
 # opt-in whitelist: only bump packages a maintainer marked `autobump = true` in the
 # nvchecker config, so which packages are trusted for auto-bumping is an explicit choice.
 # TOML permits a trailing comment after a table header (`["cat/pkg"] # note`); strip an
@@ -118,6 +154,7 @@ for n in "${ISSUES[@]}"; do
 
     attempts=$((attempts + 1))
     echo "==== #$n $pkg -> $ver ($attempts/$LIMIT) ===="
+    status_comment "$n" "🔄 **autobump** is bumping \`$pkg\` → \`$ver\`…$(run_link)"
     out=$($ENGINE "$n" $KEEP_OLD $PR 2>&1); ec=$?
     echo "$out" | tail -4
 
@@ -125,6 +162,8 @@ for n in "${ISSUES[@]}"; do
     0)
         echo "$pkg $ver bumped $(date +%F)" >> "$DONE"
         RESULT[$n]="bumped$([ -n "$PR" ] && echo ' + PR')"
+        pr_url=$(grep -oE 'https://github.com/[^ ]+/pull/[0-9]+' <<<"$out" | tail -1)
+        status_comment "$n" "✅ **autobump** bumped \`$pkg\` → \`$ver\`${pr_url:+ — opened $pr_url}$(run_link)"
         ;;
     3)
         # parse the anchor the engine prints ("evidence: <dir> =="), not a hard-coded /tmp
@@ -171,8 +210,7 @@ for n in "${ISSUES[@]}"; do
                 if [ "$tries" -ge 2 ]; then
                     echo "$pkg $ver deferred-transient $(date +%F)" >> "$DONE"
                     RESULT[$n]="deferred after $((tries+1)) judge-retry transients"
-                    [ "$COMMENT" = 1 ] && gh issue comment "$n" --repo "$UPSTREAM_REPO" --body \
-                        "autobump: escalation accepted by judge but the retry hit transient failures $((tries+1)) times. A maintainer may need to bump this by hand."
+                    status_comment "$n" "⚠️ **autobump** accepted the surface delta for \`$pkg\` → \`$ver\` but the retry hit transient failures $((tries+1)) times. A maintainer may need to bump it by hand.$(run_link)"
                 else
                     RESULT[$n]="judge-retry deferred transiently (try $((tries+1)))"
                 fi
@@ -182,13 +220,17 @@ for n in "${ISSUES[@]}"; do
             fi
         else
             echo "$pkg $ver deferred $(date +%F)" >> "$DONE"
-            comment=$(jq -r .issue_comment <<<"$verdict_json")
-            reasons=$(jq -r '.reasons | join("; ")' <<<"$verdict_json")
-            RESULT[$n]="deferred: $reasons"
-            if [ "$COMMENT" = 1 ] && [ -n "$comment" ]; then
-                gh issue comment "$n" --repo "$UPSTREAM_REPO" \
-                    --body "$comment"$'\n\n'"(autobump: not mechanically safe - $reasons)"
-            fi
+            # CLEAR reason first: the engine's own one-line "not mechanically safe (REASON)"
+            # (e.g. "payload layout changed") — never a bare /tmp evidence path.
+            clear=$(sed -nE 's/.*not mechanically safe \(([^)]+)\).*/\1/p' <<<"$out" | tail -1)
+            case "$clear" in ''|"see evidence in $ev") clear=$(jq -r '.reasons | join("; ")' <<<"$verdict_json") ;; esac
+            case "$clear" in ''|"see evidence in $ev") clear="needs a manual bump" ;; esac
+            RESULT[$n]="escalated: $clear"
+            body="⚠️ **autobump** can't bump \`$pkg\` → \`$ver\` mechanically: **$(fold "$clear")**. Needs a manual bump.$(run_link log)"
+            # collapse the raw evidence into <details> so the comment stays short but the detail is one click away
+            ev_txt=$(sed 's/```//g' "$ev/escalations.txt" 2>/dev/null | grep -v '^[[:space:]]*$' | head -25)
+            [ -n "$ev_txt" ] && body="$body"$'\n\n'"<details><summary>evidence</summary>"$'\n\n''```'$'\n'"$ev_txt"$'\n''```'$'\n'"</details>"
+            status_comment "$n" "$body"
         fi
         ;;
     *)
@@ -202,15 +244,14 @@ for n in "${ISSUES[@]}"; do
             # retry next sweep, but CAP retries so it eventually reaches a human.
             tries=$(grep -c -F "$pkg $ver " "$ATTEMPTS" 2>/dev/null); tries=${tries:-0}
             echo "$pkg $ver $(date +%F)" >> "$ATTEMPTS"
+            reason=$(tail -1 <<<"$out" | sed -E 's/^[[:space:]]*!+[[:space:]]*//')
             if [ "$tries" -ge 2 ]; then
                 echo "$pkg $ver deferred-transient $(date +%F)" >> "$DONE"
-                RESULT[$n]="deferred after $((tries+1)) transient attempts: $(tail -1 <<<"$out")"
-                if [ "$COMMENT" = 1 ]; then
-                    gh issue comment "$n" --repo "$UPSTREAM_REPO" --body \
-                      "autobump: could not apply after $((tries+1)) attempts (transient/build failures in CI - e.g. timeout or unresolved dep). A maintainer may need to bump this by hand."
-                fi
+                RESULT[$n]="deferred after $((tries+1)) transient attempts: $reason"
+                status_comment "$n" "⚠️ **autobump** gave up on \`$pkg\` → \`$ver\` after $((tries+1)) tries: $(fold "$reason"). A maintainer may need to bump it by hand.$(run_link log)"
             else
-                RESULT[$n]="not attempted (transient, try $((tries+1))): $(tail -1 <<<"$out")"
+                RESULT[$n]="not attempted (transient, try $((tries+1))): $reason"
+                status_comment "$n" "⏸ **autobump** deferred \`$pkg\` → \`$ver\` (transient: $(fold "$reason")). Will retry automatically.$(run_link)"
             fi
         fi
         ;;
