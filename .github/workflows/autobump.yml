@@ -24,10 +24,10 @@
 name: autobump
 
 on:
-  # cron disabled for the initial rollout: run manually via workflow_dispatch and watch a
-  # few sweeps first, then uncomment to enable the daily run.
-  # schedule:
-  #   - cron: '0 11 * * *'
+  # daily run, 2h after nvchecker's cron so bumpbot has filed the issues. A human still merges
+  # every PR; not-opted-in packages are skipped and non-mechanical bumps only comment.
+  schedule:
+    - cron: '0 11 * * *'
   workflow_dispatch:
     inputs:
       issues:
