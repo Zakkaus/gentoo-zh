@@ -23,6 +23,7 @@ RDEPEND="
 	dev-python/tomlkit[${PYTHON_USEDEP}]
 	dev-python/packaging[${PYTHON_USEDEP}]
 	>=dev-python/pydantic-1.10[${PYTHON_USEDEP}]
+	>=dev-python/fluent-runtime-0.4.0[${PYTHON_USEDEP}]
 	media-libs/mutagen[${PYTHON_USEDEP}]
 "
 
