@@ -1,0 +1,23 @@
+From 2061445ecbd9762e7c114a7767243eb448d663f6 Mon Sep 17 00:00:00 2001
+From: Morten Linderud <morten@linderud.pw>
+Date: Thu, 30 Apr 2026 00:10:27 +0200
+Subject: [PATCH] install/udev: check if hwdb.bin exists before adding it
+
+Upstream: https://gitlab.archlinux.org/archlinux/mkinitcpio/mkinitcpio/-/commit/2061445ecbd9762e7c114a7767243eb448d663f6
+---
+ install/udev | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/install/udev b/install/udev
+index 33ed07b..9e1fb74 100644
+--- a/install/udev
++++ b/install/udev
+@@ -24,3 +24,5 @@ build() {
+-    map add_file \
+-        /usr/lib/udev/hwdb.bin \
+-        /etc/udev/hwdb.bin
++    for f in /usr/lib/udev/hwdb.bin /etc/udev/hwdb.bin; do
++        if [[  -f "$f" ]]; then
++            add_file "$f"
++        fi
++    done
