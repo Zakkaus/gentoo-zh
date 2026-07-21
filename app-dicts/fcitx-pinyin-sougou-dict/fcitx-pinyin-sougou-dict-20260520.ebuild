@@ -15,6 +15,8 @@ SRC_URI="
 
 S="${WORKDIR}/${MY_PN}-${PV}"
 
+PATCHES=( "${FILESDIR}/${P}-imewlconverter-gnu-cli.patch" )
+
 LICENSE="Unlicense"
 SLOT="5"
 KEYWORDS="~amd64"
@@ -27,7 +29,7 @@ RDEPEND="
 "
 BDEPEND="
 	fcitx? ( app-i18n/libime:5 )
-	>=app-text/imewlconverter-3.1.1
+	>=app-text/imewlconverter-3.4.3
 "
 
 src_unpack() {
