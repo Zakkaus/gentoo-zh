@@ -20,9 +20,10 @@
 name: autobump-recommend
 
 on:
-  # weekly, disabled for the initial rollout: run manually first, then uncomment.
-  # schedule:
-  #   - cron: '0 6 * * 1'
+  # weekly recommendation scan (Monday 06:00 UTC). Recommendation-only -- opens no PRs, just
+  # refreshes the single fixed issue in place; a maintainer still opts packages in by hand.
+  schedule:
+    - cron: '0 6 * * 1'
   workflow_dispatch:
     inputs:
       probe_limit:
