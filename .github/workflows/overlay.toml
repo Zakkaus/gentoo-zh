@@ -923,6 +923,14 @@ source = "pypi"
 pypi = "feeluown-bilibili"
 github_account = ["wgjak47", "gouwazi"]
 
+["dev-python/fluent-runtime"]
+source = "pypi"
+pypi = "fluent.runtime"
+
+["dev-python/fluent-syntax"]
+source = "pypi"
+pypi = "fluent.syntax"
+
 ["dev-python/fuo-netease"]
 source = "pypi"
 pypi = "fuo-netease"
