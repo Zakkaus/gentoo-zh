@@ -1,0 +1,59 @@
+name: autobump-annotate
+
+# When bumpbot files a new [nvchecker] issue for a package that has autobump enabled, append a
+# short note to the bottom of the issue body so the CC'd maintainer sees the bump is automated.
+# Notice only -- opens no PR, changes nothing else. Idempotent: a hidden marker means the note is
+# added at most once, and re-firing on our own edit (or a later bumpbot edit) never duplicates it.
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  issues: write
+  contents: read
+
+env:
+  MARKER: "<!-- autobump-note -->"
+
+jobs:
+  note:
+    # canonical repo only, bumpbot's nvchecker issues only
+    if: ${{ github.repository == 'gentoo-zh/overlay' && startsWith(github.event.issue.title, '[nvchecker]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7   # need overlay.toml to read the opt-in flag
+
+      - name: append an autobump-enabled note to opted-in issues
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # issue fields are untrusted (anyone can open/edit an issue) -- pass via env, never inline
+          # into the script, and only ever use them as data (sed/awk/gh flags), never eval.
+          TITLE: ${{ github.event.issue.title }}
+          NUM: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          # strict parse -- rejects any title that is not a clean "[nvchecker] cat/pkg can be bump to VER"
+          pkg=$(printf '%s' "$TITLE" | sed -nE 's/^\[nvchecker\] ([a-z0-9-]+\/[A-Za-z0-9_.+-]+) can be bump to .*/\1/p')
+          [ -n "$pkg" ] || { echo "title not a parseable nvchecker bump -- nothing to do"; exit 0; }
+
+          # opted in = `autobump = true` in the package's TOML block. `# autobump off` has no such
+          # line, so it is correctly not noted. (mawk-safe: sub/gsub/regex only.)
+          TOML=.github/workflows/overlay.toml
+          if ! awk -v w="[\"$pkg\"]" '
+                {h=$0; sub(/[[:space:]]*#.*/,"",h); gsub(/[[:space:]]+$/,"",h)}
+                h==w{f=1;next}/^\[/{f=0}
+                f&&/^[[:space:]]*autobump[[:space:]]*=[[:space:]]*true/{e=1}
+                END{exit !e}' "$TOML"; then
+            echo "$pkg is not opted into autobump -- no note"; exit 0
+          fi
+
+          # fetch the current body fresh; skip if the note is already there (idempotent, no loop)
+          body=$(gh issue view "$NUM" --repo "$GITHUB_REPOSITORY" --json body --jq .body)
+          case "$body" in *"$MARKER"*) echo "note already present -- nothing to do"; exit 0 ;; esac
+
+          # ~19:00 UTC+8 == autobump.yml's `cron: '0 11 * * *'`; GitHub delays scheduled runs, hence "~".
+          # append below the body, behind a hidden marker; ANSI-C $'\n' keeps the blank lines exact.
+          gh issue edit "$NUM" --repo "$GITHUB_REPOSITORY" \
+            --body "${body}"$'\n\n---\n'"${MARKER}"'**autobump** enabled · daily 19:00 (UTC+8)'
+          echo "appended autobump note to #$NUM ($pkg)"
