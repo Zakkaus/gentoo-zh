@@ -40,6 +40,13 @@ autobump_enabled() {
         .github/workflows/overlay.toml
 }
 
+autobump_disabled() {  # a maintainer explicitly turned it off (`# autobump off: ...`) -- never recommend it
+    awk -v want="[\"$1\"]" '
+        {h=$0; sub(/[[:space:]]*#.*/,"",h); gsub(/[[:space:]]+$/,"",h)}
+        h==want{f=1;next}/^\[/{f=0}f&&/#[[:space:]]*autobump[[:space:]]+off/{e=1}END{exit !e}' \
+        .github/workflows/overlay.toml
+}
+
 if ! raw=$(gh issue list --repo "$UPSTREAM_REPO" --search '[nvchecker] in:title' \
     --state open --json number --jq '.[].number'); then
     echo "gh issue list failed (auth/rate-limit/network?)" >&2; exit 2
@@ -54,6 +61,7 @@ for n in "${ISSUES[@]}"; do
     pkg=$(sed -nE 's/^\[nvchecker\] ([a-z0-9-]+\/[A-Za-z0-9_.+-]+) can be bump to .*/\1/p' <<<"$title")
     ver=$(sed -nE 's/.* can be bump to ([A-Za-z0-9._+-]+)$/\1/p' <<<"$title")
     [ -n "$pkg" ] && [ -n "$ver" ] || continue
+    autobump_disabled "$pkg" && continue    # deliberately off -- keep it out of the recommendation
     tag=""; autobump_enabled "$pkg" && tag=" [opted-in]"
 
     $ENGINE "$n" --check >/dev/null 2>&1; ec=$?

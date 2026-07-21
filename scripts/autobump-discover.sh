@@ -25,19 +25,23 @@ TOML=.github/workflows/overlay.toml
 # for amd64+arm64) are NOT bundles and must not match, so this is a suffix allowlist, not a count.
 BUNDLE_RE='(-vendor|-crates|-deps|-pubcache|-vcpkg|-gomod|-go-mod|-cargo|-web|node_modules)'
 
-already_on() {  # already whitelisted with autobump = true?
-    # strip an inline comment after the table header (`["cat/pkg"] # note` is valid TOML)
-    # so a commented-header package isn't re-recommended as if it were never whitelisted.
+excluded() {  # already decided -- whitelisted (autobump = true) OR deliberately disabled (# autobump off)
+    # strip an inline comment after the table header (`["cat/pkg"] # note` is valid TOML) so a
+    # commented-header package isn't re-recommended as if never whitelisted; and a package a
+    # maintainer explicitly turned off (e.g. `# autobump off: Cloudflare ...`) stays off, not re-surfaced.
     awk -v w="[\"$1\"]" '
         {h=$0; sub(/[[:space:]]*#.*/,"",h); gsub(/[[:space:]]+$/,"",h)}
-        h==w{f=1;next}/^\[/{f=0}f&&/autobump = true/{e=1}END{exit !e}' "$TOML" 2>/dev/null
+        h==w{f=1;next}/^\[/{f=0}
+        f&&/autobump = true/{e=1}
+        f&&/#[[:space:]]*autobump[[:space:]]+off/{e=1}
+        END{exit !e}' "$TOML" 2>/dev/null
 }
 
 # every package with an "add ..." bump commit in the window
 git log "$REF" --oneline -"$N" --no-merges 2>/dev/null \
   | grep -oE '[a-z0-9-]+/[A-Za-z0-9_.+-]+: add ' | sed 's/: add //' | sort -u \
   | while read -r pkg; do
-    already_on "$pkg" && continue
+    excluded "$pkg" && continue
     total=0 mech=0
     for sha in $(git log "$REF" --oneline -"$N" -- "$pkg" 2>/dev/null | grep ': add ' | awk '{print $1}'); do
         total=$((total + 1))
