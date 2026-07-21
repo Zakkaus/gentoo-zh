@@ -8,7 +8,7 @@ inherit go-module shell-completion
 DESCRIPTION="Command line tool to interact with Gitea"
 HOMEPAGE="https://gitea.com/gitea/tea"
 SRC_URI="https://gitea.com/gitea/tea/archive/v${PV}.tar.gz -> ${P}.tar.gz
-	https://github.com/douglarek/gentoo-deps/releases/download/${P}/${P}-vendor.tar.xz -> ${P}-deps.tar.xz"
+	https://github.com/gentoo-zh/gentoo-deps/releases/download/${P}/${P}-vendor.tar.xz -> ${P}-deps.tar.xz"
 S="${WORKDIR}/tea"
 
 LICENSE="MIT"
@@ -20,7 +20,7 @@ BDEPEND=">=dev-lang/go-1.26"
 
 src_compile() {
 	ego build -trimpath \
-		-ldflags "-X code.gitea.io/tea/modules/version.Version=${PV} -s -w" \
+		-ldflags "-X gitea.dev/tea/modules/version.Version=${PV} -s -w" \
 		-o bin/tea .
 }
 
