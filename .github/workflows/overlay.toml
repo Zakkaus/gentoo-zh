@@ -57,6 +57,7 @@ source = "github"
 github = "openzim/libzim"
 use_latest_release = true
 github_account = ["liangyongxiang", "gouwazi"]
+autobump = true
 
 ["app-backup/restic-rest-server"]
 source = "github"
@@ -663,6 +664,16 @@ url = "https://linux.wps.cn/wpslinuxlog"
 regex = "wps-office_([\\d.]+)_amd64.deb"
 github_account = ["Universebenzene", "gouwazi", "zakkaus"]
 
+# The edu channel has no version-log page like linux.wps.cn/wpslinuxlog; piggyback
+# on the AUR package that already tracks it instead. strip_release drops AUR's
+# trailing "-pkgrel" so the reported version matches our PV (e.g. 12.1.2.25882,
+# not 12.1.2.25882-1).
+["app-office/wps-office365-edu"]
+source = "aur"
+aur = "wps-office-365-edu"
+strip_release = true
+github_account = "zakkaus"
+
 # live package only
 #["app-pda/ipadcharge"]
 #source = "github"
@@ -670,6 +681,13 @@ github_account = ["Universebenzene", "gouwazi", "zakkaus"]
 
 # live package only
 #["app-shells/blesh"]
+
+["app-shells/flyline-bin"]
+source = "github"
+github = "HalFrgrd/flyline"
+use_latest_release = true
+prefix = "v"
+github_account = "gouwazi"
 
 ["app-shells/gitstatus"]
 source = "github"
@@ -1749,6 +1767,7 @@ github = "oven-sh/bun"
 use_latest_release = true
 prefix = "bun-v"
 github_account = "douglarek"
+autobump = true
 
 # live package only
 #["net-libs/jzmq"]
@@ -1784,7 +1803,8 @@ source = "regex"
 url = "https://api.apifox.com/api/v1/configs/client-updates/2/mac/latest-mac.yml"
 regex = 'version: (.*)'
 github_account = ["gouwazi"]
-autobump = true
+# autobump off: Cloudflare blocks the download UA (fetches the CF challenge
+# page instead of the .deb, so the payload looks changed) — needs a manual bump.
 
 ["net-misc/baidunetdisk"]
 source = "regex"

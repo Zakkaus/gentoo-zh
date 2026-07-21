@@ -88,11 +88,6 @@ Our server, hosted on USA:
 GENTOO_MIRRORS="${GENTOO_MIRRORS} https://distfiles.gentoozh.org"
 ```
 
-Chongqing University mirror:
-```
-GENTOO_MIRRORS="${GENTOO_MIRRORS} https://mirrors.cqu.edu.cn/gentoo-zh"
-```
-
 Nanjing University mirror:
 ```
 GENTOO_MIRRORS="${GENTOO_MIRRORS} https://mirrors.nju.edu.cn/gentoo-zh"

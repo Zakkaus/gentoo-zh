@@ -41,7 +41,7 @@ QA_PREBUILT="opt/${PN}/*"
 
 src_unpack() {
 	default
-	mv "${WORKDIR}"/idea-IC-* "${S}" || die
+	mv "${WORKDIR}"/idea-oss "${S}" || die
 }
 
 src_prepare() {

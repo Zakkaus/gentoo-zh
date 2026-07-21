@@ -24,10 +24,10 @@
 name: autobump
 
 on:
-  # cron disabled for the initial rollout: run manually via workflow_dispatch and watch a
-  # few sweeps first, then uncomment to enable the daily run.
-  # schedule:
-  #   - cron: '0 11 * * *'
+  # daily run, 2h after nvchecker's cron so bumpbot has filed the issues. A human still merges
+  # every PR; not-opted-in packages are skipped and non-mechanical bumps only comment.
+  schedule:
+    - cron: '0 11 * * *'
   workflow_dispatch:
     inputs:
       issues:
@@ -52,9 +52,10 @@ jobs:
   sweep:
     if: github.repository == 'gentoo-zh/overlay' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    # limit(3) x AUTOBUMP_OP_TIMEOUT(2700s=45min)=135min worst case + ~10min setup; keep the
-    # job ceiling above it so a tail of heavy from-source builds is not cut off mid-run.
-    timeout-minutes: 150
+    # A heavy from-source dep (e.g. net-libs/nodejs for the pnpm/npm family) can take ~1h+; give the
+    # per-op ceiling (AUTOBUMP_OP_TIMEOUT below) room for it and keep this job ceiling above one such
+    # build plus a tail of light packages, so a heavy build finishes instead of being cut off mid-run.
+    timeout-minutes: 200
     container:
       image: gentoo/stage3:amd64-desktop-openrc
       options: --privileged
@@ -181,9 +182,9 @@ jobs:
         # /__w/..., so an absolute host path does not exist inside the container. The sweep
         # cd's into the overlay (= the workspace), so a path relative to it always resolves.
         AUTOBUMP_ENGINE: ruby autobump-rb/bin/autobump
-        # the job has 90 min and --limit 3, so allow a generous per-op ceiling -
-        # a heavy from-source build should finish, not time out and defer.
-        AUTOBUMP_OP_TIMEOUT: '2700'
+        # allow a generous per-op ceiling so a heavy from-source build (net-libs/nodejs ~1h)
+        # finishes instead of timing out and deferring; keep in step with timeout-minutes above.
+        AUTOBUMP_OP_TIMEOUT: '7200'
         # pin the state dir to match the cache path above: in a container job HOME is
         # /github/home (not /root), so the default $HOME/.local/state would diverge from
         # the cached /root/.local/state and done.list would never persist across runs.

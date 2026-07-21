@@ -1,4 +1,4 @@
-# Copyright 2025 Gentoo Authors
+# Copyright 2025-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -45,6 +45,10 @@ src_prepare() {
 	#       multiple definition of `game';
 	#       /var/tmp/portage/games-roguelike/tsl-0.40-r2/temp/ccJQOSUH.o:(.bss+0x23a0):
 	#       first defined here
+	# * Force "-std=gnu17", as GCC now defaults to "-std=gnu23" where "true"
+	#   and "false" are reserved keywords. These sources define their own
+	#   "enum { false, true }", which C23 rejects with:
+	#       main.h:79:3: error: cannot use keyword 'false' as enumeration constant
 	# * Prevent squelching of build failures. *sigh*
 	# * Respect the system-wide Allegro and ncurses configurations.
 	#
@@ -55,7 +59,7 @@ src_prepare() {
 	#* Inheriting "toolchain-funcs" above.
 	#* Replacing "pkg-config" with "$(tc-getPKG_CONFIG)" below.
 	sed -i \
-		-e 's~^\(gcc.*\)\\$~\1 -fcommon \\~' \
+		-e 's~^\(gcc.*\)\\$~\1 -fcommon -std=gnu17 \\~' \
 		-e '/exit 0/d' \
 		-e 's~-lallegro -lallegro_image -lallegro_font~$(pkg-config --libs allegro-5 allegro_font-5 allegro_image-5)~' \
 		-e 's~-lcurses~$(pkg-config --libs ncurses)~' \

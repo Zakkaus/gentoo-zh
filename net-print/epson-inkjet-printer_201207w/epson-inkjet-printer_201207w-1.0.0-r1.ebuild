@@ -1,15 +1,19 @@
-# Copyright 2021-2024 Gentoo Authors
+# Copyright 2021-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
+
+# This src.rpm ships an uncompressed cpio payload; declaring it silences the
+# "rpm_unpack called without supporting app-arch/rpm" QA notice and pins a
+# proper unpack dependency. Must be set before inherit (read at global scope).
+RPM_COMPRESS_TYPE="none"
 
 inherit rpm autotools
 
 MY_PN=${PN%_*}-${PN##*_}
 
 DESCRIPTION="Epson printer driver (L110, L210, L300, L350, L355, L550, L555)"
-HOMEPAGE="http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX
-	https://openprinting.github.io/foomatic/driver/epson-201207w"
+HOMEPAGE="https://openprinting.github.io/foomatic/driver/epson-201207w"
 SRC_URI="https://web.archive.org/web/20150803102803if_/http://download.ebz.epson.net/dsc/op/stable/SRPMS/epson-inkjet-printer-201207w-1.0.0-1lsb3.2.src.rpm"
 
 S="${WORKDIR}/epson-inkjet-printer-filter-${PV}"
@@ -25,10 +29,15 @@ QA_PREBUILT="
 	/opt/epson-inkjet-printer-201207w/lib64/libEpson_201207w.MT.so.1.0.0
 	/opt/epson-inkjet-printer-201207w/lib64/libEpson_201207w.so.1.0.0"
 
+# GCC 14+ rejects this 2005-era source: ten .c files call debug_msg() without
+# including its err.h declaration, and debugt_msg() returns a value from a void
+# function. The patch adds the missing includes and drops the bogus return.
+PATCHES=( "${FILESDIR}/${P}-modern-c.patch" )
+
 src_prepare() {
+	default
 	eautoreconf
 	chmod +x configure
-	eapply_user
 }
 
 src_configure() {
