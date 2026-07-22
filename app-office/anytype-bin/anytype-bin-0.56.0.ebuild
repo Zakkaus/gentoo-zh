@@ -7,7 +7,7 @@ inherit desktop xdg
 
 DESCRIPTION="A notebook based on p2p network"
 HOMEPAGE="https://anytype.io"
-SRC_URI="https://github.com/anyproto/anytype-ts/releases/download/v${PV}/anytype-${PV}.AppImage
+SRC_URI="https://github.com/anyproto/anytype-ts/releases/download/v${PV}/Anytype-${PV}.AppImage -> anytype-${PV}.AppImage
 	https://github.com/anyproto/anytype-ts/releases/download/v${PV}/anytype_${PV}_amd64.deb"
 
 S="${WORKDIR}"
@@ -29,7 +29,7 @@ src_unpack() {
 src_prepare() {
 	default
 	dpkg -x "${DISTDIR}"/anytype_${PV}_amd64.deb . || die "dpkg icon extraction failed"
-	sed -i 's|Exec=/opt/Anytype/anytype %U|Exec=anytype-bin %U|g' usr/share/applications/anytype.desktop ||
+	sed -i 's|^Exec=/opt/Anytype/anytype|Exec=anytype-bin|' usr/share/applications/anytype.desktop ||
 		die "Sed Exec command failed"
 }
 
