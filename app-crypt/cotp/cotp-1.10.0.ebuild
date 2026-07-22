@@ -14,7 +14,7 @@ if [[ ${PV} == 9999 ]]; then
 else
 	SRC_URI="
 		https://github.com/replydev/cotp/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
-		https://github.com/huaji2369/ebuild-crate-dist-replydev-cotp/releases/download/v${PV}/${P}-crates.tar.xz
+		https://github.com/gentoo-zh/gentoo-deps/releases/download/${P}/${P}-crates.tar.xz
 		${CARGO_CRATE_URIS}
 	"
 	KEYWORDS="~amd64 ~arm64"
