@@ -1073,6 +1073,12 @@ use_max_tag = true
 prefix = "v"
 github_account = "douglarek"
 
+["dev-util/grok-build-bin"]
+source = "regex"
+url = "https://x.ai/cli/stable"
+regex = '^([\d.]+)$'
+github_account = "zakkaus"
+
 ["dev-util/herdr-bin"]
 source = "github"
 github = "ogulcancelik/herdr"
