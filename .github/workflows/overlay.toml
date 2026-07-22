@@ -1229,7 +1229,8 @@ source = "regex"
 url = "https://api.vintagestory.at/lateststable.txt"
 regex = "([\\d.]+)"
 github_account = "liuyujielol"
-autobump = true
+# autobump off: the ~590 MB game tarball from cdn.vintagestory.at is slow in CI and the emerge
+# times out; bump it on the build box instead (fast link + a warm distfile cache).
 
 ["games-arcade/osu-lazer-bin"]
 source = "github"
