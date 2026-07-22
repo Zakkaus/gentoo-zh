@@ -192,6 +192,12 @@ src_prepare() {
 	rm -f "${squashfs}/scripts/"{pre_install.sh,post_install.sh,uninstall.sh} || die
 	rm -f "${squashfs}/LUT/GenLut" "${squashfs}/LUT/GenOutputLut" || die
 	rm -f "${squashfs}/bin/sqlite3" || die
+	if ! use video_cards_nvidia; then
+		rm -f \
+			"${squashfs}/BlackmagicRAWPlayer/BlackmagicRawAPI/libDecoderCUDA.so" \
+			"${squashfs}/BlackmagicRAWSpeedTest/BlackmagicRawAPI/libDecoderCUDA.so" \
+			"${squashfs}/libs/libDecoderCUDA.so" || die
+	fi
 	rm -rf \
 		"${squashfs}/Onboarding/qml/Qt/labs/lottieqt" \
 		"${squashfs}/Onboarding/qml/QtQml/RemoteObjects" \
