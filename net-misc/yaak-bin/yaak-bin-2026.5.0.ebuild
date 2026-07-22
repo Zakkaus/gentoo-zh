@@ -20,13 +20,17 @@ KEYWORDS="-* ~amd64"
 
 RESTRICT="strip"
 
-RDEPEND="net-libs/webkit-gtk:4.1"
+RDEPEND="
+	net-libs/webkit-gtk:4.1
+	x11-libs/gtk+:3
+"
 
 src_install() {
 	dobin usr/bin/yaak-app-client
 	insinto /usr/lib/yaak
 	doins -r usr/lib/yaak/*
 	fperms +x /usr/lib/yaak/vendored/node/yaaknode
+	fperms +x /usr/lib/yaak/vendored/protoc/yaakprotoc
 	domenu usr/share/applications/yaak.desktop
 	for icon in 32 128; do
 		doicon -s ${icon} usr/share/icons/hicolor/${icon}x${icon}/apps/yaak-app-client.png
