@@ -279,6 +279,9 @@ suite = "stable"
 strip_release = true
 github_account = "peeweep"
 
+# Version follows dev-lang/dart.
+#["dev-lang/dart-bootstrap"]
+
 ["dev-python/autopxd2"]
 source = "github"
 github = "elijahr/python-autopxd2"

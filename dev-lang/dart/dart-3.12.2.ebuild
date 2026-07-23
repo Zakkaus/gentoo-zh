@@ -15,8 +15,6 @@ HOMEPAGE="https://dart.dev https://github.com/dart-lang/sdk"
 # cookbook: https://lingchengling.feishu.cn/docx/VIkqdR04koXb1exOqmbcSz2DnZe
 SRC_URI="
 	https://github.com/gentoo-zh-drafts/dart-sdk-repack/releases/download/${PV}/dart-sdk-${PV}.tar.zst
-	https://storage.googleapis.com/dart-archive/channels/stable/release/${PV}/sdk/dartsdk-linux-x64-release.zip
-		-> dartsdk-${PV}-amd64.zip
 "
 
 S="${WORKDIR}/dart-sdk-${PV}"
@@ -30,7 +28,7 @@ IUSE="clang"
 REQUIRED_USE="clang? ( ${LLVM_REQUIRED_USE} )"
 
 BDEPEND="
-	app-arch/unzip
+	~dev-lang/dart-bootstrap-${PV}
 	dev-build/gn
 	dev-build/ninja
 	dev-vcs/git
@@ -48,6 +46,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-3.10.2-use_system_clang.patch"
 	"${FILESDIR}/${PN}-3.10.2-use_lld_when_using_clang.patch"
 	"${FILESDIR}/${PN}-3.10.2-custom_flags.patch"
+	"${FILESDIR}/${PN}-3.12.2-no-werror.patch"
 )
 
 src_prepare() {
@@ -56,7 +55,7 @@ src_prepare() {
 	mkdir -pv .git/logs
 	touch .git/logs/HEAD
 
-	ln -sfv "${WORKDIR}"/dart-sdk tools/sdks/dart-sdk
+	ln -sfv "${BROOT}"/usr/lib/dart-bootstrap tools/sdks/dart-sdk
 
 	# needed by tools/build.py
 	# ln -sfv /usr/bin/gn buildtools/gn

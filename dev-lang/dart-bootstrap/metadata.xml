@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>zakk@gentoozh.org</email>
+		<name>Zakkaus</name>
+	</maintainer>
+	<longdescription lang="en">
+		This package provides the prebuilt Dart SDK used only to bootstrap
+		<pkg>dev-lang/dart</pkg>. It is not meant to be used directly.
+	</longdescription>
+	<upstream>
+		<remote-id type="github">dart-lang/sdk</remote-id>
+	</upstream>
+</pkgmetadata>
