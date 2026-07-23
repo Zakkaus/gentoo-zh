@@ -38,7 +38,20 @@ jobs:
 
     steps:
     - name: sync gentoo main tree
-      run: emerge-webrsync
+      # emerge-webrsync has gemato refresh the release keys from a keyserver/WKD
+      # before verifying the snapshot; with neither reachable the sync aborts even
+      # though the stage3 image already ships valid gentoo-release keys. Shim gemato
+      # with -R so it still verifies against those local keys but skips the online
+      # refresh (whose only purpose is catching revocation).
+      run: |
+        shim=$(mktemp -d)
+        cat > "$shim/gemato" <<'SH'
+        #!/bin/sh
+        [ "$1" = openpgp-verify-detached ] && { shift; set -- openpgp-verify-detached -R "$@"; }
+        exec /usr/bin/gemato "$@"
+        SH
+        chmod +x "$shim/gemato"
+        PATH="$shim:$PATH" emerge-webrsync
 
     - name: setup portage
       run: |
