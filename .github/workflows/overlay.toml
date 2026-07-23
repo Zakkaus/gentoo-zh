@@ -126,8 +126,8 @@ github_account = "vitaly-zdanevich"
 
 ["app-editors/antigravity"]
 source = "regex"
-url = "https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/dists/antigravity-debian/main/binary-amd64/Packages"
-regex = 'Version: ([^-]+)-\d+'
+url = "https://antigravity-hub-auto-updater-974169037036.us-central1.run.app/releases"
+regex = '"version":"([\d.]+)"'
 github_account = "zakkaus"
 
 ["app-editors/antigravity-ide"]

@@ -2,13 +2,12 @@
 <!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 	<maintainer type="person">
-		<email>admin@zakk.au</email>
+		<email>zakk@gentoozh.org</email>
 		<name>Zakkaus</name>
 	</maintainer>
 	<use>
-		<flag name="egl">Use EGL for OpenGL rendering</flag>
-		<flag name="kerberos">Enable Kerberos authentication support</flag>
-		<flag name="wayland">Enable Wayland support with Ozone platform</flag>
+		<flag name="cli">Install the companion Antigravity command-line interface</flag>
+		<flag name="ide">Install the companion Antigravity IDE and preserve the editor during the 1.x to 2.x transition</flag>
 	</use>
 	<upstream>
 		<doc>https://antigravity.google/</doc>
