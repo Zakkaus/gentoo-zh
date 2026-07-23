@@ -7,12 +7,15 @@ inherit unpacker desktop xdg
 
 DESCRIPTION="Opensource IDE For Exploring and Testing Api's"
 HOMEPAGE="https://www.usebruno.com/"
-SRC_URI="https://github.com/usebruno/bruno/releases/download/v${PV}/bruno_${PV}_amd64_linux.deb"
+SRC_URI="
+	amd64? ( https://github.com/usebruno/bruno/releases/download/v${PV}/bruno_${PV}_amd64_linux.deb )
+	arm64? ( https://github.com/usebruno/bruno/releases/download/v${PV}/bruno_${PV}_arm64_linux.deb )
+"
 
 S="${WORKDIR}"
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="-* ~amd64"
+KEYWORDS="-* ~amd64 ~arm64"
 
 RDEPEND="
 	dev-libs/nss
