@@ -6,8 +6,9 @@
 		<name>Zakkaus</name>
 	</maintainer>
 	<use>
+		<flag name="cli">Install the companion Antigravity command-line interface</flag>
 		<flag name="egl">Use EGL for OpenGL rendering</flag>
-		<flag name="kerberos">Enable Kerberos authentication support</flag>
+		<flag name="ide">Install the companion Antigravity IDE and preserve the editor during the 1.x to 2.x transition</flag>
 		<flag name="wayland">Enable Wayland support with Ozone platform</flag>
 	</use>
 	<upstream>

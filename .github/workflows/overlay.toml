@@ -125,9 +125,9 @@ github_account = "vitaly-zdanevich"
 # autobump off: the per-version vendor bundle must be regenerated first -- not a mechanical bump.
 
 ["app-editors/antigravity"]
-source = "regex"
-url = "https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/dists/antigravity-debian/main/binary-amd64/Packages"
-regex = 'Version: ([^-]+)-\d+'
+source = "aur"
+aur = "antigravity"
+strip_release = true
 github_account = "zakkaus"
 
 ["app-editors/antigravity-cli"]
