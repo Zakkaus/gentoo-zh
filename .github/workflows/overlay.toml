@@ -130,6 +130,12 @@ url = "https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/dis
 regex = 'Version: ([^-]+)-\d+'
 github_account = "zakkaus"
 
+["app-editors/antigravity-ide"]
+source = "regex"
+url = "https://antigravity-ide-auto-updater-974169037036.us-central1.run.app/releases"
+regex = '"version":"([\d.]+)"'
+github_account = "zakkaus"
+
 ["app-editors/appflowy-bin"]
 source = "github"
 github = "AppFlowy-IO/AppFlowy"

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>zakk@gentoozh.org</email>
+		<name>Zakkaus</name>
+	</maintainer>
+	<longdescription lang="en">
+		This package provides the VS Code-based editor that was named Antigravity
+		before the Antigravity 2.0 product split. The app-editors/antigravity
+		package now provides the orchestration hub.
+	</longdescription>
+	<upstream>
+		<doc>https://antigravity.google/</doc>
+	</upstream>
+</pkgmetadata>
