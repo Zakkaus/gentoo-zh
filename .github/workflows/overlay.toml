@@ -365,6 +365,12 @@ use_latest_tag = true
 prefix = "v"
 github_account = "peeweep"
 
+["dev-util/antigravity-cli"]
+source = "github"
+github = "google-antigravity/antigravity-cli"
+use_latest_release = true
+github_account = "zakkaus"
+
 ["dev-util/cmakerc"]
 source = "github"
 github = "vector-of-bool/cmrc"

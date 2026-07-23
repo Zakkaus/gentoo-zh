@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>zakk@gentoozh.org</email>
+		<name>Zakkaus</name>
+	</maintainer>
+	<longdescription lang="en">
+		Antigravity CLI provides the terminal interface to the Antigravity agent
+		harness. The installed command is agy.
+	</longdescription>
+	<upstream>
+		<remote-id type="github">google-antigravity/antigravity-cli</remote-id>
+		<doc>https://antigravity.google/docs/cli-overview</doc>
+	</upstream>
+</pkgmetadata>
