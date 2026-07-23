@@ -1121,6 +1121,12 @@ use_latest_release = true
 github_account = "liangyongxiang"
 autobump = true
 
+["dev-util/kiro-cli"]
+source = "regex"
+url = "https://prod.download.cli.kiro.dev/stable/latest/manifest.json"
+regex = '"version":\s*"([\d.]+)"'
+github_account = "zakkaus"
+
 ["dev-util/maixvision"]
 source = "regex"
 url = "https://cdn.sipeed.com/maixvision/latest-linux.yml"

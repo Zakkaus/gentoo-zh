@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>zakk@gentoozh.org</email>
+		<name>Zakk</name>
+	</maintainer>
+	<longdescription lang="en">
+		Kiro CLI is the terminal interface to Amazon's Kiro agentic coding
+		assistant, the successor to the Amazon Q Developer CLI. The installed
+		command is kiro-cli.
+	</longdescription>
+	<upstream>
+		<doc>https://kiro.dev/docs/cli/</doc>
+	</upstream>
+</pkgmetadata>
