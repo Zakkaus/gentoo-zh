@@ -137,6 +137,12 @@ use_latest_release = true
 github_account = ["Linerre", "gouwazi"]
 autobump = true
 
+["app-editors/cursor"]
+source = "regex"
+url = "https://cursor.com/api/download?platform=linux-x64&releaseTrack=latest"
+regex = '"version":"([\d.]+)"'
+github_account = "zakkaus"
+
 ["app-editors/edit"]
 source = "github"
 github = "microsoft/edit"
