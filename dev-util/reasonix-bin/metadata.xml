@@ -2,8 +2,8 @@
 <!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 	<maintainer type="person">
-		<email>xiangzhedev@gmail.com</email>
-		<name>xz-dev</name>
+		<email>ak47m61@gmail.com</email>
+		<name>wgjak47</name>
 	</maintainer>
 	<upstream>
 		<remote-id type="github">esengine/DeepSeek-Reasonix</remote-id>

@@ -1190,7 +1190,7 @@ github = "esengine/DeepSeek-Reasonix"
 use_max_release = true
 include_regex = "v\\d+\\.\\d+\\.\\d+"
 prefix = "v"
-github_account = "xz-dev"
+github_account = "wgjak47"
 autobump = true
 
 ["dev-util/redpanda-cpp"]
