@@ -156,6 +156,12 @@ use_latest_release = true
 prefix = "v"
 github_account = "peeweep"
 
+["app-editors/kiro"]
+source = "regex"
+url = "https://kiro.dev/downloads/"
+regex = 'signed/([\d.]+)/tar'
+github_account = "zakkaus"
+
 ["app-editors/void-editor"]
 source = "github"
 github = "voideditor/binaries"

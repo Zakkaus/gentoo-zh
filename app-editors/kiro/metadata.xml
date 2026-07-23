@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>zakk@gentoozh.org</email>
+		<name>Zakk</name>
+	</maintainer>
+	<use>
+		<flag name="kerberos">Keep the bundled Kerberos authentication module</flag>
+		<flag name="webkit">Keep the bundled Microsoft authentication extension, which needs WebKitGTK</flag>
+	</use>
+	<longdescription lang="en">
+		Kiro is Amazon's agent-first AI IDE built on Code - OSS, with spec-driven
+		development that turns prompts into structured specs, tasks, and code.
+	</longdescription>
+	<upstream>
+		<doc>https://kiro.dev/docs/</doc>
+	</upstream>
+</pkgmetadata>
