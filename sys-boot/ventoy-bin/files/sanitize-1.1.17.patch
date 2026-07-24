@@ -1,7 +1,6 @@
-diff -rup ventoy-1.1.12/Ventoy2Disk.sh ventoy-1.1.12.new/Ventoy2Disk.sh
---- ventoy-1.1.12/Ventoy2Disk.sh	2026-04-23 18:04:24.000000000 +0800
-+++ ventoy-1.1.12.new/Ventoy2Disk.sh	2026-04-29 15:22:58.859876310 +0800
-@@ -31,67 +31,4 @@ echo "      longpanda admin@ventoy.net"
+--- ventoy-1.1.17/Ventoy2Disk.sh	2026-07-24 23:50:19.318854921 +1000
++++ ventoy-1.1.17.new/Ventoy2Disk.sh	2026-07-24 23:59:13.790632157 +1000
+@@ -29,58 +29,6 @@ echo "      longpanda admin@ventoy.net"
  echo "      https://www.ventoy.net"
  echo '**********************************************'
  echo ''
@@ -57,22 +56,11 @@ diff -rup ventoy-1.1.12/Ventoy2Disk.sh ventoy-1.1.12.new/Ventoy2Disk.sh
 -chmod +x -R ./tool/$TOOLDIR
 -
 -
--if [ -f /bin/bash ]; then
--    /bin/bash ./tool/VentoyWorker.sh $*
--else
--    ash ./tool/VentoyWorker.sh $*
--fi
--
--if [ -n "$OLDDIR" ]; then 
--    CURDIR=$(pwd)
--    if [ "$CURDIR" != "$OLDDIR" ]; then
--        cd "$OLDDIR"
--    fi
--fi
-+./tool/VentoyWorker.sh $*
-diff -rup ventoy-1.1.12/VentoyPlugson.sh ventoy-1.1.12.new/VentoyPlugson.sh
---- ventoy-1.1.12/VentoyPlugson.sh	2026-04-23 18:04:24.000000000 +0800
-+++ ventoy-1.1.12.new/VentoyPlugson.sh	2026-04-29 15:22:58.862521668 +0800
+ if [ -f /bin/bash ]; then
+     /bin/bash ./tool/VentoyWorker.sh $*
+ else
+--- ventoy-1.1.17/VentoyPlugson.sh	2026-07-24 23:50:19.318854921 +1000
++++ ventoy-1.1.17.new/VentoyPlugson.sh	2026-07-24 23:50:19.322854884 +1000
 @@ -34,8 +34,6 @@ if echo $machine | grep -E -q 'aarch64|a
      TOOLDIR=aarch64
  elif echo $machine | grep -E -q 'x86_64|amd64'; then
@@ -82,9 +70,8 @@ diff -rup ventoy-1.1.12/VentoyPlugson.sh ventoy-1.1.12.new/VentoyPlugson.sh
  elif echo $machine | grep -E -q 'i[3-6]86'; then
      TOOLDIR=i386
  else
-diff -rup ventoy-1.1.12/VentoyWeb.sh ventoy-1.1.12.new/VentoyWeb.sh
---- ventoy-1.1.12/VentoyWeb.sh	2026-04-23 18:04:24.000000000 +0800
-+++ ventoy-1.1.12.new/VentoyWeb.sh	2026-04-29 15:22:58.865817241 +0800
+--- ventoy-1.1.17/VentoyWeb.sh	2026-07-24 23:50:19.318854921 +1000
++++ ventoy-1.1.17.new/VentoyWeb.sh	2026-07-24 23:50:19.322854884 +1000
 @@ -15,12 +15,6 @@ print_err() {
      echo ""
  }
@@ -109,9 +96,8 @@ diff -rup ventoy-1.1.12/VentoyWeb.sh ventoy-1.1.12.new/VentoyWeb.sh
  if [ -f $LOGFILE ]; then
      logsize=$(stat -c '%s' $LOGFILE)
      if [ $logsize -gt 8388608 ]; then
-diff -rup ventoy-1.1.12/tool/VentoyWorker.sh ventoy-1.1.12.new/tool/VentoyWorker.sh
---- ventoy-1.1.12/tool/VentoyWorker.sh	2026-04-23 18:04:24.000000000 +0800
-+++ ventoy-1.1.12.new/tool/VentoyWorker.sh	2026-04-29 15:22:58.858572052 +0800
+--- ventoy-1.1.17/tool/VentoyWorker.sh	2026-07-24 23:50:19.317854931 +1000
++++ ventoy-1.1.17.new/tool/VentoyWorker.sh	2026-07-24 23:50:19.322854884 +1000
 @@ -106,7 +106,7 @@ vtdebug "MODE=$MODE FORCE=$FORCE RESERVE
  if check_tool_work_ok; then
      vtdebug "check tool work ok"
@@ -121,9 +107,8 @@ diff -rup ventoy-1.1.12/tool/VentoyWorker.sh ventoy-1.1.12.new/tool/VentoyWorker
      exit 1
  fi
  
-diff -rup ventoy-1.1.12/tool/ventoy_lib.sh ventoy-1.1.12.new/tool/ventoy_lib.sh
---- ventoy-1.1.12/tool/ventoy_lib.sh	2026-04-23 18:04:24.000000000 +0800
-+++ ventoy-1.1.12.new/tool/ventoy_lib.sh	2026-04-29 15:22:58.856652356 +0800
+--- ventoy-1.1.17/tool/ventoy_lib.sh	2026-07-24 23:50:19.317854931 +1000
++++ ventoy-1.1.17.new/tool/ventoy_lib.sh	2026-07-24 23:50:19.322854884 +1000
 @@ -29,7 +29,7 @@ vterr() {
  }
  
