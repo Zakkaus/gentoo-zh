@@ -161,6 +161,7 @@ source = "regex"
 url = "https://kiro.dev/downloads/"
 regex = 'signed/([\d.]+)/tar'
 github_account = "zakkaus"
+autobump = true
 
 ["app-editors/void-editor"]
 source = "github"
@@ -196,6 +197,7 @@ github = "github/copilot-cli"
 use_latest_release = true
 prefix = "v"
 github_account = "douglarek"
+autobump = true
 
 ["app-misc/crush"]
 source = "github"
@@ -385,6 +387,7 @@ source = "github"
 github = "google-antigravity/antigravity-cli"
 use_latest_release = true
 github_account = "zakkaus"
+autobump = true
 
 ["dev-util/cmakerc"]
 source = "github"
@@ -1135,6 +1138,7 @@ source = "regex"
 url = "https://prod.download.cli.kiro.dev/stable/latest/manifest.json"
 regex = '"version":\s*"([\d.]+)"'
 github_account = "zakkaus"
+autobump = true
 
 ["dev-util/maixvision"]
 source = "regex"
