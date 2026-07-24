@@ -18,7 +18,7 @@ jobs:
     name: scan changed ebuilds
     runs-on: ubuntu-latest
     outputs:
-      packages: ${{ steps.packages.outputs.packages }}
+      targets: ${{ steps.packages.outputs.targets }}
 
     steps:
     - uses: actions/checkout@v7
@@ -90,25 +90,62 @@ jobs:
 
         echo "scan all files: $(printf '%s\n' "${packages[@]}" | sort -u | jq -R . | jq -s .)"
 
-        json_output=$(printf '%s\n' "${packages[@]}" | sort -u | jq -R . | jq -s . | tr -d '\n')
-        echo "packages=${json_output}" >> "$GITHUB_OUTPUT"
+        # arm64 subset: keep only atoms whose ebuild keywords arm64 (stable or ~).
+        # -arm64 / no keyword -> dropped, so those packages only build on amd64.
+        declare -a arm64_packages=()
+        while IFS= read -r atom; do
+            [ -z "$atom" ] && continue
+            if [[ "$atom" == =* ]]; then
+                pf="${atom##*/}"; cat="${atom#=}"; cat="${cat%%/*}"
+                ebuilds=("$cat"/*/"$pf".ebuild)
+            else
+                ebuilds=("$atom"/*.ebuild)
+            fi
+            for eb in "${ebuilds[@]}"; do
+                [ -f "$eb" ] || continue
+                kw=$(sed -n 's/^KEYWORDS="\(.*\)"/\1/p' "$eb")
+                for tok in $kw; do
+                    if [[ "$tok" == "arm64" || "$tok" == "~arm64" ]]; then
+                        arm64_packages+=("$atom"); break 2
+                    fi
+                done
+            done
+        done < <(printf '%s\n' "${packages[@]}" | sort -u)
+
+        echo "scan arm64 files: $(printf '%s\n' "${arm64_packages[@]}" | sort -u | jq -R . | jq -s .)"
+
+        # emerge matrix: one entry per (package, profile, runner). every package builds on
+        # both amd64 profiles; arm64-keyworded ones also on arm64-desktop-systemd (arm64 has
+        # no desktop-openrc stage3). the build job fans out over this single list.
+        targets=$(
+          {
+            printf '%s\n' "${packages[@]}" | sort -u | while IFS= read -r p; do
+                [ -z "$p" ] && continue
+                printf '%s\t%s\t%s\n' "$p" amd64-desktop-openrc ubuntu-latest
+                printf '%s\t%s\t%s\n' "$p" amd64-desktop-systemd ubuntu-latest
+            done
+            printf '%s\n' "${arm64_packages[@]}" | sort -u | while IFS= read -r p; do
+                [ -z "$p" ] && continue
+                printf '%s\t%s\t%s\n' "$p" arm64-desktop-systemd ubuntu-24.04-arm
+            done
+          } | jq -R 'select(length>0)|split("\t")|{package:.[0],profile:.[1],runner:.[2]}' | jq -sc .
+        )
+        echo "scan targets: $targets"
+        echo "targets=${targets}" >> "$GITHUB_OUTPUT"
 
 
   build:
-    name: emerge
+    name: emerge ${{ matrix.target.package }} (${{ matrix.target.profile }})
     needs: scan
-    if: ${{ fromJson(needs.scan.outputs.packages)[0] != null }}
+    if: ${{ fromJson(needs.scan.outputs.targets)[0] != null }}
     strategy:
       fail-fast: false
       matrix:
-        package: ${{ fromJSON(needs.scan.outputs.packages) }}
-        profile:
-          - amd64-desktop-openrc
-          - amd64-desktop-systemd
+        target: ${{ fromJSON(needs.scan.outputs.targets) }}
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.target.runner }}
     container:
-      image: gentoo/stage3:${{ matrix.profile }}
+      image: gentoo/stage3:${{ matrix.target.profile }}
       options: --privileged
 
     steps:
@@ -155,11 +192,11 @@ jobs:
 
     - name: emerge --onlydeps packages
       run: |
-        emerge --quiet --autounmask=y --autounmask-write=y --autounmask-continue=y --onlydeps ${{ matrix.package }}
+        emerge --quiet --autounmask=y --autounmask-write=y --autounmask-continue=y --onlydeps ${{ matrix.target.package }}
         rm -rf /var/log/portage/elog/*
 
     - name: emerge packages
-      run: emerge --verbose --autounmask=y --autounmask-write=y --autounmask-continue=y ${{ matrix.package }}
+      run: emerge --verbose --autounmask=y --autounmask-write=y --autounmask-continue=y ${{ matrix.target.package }}
 
     - name: check Portage elog (fail if exists)
       run: |
