@@ -2181,9 +2181,10 @@ prefix = "v"
 github_account = ["liuyujielol", "Zakkaus"]
 
 ["net-proxy/Xray"]
+# XTLS marks new versions as prerelease; track releases only to avoid their breaking changes. Do not switch to use_max_tag.
 source = "github"
 github = "XTLS/Xray-core"
-use_max_tag = true
+use_latest_release = true
 prefix = "v"
 
 ["net-proxy/yacd-meta"]
