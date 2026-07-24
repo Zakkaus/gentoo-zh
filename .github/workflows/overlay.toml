@@ -688,13 +688,13 @@ github_account = ["zozx", "gouwazi"]
 ["app-office/wps-office"]
 source = "regex"
 url = "https://linux.wps.cn/wpslinuxlog"
-regex = "wps-office_([\\d.]+)_amd64.deb"
+regex = 'wps-office_([\d.]+)\.'
 github_account = ["Universebenzene", "gouwazi", "zakkaus"]
 
 ["app-office/wps-office365"]
 source = "regex"
 url = "https://linux.wps.cn/wpslinuxlog"
-regex = "wps-office_([\\d.]+)_amd64.deb"
+regex = 'wps-office_([\d.]+)\.'
 github_account = ["Universebenzene", "gouwazi", "zakkaus"]
 
 # The edu channel has no version-log page like linux.wps.cn/wpslinuxlog; piggyback
@@ -1209,7 +1209,7 @@ github_account = "liangyongxiang"
 ["dev-util/trae-ide"]
 source = "regex"
 url = "https://api.trae.cn/icube/api/v1/native/version/trae/cn/latest"
-regex = '"linux":\{"version":"([\d.]+)"'
+regex = 'releases/stable/([\d.]+)/'
 github_account = "microcai"
 
 ["dev-util/vcpkg-tool"]
@@ -1996,7 +1996,7 @@ github_account = "gouwazi"
 ["net-misc/todesk"]
 source = "regex"
 url = "https://www.todesk.com/linux.html"
-regex = "todesk-v(.*)-amd64.deb"
+regex = 'todesk-v([\d.]+)-amd64\.deb'
 github_account = ["microcai", "gouwazi"]
 
 ["net-misc/tsshd"]
@@ -2183,7 +2183,7 @@ github_account = ["liuyujielol", "Zakkaus"]
 ["net-proxy/Xray"]
 source = "github"
 github = "XTLS/Xray-core"
-use_latest_release = true
+use_max_tag = true
 prefix = "v"
 
 ["net-proxy/yacd-meta"]
