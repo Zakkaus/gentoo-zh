@@ -78,6 +78,7 @@ jobs:
             skel.ChangeLog
             skel.metadata.xml
             .github
+            eclass
             licenses
             metadata
             profiles
