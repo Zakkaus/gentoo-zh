@@ -112,7 +112,7 @@ jobs:
 
     steps:
     - name: sync gentoo main tree
-      run: emerge-webrsync
+      run: emerge-webrsync --no-pgp-verify
 
     - name: fetch repo
       uses: actions/checkout@v7

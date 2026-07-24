@@ -58,7 +58,7 @@ jobs:
       built: ${{ steps.trial.outputs.built }}
     steps:
       - name: sync gentoo main tree
-        run: emerge-webrsync
+        run: emerge-webrsync --no-pgp-verify
 
       - name: setup portage
         run: |
