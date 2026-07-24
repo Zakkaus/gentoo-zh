@@ -45,7 +45,7 @@ src_prepare() {
 	popd || die
 
 	# Apply sanitize patch
-	eapply -p1 "${FILESDIR}/sanitize-1.1.12.patch"
+	eapply -p1 "${FILESDIR}/sanitize-1.1.17.patch"
 
 	# Log location
 	sed -i 's|log\.txt|/var/log/ventoy.log|g' WebUI/static/js/languages.js tool/languages.json || die
