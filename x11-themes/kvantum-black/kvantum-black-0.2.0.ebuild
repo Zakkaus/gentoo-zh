@@ -20,3 +20,5 @@ src_install() {
 
 	dodoc README.md
 }
+
+# ci: trigger amd64-only detection test

@@ -96,3 +96,5 @@ src_install() {
 	dofishcomp completions/sing-box.fish
 	dozshcomp completions/_sing-box
 }
+
+# ci: trigger arm64 detection test
