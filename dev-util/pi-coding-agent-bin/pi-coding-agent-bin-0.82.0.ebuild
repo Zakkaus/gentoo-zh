@@ -4,10 +4,10 @@
 EAPI=8
 
 DESCRIPTION="A terminal-based coding agent with multi-model support"
-HOMEPAGE="https://github.com/badlogic/pi-mono"
+HOMEPAGE="https://github.com/earendil-works/pi"
 SRC_URI="
-	amd64? ( https://github.com/badlogic/pi-mono/releases/download/v${PV}/pi-linux-x64.tar.gz -> ${P}-amd64.tar.gz )
-	arm64? ( https://github.com/badlogic/pi-mono/releases/download/v${PV}/pi-linux-arm64.tar.gz -> ${P}-arm64.tar.gz )
+	amd64? ( https://github.com/earendil-works/pi/releases/download/v${PV}/pi-linux-x64.tar.gz -> ${P}-amd64.tar.gz )
+	arm64? ( https://github.com/earendil-works/pi/releases/download/v${PV}/pi-linux-arm64.tar.gz -> ${P}-arm64.tar.gz )
 "
 S="${WORKDIR}"/pi
 
