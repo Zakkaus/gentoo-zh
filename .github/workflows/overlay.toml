@@ -370,6 +370,12 @@ url = "https://downloads.keyman.com/linux/stable/"
 regex = '(\d+\.\d+\.\d+)/'
 github_account = "zakkaus"
 
+["app-i18n/keyman-system-service"]
+source = "regex"
+url = "https://downloads.keyman.com/linux/stable/"
+regex = '(\d+\.\d+\.\d+)/'
+github_account = "zakkaus"
+
 # live package only
 #["app-i18n/libime"]
 
