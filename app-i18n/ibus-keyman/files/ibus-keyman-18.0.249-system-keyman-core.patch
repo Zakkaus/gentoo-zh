@@ -1,0 +1,35 @@
+Build against the installed keyman_core instead of an in-tree core build:
+resolve the library and its version header through pkg-config, and drop
+the test targets that link an in-tree keymancore-tests helper library.
+
+--- a/linux/ibus-keyman/meson.build
++++ b/linux/ibus-keyman/meson.build
+@@ -32,10 +32,7 @@
+ core_dir = meson.current_source_dir() / '../../core'
+ common_dir = meson.current_source_dir() / '../../common'
+ 
+-keymancore_lib = c_compiler.find_library(
+-  'keymancore', # meson will prefix 'lib'
+-  dirs: [ core_dir / 'build/arch' / get_option('buildtype') / 'src' ]
+-)
++keymancore_lib = dependency('keyman_core')
+ 
+ if get_option('keyman_deb_pkg_build')
+   add_global_arguments('-DKEYMAN_PKG_BUILD', language: ['cpp', 'c'])
+@@ -57,9 +54,7 @@
+   include_directories('../../core/src/kmx'),
+   include_directories('../../core/include'),
+   include_directories('../../common/include'),
+-  include_directories('../../core/build/arch' / get_option('buildtype') / 'include'),
+ ]
+ 
+ subdir('icons')
+ subdir('src')
+-subdir('tests')
+--- a/linux/ibus-keyman/src/meson.build
++++ b/linux/ibus-keyman/src/meson.build
+@@ -49,4 +49,3 @@
+   install_dir: get_option('libexecdir'),
+ )
+ 
+-subdir('test')
