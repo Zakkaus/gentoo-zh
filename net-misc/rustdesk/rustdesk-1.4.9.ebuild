@@ -163,11 +163,11 @@ BDEPEND="
 	')
 "
 
-QA_PREBUILT="usr/share/${PN}/lib/libflutter_linux_gtk.so"
+QA_PREBUILT="usr/lib/${PN}/lib/libflutter_linux_gtk.so"
 QA_PRESTRIPPED="
-	usr/share/${PN}/lib/libapp.so
-	usr/share/${PN}/lib/libflutter_linux_gtk.so
-	usr/share/${PN}/lib/librustdesk.so
+	usr/lib/${PN}/lib/libapp.so
+	usr/lib/${PN}/lib/libflutter_linux_gtk.so
+	usr/lib/${PN}/lib/librustdesk.so
 "
 
 PATCHES=(
@@ -262,7 +262,7 @@ src_compile() {
 src_install() {
 	local bundle="flutter/build/linux/x64/release/bundle"
 	local plugin
-	local rustdesk_dir="/usr/share/${PN}"
+	local rustdesk_dir="/usr/lib/${PN}"
 
 	exeinto "${rustdesk_dir}"
 	doexe "${bundle}/${PN}"
