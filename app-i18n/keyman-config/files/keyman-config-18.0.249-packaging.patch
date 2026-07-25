@@ -1,0 +1,12 @@
+Use packaging.version instead of pkg_resources.parse_version, which
+setuptools removed in 81; packaging is already a runtime dependency.
+
+--- a/keyman_config/ibus_util.py
++++ b/keyman_config/ibus_util.py
+@@ -12,7 +12,7 @@ gi.require_version('IBus', '1.0')
+ from gi.repository import IBus
+-from pkg_resources import parse_version
++from packaging.version import parse as parse_version
+ 
+ from keyman_config.gnome_keyboards_util import is_gnome_desktop
+ from keyman_config.gsettings import GSettings

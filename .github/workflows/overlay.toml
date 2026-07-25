@@ -358,6 +358,12 @@ github_account = "zakkaus"
 # live package only
 #["app-i18n/ibus-rime"]
 
+["app-i18n/keyman-config"]
+source = "regex"
+url = "https://downloads.keyman.com/linux/stable/"
+regex = '(\d+\.\d+\.\d+)/'
+github_account = "zakkaus"
+
 ["app-i18n/keyman-core"]
 source = "regex"
 url = "https://downloads.keyman.com/linux/stable/"

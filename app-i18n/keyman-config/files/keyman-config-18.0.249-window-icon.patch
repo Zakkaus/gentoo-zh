@@ -1,0 +1,12 @@
+Set the main window icon by name so window managers (including Wayland
+compositors) show the Keyman icon in the task switcher, not a placeholder.
+
+--- a/keyman_config/view_installed.py
++++ b/keyman_config/view_installed.py
+@@ -36,6 +36,7 @@ class ViewInstalledWindowBase(Gtk.Window):
+     def __init__(self):
+         self.accelerators = None
+         super().__init__(title=_("Keyman Configuration"))
++        self.set_icon_name("km-config")
+         init_accel(self)
+         self._config_service = get_keyman_config_service(self.refresh_installed_kmp)
