@@ -156,6 +156,13 @@ use_latest_release = true
 prefix = "v"
 github_account = "peeweep"
 
+["app-editors/flowblade"]
+source = "github"
+github = "jliljebl/flowblade"
+use_latest_release = true
+prefix = "v"
+github_account = "vitaly-zdanevich"
+
 ["app-editors/kiro"]
 source = "regex"
 url = "https://kiro.dev/downloads/"
@@ -170,6 +177,12 @@ use_latest_release = true
 prefix = "v"
 github_account = ["Schroedingersdoraemon", "gouwazi"]
 
+# live package only
+#["app-editors/neomacs"]
+
+# live package only
+#["app-editors/neovim-bin"]
+
 ["app-editors/typora"]
 source = "regex"
 url = "https://typora.io/#linu://typora.io/releases/stable.html"
@@ -181,6 +194,9 @@ source = "github"
 github = "voideditor/binaries"
 use_latest_release = true
 github_account = "AmarBego"
+
+# vendor CDN, no published version index
+#["app-editors/windsurf"]
 
 # TODO:
 #["app-emulation/deepin-udis86"]
@@ -205,6 +221,12 @@ github = "AOSC-Dev/liblol"
 use_latest_release = true
 prefix = "v"
 github_account = "xen0n"
+
+# same source as app-emulation/liblol
+#["app-emulation/liblol-glibc"]
+
+# same source as app-emulation/liblol
+#["app-emulation/liblol-libxcrypt"]
 
 # TODO: PV mismatching tags
 #["app-emulation/looking-glass"]
@@ -234,11 +256,17 @@ github_account = "yamader"
 # live package only
 #["app-i18n/fcitx"]
 
+# live package only
+#["app-i18n/fcitx-anthy"]
+
 ["app-i18n/fcitx-bamboo"]
 source = "github"
 github = "fcitx/fcitx5-bamboo"
 use_latest_tag = true
 github_account = "liangyongxiang"
+
+# live package only
+#["app-i18n/fcitx-chewing"]
 
 # live package only
 #["app-i18n/fcitx-chinese-addons"]
@@ -312,6 +340,9 @@ github_account = "zakkaus"
 # live package only
 #["app-i18n/fcitx-rime"]
 
+# live package only
+#["app-i18n/fcitx-sayura"]
+
 ["app-i18n/fcitx-skin-material"]
 source = "github"
 github = "hrko/fcitx-skin-material"
@@ -326,6 +357,15 @@ use_latest_tag = true
 github_account = "liuyujielol"
 
 #["app-i18n/fcitx-table-dayi"]
+
+# live package only
+#["app-i18n/fcitx-table-extra"]
+
+# live package only
+#["app-i18n/fcitx-table-other"]
+
+# live package only
+#["app-i18n/fcitx-unikey"]
 
 # live package only
 
@@ -364,6 +404,9 @@ autobump = true
 
 #["app-i18n/libkkc-data"]
 
+# live package only
+#["app-i18n/librime"]
+
 # no independent tag; the data version ships inside the libkkc release assets
 
 ["app-i18n/lunar"]
@@ -372,6 +415,12 @@ debianpkg = "lunar"
 from_pattern = "^(\\d+\\.\\d+)-(\\d+)$"
 to_pattern = "\\1_p\\2"
 github_account = ["liangyongxiang", "gouwazi"]
+
+# live package only
+#["app-i18n/rime-data"]
+
+# live package only
+#["app-i18n/rime-ice"]
 
 ["app-i18n/zh-autoconvert"]
 source = "debianpkg"
@@ -392,6 +441,9 @@ source = "regex"
 url = "https://www.scootersoftware.com/kb/linux_install"
 regex = "bcompare-([\\d.]+).x86_64.tar.gz"
 github_account = "gouwazi"
+
+# live package only
+#["app-misc/bilihud"]
 
 ["app-misc/cc-switch"]
 source = "github"
@@ -491,6 +543,9 @@ use_latest_tag = true
 prefix = "v"
 github_account = "st0nie"
 
+# upstream has no release or tag
+#["app-misc/mdx_util"]
+
 ["app-misc/openclaude"]
 source = "github"
 github = "Gitlawb/openclaude"
@@ -532,6 +587,9 @@ github = "sxyazi/yazi"
 use_latest_release = true
 prefix = "v"
 github_account = "Nuralii1i"
+
+# vendor CDN, no published version index
+#["app-misc/z-library"]
 
 ["app-office/anytype-bin"]
 source = "github"
@@ -806,6 +864,9 @@ github = "tlwg/libdatrie"
 use_latest_release = true
 prefix = "v"
 
+# packaged as a git snapshot
+#["dev-libs/libpqmarble"]
+
 ["dev-libs/libratbag"]
 source = "github"
 github = "libratbag/libratbag"
@@ -832,6 +893,12 @@ github = "yetist/lunar-date"
 use_latest_release = true
 prefix = "v"
 github_account = ["microcai", "gouwazi"]
+
+# packaged as a git snapshot
+#["dev-libs/qml-material"]
+
+# packaged as a git snapshot
+#["dev-libs/qnodeeditor"]
 
 ["dev-libs/singleapplication"]
 source = "github"
@@ -1085,6 +1152,9 @@ prefix = "v"
 github_account = "gouwazi"
 autobump = true
 
+# follows the Qt release cycle
+#["dev-qt/qtgrpc"]
+
 # dev-qt/qtgrpc: kept in sync with the main tree qt, no nvchecker needed
 
 ["dev-ruby/filelock"]
@@ -1128,6 +1198,9 @@ github = "vector-of-bool/cmrc"
 use_latest_release = true
 github_account = "peeweep"
 
+# live package only
+#["dev-util/codewhale-bin"]
+
 ["dev-util/codex"]
 source = "github"
 github = "openai/codex"
@@ -1136,6 +1209,9 @@ prefix = "rust-v"
 github_account = "vowstar"
 # autobump off: Rust crates + GIT_CRATES + rusty_v8 vendor bundles are regenerated per version
 # (gentoo-zh-drafts/codex crates.yml) and the ebuild changes each bump -- not a mechanical bump.
+
+# upstream is gone, packaged from an old snapshot
+#["dev-util/execstack"]
 
 ["dev-util/fvm"]
 source = "github"
@@ -1233,6 +1309,9 @@ use_latest_release = true
 prefix = "v"
 github_account = "tsln1998"
 
+# same source as dev-util/pack-cli
+#["dev-util/pack-cli-bin"]
+
 ["dev-util/pacstrap"]
 source = "gitlab"
 host = "gitlab.archlinux.org"
@@ -1317,6 +1396,9 @@ github = "kkinnear/zprint"
 use_latest_tag = true
 github_account = "xz-dev"
 
+# live package only
+#["dev-vcs/git-remote-mediawiki"]
+
 ["dev-vcs/gitoxide"]
 source = "github"
 github = "GitoxideLabs/gitoxide"
@@ -1370,6 +1452,12 @@ prefix = "v"
 exclude_regex = ".*(beta|test)"
 github_account = "Puqns67"
 
+# upstream has shipped 0.8.8 since 2012
+#["games-fps/openarena"]
+
+# upstream has shipped 0.8.8 since 2012
+#["games-fps/openarena-bin"]
+
 # live package only
 #["games-fps/source-engine"]
 
@@ -1377,6 +1465,9 @@ github_account = "Puqns67"
 source = "github"
 github = "git-learning-game/oh-my-git"
 use_latest_tag = true
+
+# upstream has no tag, packaged from a pinned commit
+#["games-roguelike/tsl"]
 
 ["games-server/vintagestory-server"]
 source = "regex"
@@ -1390,11 +1481,17 @@ url = "https://sourceforge.net/projects/zedonline/rss?path=/releases"
 regex = 'v(\d+(?:\.\d+)+)'
 github_account = "vitaly-zdanevich"
 
+# ebuild version tracks the GNOME Shell series, not the extension release
+#["gnome-extra/gnome-shell-extension-clipboard-indicator"]
+
 ["gnome-extra/nautilus-open-any-terminal"]
 source = "github"
 github = "Stunkymonkey/nautilus-open-any-terminal"
 use_latest_release = true
 github_account = "Jack77793"
+
+# upstream archived
+#["gnome-extra/resources"]
 
 ["gui-apps/crystal-dock"]
 source = "github"
@@ -1430,6 +1527,19 @@ github = "dfaust/plasma-applet-netspeed-widget"
 use_latest_tag = true
 prefix = "v"
 github_account = "liuyujielol"
+
+["kde-misc/plasma-ions-china"]
+source = "github"
+github = "arenekosreal/plasma-ions-china"
+use_latest_tag = true
+prefix = "v"
+github_account = "Puqns67"
+
+# third-party AppImage rebuild, not upstream MATE
+#["mate-base/caja-bin"]
+
+# upstream has no release or tag
+#["media-fonts/chocolate-classical"]
 
 # upstream is a Huawei CDN download with no version feed
 #["media-fonts/harmonyos-sans"]
@@ -1673,6 +1783,9 @@ use_latest_release = true
 prefix = "v"
 github_account = "st0nie"
 
+# live package only
+#["media-plugins/kotonoha"]
+
 ["media-plugins/osdlyrics"]
 source = "github"
 github = "osdlyrics/osdlyrics"
@@ -1694,6 +1807,9 @@ github_account = "Puqns67"
 
 # live package only
 #["media-sound/barva"]
+
+# upstream has no public release or tag
+#["media-sound/cider"]
 
 ["media-sound/euphonica"]
 source = "github"
@@ -1878,6 +1994,9 @@ github_account = "gouwazi"
 # dead upstream
 # ["net-analyzer/nali"]
 
+# same source as net-analyzer/pwru-bin
+#["net-analyzer/pwru"]
+
 ["net-analyzer/pwru-bin"]
 source = "github"
 github = "cilium/pwru"
@@ -1922,6 +2041,9 @@ url = "https://www.dingtalk.com/win/d/qd=linux_amd64"
 method = "GET"
 regex = 'com.alibabainc.dingtalk_(.*)_amd64.deb'
 github_account = "gouwazi"
+
+# upstream tags mix k- and v-ktg schemes
+#["net-im/kotatogram-bin"]
 
 ["net-im/tencent-qq"]
 # QQ doesn't publish the build number (e.g. 51102) anywhere fetchable, so track updates via AUR's linuxqq.
@@ -2199,6 +2321,9 @@ use_latest_release = true
 prefix = "v"
 github_account = "gouwazi"
 
+# same source as net-proxy/clash-verge-bin
+#["net-proxy/clash-verge-rev"]
+
 ["net-proxy/dae"]
 source = "github"
 github = "daeuniverse/dae"
@@ -2256,6 +2381,21 @@ github_account = ["blackteahamburger", "gouwazi"]
 #use_latest_tag = true
 #prefix = "v"
 #github_account = "Jackarain"
+
+# packaged snapshot is newer than the last release
+#["net-proxy/qv2ray"]
+
+# upstream archived
+#["net-proxy/qvplugin-command"]
+
+# upstream archived
+#["net-proxy/qvplugin-ss"]
+
+# upstream archived
+#["net-proxy/qvplugin-trojan"]
+
+# upstream archived
+#["net-proxy/qvplugin-trojan-go"]
 
 ["net-proxy/serenity"]
 source = "github"
@@ -2394,6 +2534,12 @@ github = "trabucayre/openFPGALoader"
 use_latest_release = true
 prefix = "v"
 github_account = "liangyongxiang"
+
+# upstream tag scheme does not map to the ebuild version
+#["sci-mathematics/rstudio-desktop-bin"]
+
+# upstream tags a release every few hours
+#["sci-ml/llama-cpp"]
 
 # virtual package
 #["sec-policy/apparmor-profile-deepinwine"]
@@ -2538,14 +2684,8 @@ use_latest_release = true
 prefix = "v"
 github_account = "Puqns67"
 
-["www-apps/folo-bin"]
-source = "github"
-github = "RSSNext/Folo"
-use_max_release = true
-include_regex = "desktop/v.*"
-prefix = "desktop/v"
-github_account = "gouwazi"
-autobump = true
+# masked for removal
+#["www-apps/folo-bin"]
 
 ["www-client/adspower-global"]
 source = "regex"
@@ -2598,6 +2738,9 @@ github = "cginternals/glbinding"
 use_latest_release = true
 prefix = "v"
 github_account = ["microcai", "gouwazi"]
+
+# live package only
+#["x11-libs/xcb-imdkit"]
 
 ["x11-misc/9menu"]
 source = "debianpkg"
@@ -2708,6 +2851,9 @@ source = "github"
 github = "alvatip/Nordzy-icon"
 use_latest_release = true
 github_account = ["hertz-hwang", "gouwazi"]
+
+# live package only
+#["x11-themes/ori-fcitx5"]
 
 # live package only
 #["x11-wm/chamferwm"]
