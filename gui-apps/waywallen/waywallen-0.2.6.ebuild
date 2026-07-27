@@ -7,7 +7,7 @@ LLVM_COMPAT=( 22 )
 RUST_MIN_VER="1.87.0"
 
 declare -A GIT_CRATES=(
-	[mlua-extra]="https://github.com/hypengw/mlua-extra;16fc20f1445e6b723da78fb08b236dfeaad10db0"
+	[mlua-extra]="https://github.com/hypengw/mlua-extra;df1d282170dd1718b8aeff405638c18cedd435ca"
 )
 
 inherit toolchain-funcs flag-o-matic llvm-r2 cargo cmake xdg-utils
@@ -15,16 +15,21 @@ inherit toolchain-funcs flag-o-matic llvm-r2 cargo cmake xdg-utils
 DESCRIPTION="A dynamic wallpaper solution for Linux desktops"
 HOMEPAGE="https://github.com/waywallen/waywallen"
 
-RSTD_COMMIT="629bda81eb98856ca023f0f87f57dde8d22b4823"
-WAVSEN_COMMIT="aab112235e4da7e03c233793a9d612507f0e6355"
-NCREQUEST_COMMIT="404868aa2aa4481e262f25d8f7d053f42b61b7b8"
-QEXTRA_COMMIT="d02d9a7bfed546dfb7f87a5627b1c9e8f6fcc95a"
+RSTD_COMMIT="bf5f855ddb1b84390306e0913b89149ac72a3510"
+VVK_COMMIT="8fcfd34b43a13ade515f029b0b4209bd3684645f"
+VMA_COMMIT="3aa921224c154a0d2c43912bc88e1c42ce1f7607"
+WAVSEN_COMMIT="e49fc62fdc1b57abeabb643daa6ebab96fb3821f"
+NCREQUEST_COMMIT="37d3c588fb1307dd6c40fbc8681790b45eb5402a"
+QEXTRA_COMMIT="2106172c8c55693248661f5ddfc0623ff489285d"
 
 SRC_URI="
 	https://github.com/waywallen/waywallen/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
 	https://github.com/gentoo-zh-drafts/waywallen/releases/download/v${PV}/waywallen-${PV}-crates.tar.xz
 	${CARGO_CRATE_URIS}
-	https://github.com/hypengw/rstd/archive/${RSTD_COMMIT}.tar.gz -> rstd-${RSTD_COMMIT}.tar.gz
+	https://github.com/litocpp/rstd/archive/${RSTD_COMMIT}.tar.gz -> rstd-${RSTD_COMMIT}.tar.gz
+	https://github.com/litocpp/vvk/archive/${VVK_COMMIT}.tar.gz -> vvk-${VVK_COMMIT}.tar.gz
+	https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator/archive/${VMA_COMMIT}.tar.gz
+		-> VulkanMemoryAllocator-${VMA_COMMIT}.tar.gz
 	https://github.com/hypengw/wavsen/archive/${WAVSEN_COMMIT}.tar.gz -> wavsen-${WAVSEN_COMMIT}.tar.gz
 	ui? (
 		https://github.com/hypengw/ncrequest/archive/${NCREQUEST_COMMIT}.tar.gz -> ncrequest-${NCREQUEST_COMMIT}.tar.gz
@@ -55,6 +60,7 @@ RDEPEND="
 		dev-qt/qtbase:6[dbus]
 		dev-qt/qtdeclarative:6
 		dev-qt/qtgrpc:6
+		dev-qt/qtwebsockets:6
 	)
 	pipewire? ( media-video/pipewire )
 	!pipewire? ( media-libs/libpulse )
@@ -62,9 +68,6 @@ RDEPEND="
 "
 DEPEND="
 	${RDEPEND}
-	dev-cpp/asio
-	dev-cpp/nlohmann_json
-	dev-libs/pegtl
 	dev-util/vulkan-headers
 "
 BDEPEND="
@@ -77,17 +80,13 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}/${PN}-0.2.2-use-system-depends.patch"
+	"${FILESDIR}/${PN}-0.2.6-use-system-depends.patch"
 )
 
 export LIBSQLITE3_SYS_USE_PKG_CONFIG=1
 
 src_prepare() {
 	default_src_prepare
-
-	pushd "${WORKDIR}/rstd-${RSTD_COMMIT}" || die
-	eapply "${FILESDIR}/${PN}-0.2.3-rstd-fixes.patch"
-	popd || die
 
 	pushd "${WORKDIR}/wavsen-${WAVSEN_COMMIT}" || die
 	eapply "${FILESDIR}/${PN}-0.2.2-wavsen-optional-vaapi.patch"
@@ -112,6 +111,8 @@ src_configure() {
 		-DCMAKE_LINKER_TYPE=LLD
 		-DFETCHCONTENT_FULLY_DISCONNECTED=ON
 		-DFETCHCONTENT_SOURCE_DIR_RSTD="${WORKDIR}/rstd-${RSTD_COMMIT}"
+		-DFETCHCONTENT_SOURCE_DIR_VVK="${WORKDIR}/vvk-${VVK_COMMIT}"
+		-DFETCHCONTENT_SOURCE_DIR_VMA="${WORKDIR}/VulkanMemoryAllocator-${VMA_COMMIT}"
 		-DFETCHCONTENT_SOURCE_DIR_WAVSEN="${WORKDIR}/wavsen-${WAVSEN_COMMIT}"
 		-DWAYWALLEN_BUILD_UI="$(usex ui)"
 		-DWAVSEN_AUDIO_BACKEND="$(usex pipewire pipewire pulse)"
