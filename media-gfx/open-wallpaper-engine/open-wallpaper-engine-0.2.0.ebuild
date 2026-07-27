@@ -11,13 +11,18 @@ DESCRIPTION="A dynamic wallpaper solution for Linux desktops"
 HOMEPAGE="https://github.com/waywallen/open-wallpaper-engine"
 
 SPIRV_REFLECT_TAG="1.4.321.0"
-RSTD_COMMIT="f30b9edc43734b88c0ec9afe90604c1f54cc4e8d"
-WAVSEN_COMMIT="aab112235e4da7e03c233793a9d612507f0e6355"
+RSTD_COMMIT="bf5f855ddb1b84390306e0913b89149ac72a3510"
+VVK_COMMIT="8fcfd34b43a13ade515f029b0b4209bd3684645f"
+VMA_COMMIT="3aa921224c154a0d2c43912bc88e1c42ce1f7607"
+WAVSEN_COMMIT="e49fc62fdc1b57abeabb643daa6ebab96fb3821f"
 CEF_FILENAME="cef_binary_149.0.4+g2f1bfd8+chromium-149.0.7827.156_linux64_minimal"
 
 SRC_URI="
 	https://github.com/waywallen/open-wallpaper-engine/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
-	https://github.com/hypengw/rstd/archive/${RSTD_COMMIT}.tar.gz -> rstd-${RSTD_COMMIT}.tar.gz
+	https://github.com/litocpp/rstd/archive/${RSTD_COMMIT}.tar.gz -> rstd-${RSTD_COMMIT}.tar.gz
+	https://github.com/litocpp/vvk/archive/${VVK_COMMIT}.tar.gz -> vvk-${VVK_COMMIT}.tar.gz
+	https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator/archive/${VMA_COMMIT}.tar.gz
+		-> VulkanMemoryAllocator-${VMA_COMMIT}.tar.gz
 	https://github.com/hypengw/wavsen/archive/${WAVSEN_COMMIT}.tar.gz -> wavsen-${WAVSEN_COMMIT}.tar.gz
 	https://github.com/KhronosGroup/SPIRV-Reflect/archive/vulkan-sdk-${SPIRV_REFLECT_TAG}.tar.gz
 		-> SPIRV-Reflect-${SPIRV_REFLECT_TAG}.tar.gz
@@ -45,14 +50,13 @@ RDEPEND="
 		dev-libs/nspr
 		dev-libs/nss
 	)
-	waywallen? ( gui-apps/waywallen )
+	waywallen? ( >=gui-apps/waywallen-0.2.6 )
 	pipewire? ( media-video/pipewire )
 	!pipewire? ( media-libs/libpulse )
 	vaapi? ( media-libs/libva )
 "
 DEPEND="
 	${RDEPEND}
-	dev-cpp/argparse
 	dev-cpp/eigen
 	dev-util/vulkan-headers
 "
@@ -65,7 +69,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}/${PN}-0.1.12-use-system-depends.patch"
+	"${FILESDIR}/${PN}-0.2.0-use-system-depends.patch"
 	"${FILESDIR}/${PN}-0.1.9-fix-waywallen-plugin-install-path.patch"
 	"${FILESDIR}/${PN}-0.1.9-disable-viewer-default.patch"
 )
@@ -103,6 +107,8 @@ src_configure() {
 		-DFETCHCONTENT_FULLY_DISCONNECTED=ON
 		-DFETCHCONTENT_SOURCE_DIR_SPIRV_REFLECT="${WORKDIR}/SPIRV-Reflect-vulkan-sdk-${SPIRV_REFLECT_TAG}"
 		-DFETCHCONTENT_SOURCE_DIR_RSTD="${WORKDIR}/rstd-${RSTD_COMMIT}"
+		-DFETCHCONTENT_SOURCE_DIR_VVK="${WORKDIR}/vvk-${VVK_COMMIT}"
+		-DFETCHCONTENT_SOURCE_DIR_VMA="${WORKDIR}/VulkanMemoryAllocator-${VMA_COMMIT}"
 		-DFETCHCONTENT_SOURCE_DIR_WAVSEN="${WORKDIR}/wavsen-${WAVSEN_COMMIT}"
 		-DFETCHCONTENT_SOURCE_DIR_CEF="${WORKDIR}/${CEF_FILENAME}"
 		-DBUILD_WESCENE="$(usex scene)"
