@@ -1,0 +1,91 @@
+# Posts the report that the pkgcheck workflow's `report` job leaves behind.
+#
+# It has to be a second workflow: the scan runs code from the pull request, so it only
+# ever gets a read-only token and cannot comment on a fork PR. workflow_run runs from
+# master with the base repository's permissions and never checks the PR out.
+name: pkgcheck-comment
+on:
+  workflow_run:
+    workflows: [pkgcheck]
+    types: [completed]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download the report
+      uses: actions/download-artifact@v7
+      with:
+        name: pkgcheck-report
+        path: pkgcheck-report
+        run-id: ${{ github.event.workflow_run.id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Post the report
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        REPO: ${{ github.repository }}
+        HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        RUN_URL: ${{ github.event.workflow_run.html_url }}
+      run: |
+        set -euo pipefail
+        MARKER='<!-- pkgcheck-report -->'
+
+        # the artifact is written by a job running pull request code, so resolve the PR
+        # from the head commit instead of trusting anything inside it
+        pr=$(gh api "repos/${REPO}/commits/${HEAD_SHA}/pulls" --jq '.[0].number // empty')
+        [ -n "${pr}" ] || { echo 'no pull request for this run'; exit 0; }
+
+        count=$(wc -l < pkgcheck-report/packages)
+        [ "${count}" -gt 0 ] || { echo 'no packages touched'; exit 0; }
+        commit=$(cat pkgcheck-report/commit)
+        # findings are indented under a package name, package names are not
+        new=$(grep -c '^  ' pkgcheck-report/new.txt || true)
+        existing=$(( $(grep -c '^  ' pkgcheck-report/report.txt || true) - new ))
+
+        plural() { [ "$1" -eq 1 ] && echo "$2" || echo "$2s"; }
+
+        {
+          echo '## Pull request pkgcheck report'
+          echo
+          echo "*Newest commit scanned*: \`${commit}\`"
+          if [ "${count}" -le 10 ]; then
+            echo "*Packages scanned*: $(sed 's/^/`/; s/$/`/' pkgcheck-report/packages | paste -sd ' ' -)"
+          else
+            echo "*Packages scanned*: ${count}"
+          fi
+          if [ "${new}" -eq 0 ]; then
+            echo '*Status*: :white_check_mark: good'
+          else
+            # not :x: broken like gentoo-repo-qa-bot: these findings do not fail CI
+            echo '*Status*: :warning: **new issues**'
+            echo
+            echo 'New issues caused by PR:'
+            echo
+            # a long fence so a finding that quotes markdown cannot end the block early
+            echo '``````'
+            head -c 55000 pkgcheck-report/new.txt
+            echo '``````'
+          fi
+          if [ "${existing}" -gt 0 ]; then
+            echo
+            echo "There are ${existing} existing $(plural "${existing}" issue) in these packages. Please look"
+            echo "into the [full report](${RUN_URL}) to make sure none of them affect your change."
+          fi
+          echo
+          echo "${MARKER}"
+        } > body.md
+
+        # one comment per PR, edited in place, so a rerun does not add another
+        id=$(gh api "repos/${REPO}/issues/${pr}/comments" --paginate \
+             --jq "map(select(.body|contains(\"${MARKER}\")))|.[0].id // empty")
+        if [ -n "${id}" ]; then
+          gh api -X PATCH "repos/${REPO}/issues/comments/${id}" -F body=@body.md >/dev/null
+        else
+          gh api "repos/${REPO}/issues/${pr}/comments" -F body=@body.md >/dev/null
+        fi
+        echo "commented on #${pr}"
