@@ -19,3 +19,79 @@ jobs:
       uses: pkgcore/pkgcheck-action@v1
       with:
         args: --checks=-RedundantVersionCheck --keywords=-NonsolvableDepsInDev --exit=NonexistentDeps
+
+  # Scan only the packages the PR touches and leave the report for pkgcheck-comment
+  # to post. The job above fails on NonexistentDeps alone, so a warning-level finding
+  # on a changed ebuild is invisible unless someone opens the run log.
+  #
+  # This job must never hold a write token. pkgcheck sources the ebuilds it scans, so
+  # it runs code from the pull request; on a fork PR GITHUB_TOKEN is read-only and the
+  # comment is posted from a separate workflow that does not check this code out.
+  report:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/pkgcore/pkgcheck:latest
+    defaults:
+      run:
+        # the image has no /bin/bash symlink, so GitHub falls back to sh
+        shell: bash
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+
+    - name: Collect the packages this PR touches
+      id: pkgs
+      env:
+        BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      run: |
+        set -euo pipefail
+        git config --global --add safe.directory '*'
+        # base.sha is an ancestor of the merge ref checkout leaves us on, so three-dot
+        # gives the pull request's own changes and not what landed on master since
+        git diff --name-only --diff-filter=d "${BASE_SHA}...HEAD" \
+          | awk -F/ 'NF > 2 { print $1"/"$2 }' | sort -u > touched.txt
+        # gentoo-zh carries no profiles/categories, so decide by what is on disk: a
+        # touched path is a package only if the directory still holds ebuilds. That
+        # drops .github/, profiles/ and a package the PR removed outright.
+        : > packages.txt
+        while read -r pkg; do
+          ls "${pkg}"/*.ebuild >/dev/null 2>&1 || continue
+          echo "${pkg}" >> packages.txt
+        done < touched.txt
+        echo "count=$(wc -l < packages.txt)" >> "$GITHUB_OUTPUT"
+        cat packages.txt
+
+    - name: Scan
+      if: steps.pkgs.outputs.count != '0'
+      run: |
+        set -uo pipefail
+        pmaint sync gentoo
+        pmaint regen --dir ~/.cache/pkgcheck/repos .
+        # package names come from the pull request, so keep them out of the command line
+        mapfile -t pkgs < packages.txt
+        # no --exit: the gate is the build job above, this one only reports
+        pkgcheck scan --checks=-RedundantVersionCheck --keywords=-NonsolvableDepsInDev \
+          "${pkgs[@]}" > report.txt 2>&1 || true
+        cat report.txt
+
+    - name: Stage the report
+      if: always()
+      env:
+        PR: ${{ github.event.pull_request.number }}
+      run: |
+        set -euo pipefail
+        mkdir -p pkgcheck-report
+        echo "${PR}" > pkgcheck-report/pr
+        pkgcheck --version > pkgcheck-report/version
+        cp packages.txt pkgcheck-report/packages 2>/dev/null || : > pkgcheck-report/packages
+        cp report.txt pkgcheck-report/report.txt 2>/dev/null || : > pkgcheck-report/report.txt
+
+    - name: Upload the report
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: pkgcheck-report
+        path: pkgcheck-report/
