@@ -1,5 +1,6 @@
 # Copyright 2023-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+# test payload: single package this round
 
 EAPI=8
 
