@@ -8,6 +8,8 @@ EAPI=8
 CRATES="
 "
 
+
+
 inherit cargo
 
 DESCRIPTION="All-in-one LLM CLI Tool"
