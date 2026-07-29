@@ -8,6 +8,8 @@ inherit zig
 
 DESCRIPTION="Command-line tool for switching Codex accounts"
 HOMEPAGE="https://github.com/Loongphy/codex-auth"
+
+
 SRC_URI="https://github.com/Loongphy/codex-auth/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="MIT"

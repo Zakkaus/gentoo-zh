@@ -9,6 +9,8 @@ CHROMIUM_LANGS="af am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu
 
 inherit chromium-2 desktop optfeature pax-utils shell-completion xdg
 
+
+
 DESCRIPTION="Amazon's agent-first AI IDE with spec-driven development"
 HOMEPAGE="https://kiro.dev/"
 SRC_URI="

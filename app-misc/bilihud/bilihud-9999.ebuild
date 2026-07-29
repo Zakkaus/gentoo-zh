@@ -9,6 +9,8 @@ PYTHON_COMPAT=( python3_{13..14} )
 
 inherit desktop distutils-r1 git-r3
 
+
+
 DESCRIPTION="Bilibili danmaku overlay for fullscreen games"
 HOMEPAGE="https://github.com/locez/bilihud"
 EGIT_REPO_URI="https://github.com/locez/bilihud.git"

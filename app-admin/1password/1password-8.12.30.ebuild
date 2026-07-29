@@ -9,6 +9,8 @@ CHROMIUM_LANGS="
 	ta te th tr uk ur vi zh-CN zh-TW
 "
 
+
+
 inherit chromium-2 desktop xdg
 
 DESCRIPTION="Password manager and secure wallet"

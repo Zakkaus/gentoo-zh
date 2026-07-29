@@ -8,6 +8,8 @@ inherit desktop optfeature pax-utils unpacker xdg
 DESCRIPTION="Desktop application for Claude.ai"
 HOMEPAGE="https://claude.com/download"
 
+
+
 SRC_URI="
 	amd64? (
 		https://downloads.claude.ai/claude-desktop/apt/stable/pool/main/c/claude-desktop/claude-desktop_${PV}_amd64.deb

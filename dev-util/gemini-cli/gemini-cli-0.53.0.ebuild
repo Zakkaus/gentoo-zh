@@ -8,6 +8,8 @@ MY_PV="${MY_PV/preview[0-9]*/preview.${MY_PV##*preview}}"
 
 inherit wrapper
 
+
+
 DESCRIPTION="Gemini CLI - a command-line AI workflow tool by Google"
 HOMEPAGE="https://github.com/google-gemini/gemini-cli"
 SRC_URI="https://github.com/google-gemini/gemini-cli/releases/download/v${MY_PV}/gemini-cli-bundle.zip -> ${P}.zip"

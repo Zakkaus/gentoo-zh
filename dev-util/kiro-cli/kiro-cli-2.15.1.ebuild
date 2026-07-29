@@ -8,6 +8,8 @@ inherit shell-completion
 DESCRIPTION="Kiro CLI, Amazon's agentic coding assistant for the terminal (prebuilt binary)"
 HOMEPAGE="https://kiro.dev/cli/"
 SRC_URI="
+
+
 	amd64? (
 		https://prod.download.cli.kiro.dev/stable/${PV}/kirocli-x86_64-linux.tar.gz
 			-> ${P}-amd64.tar.gz
