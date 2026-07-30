@@ -15,6 +15,9 @@ permissions:
 
 jobs:
   comment:
+    # workflow_run also fires for the push runs on master, where the report job is
+    # skipped and there is no artifact to download
+    if: github.event.workflow_run.event == 'pull_request'
     runs-on: ubuntu-latest
     steps:
     - name: Download the report
