@@ -8,6 +8,8 @@ HOMEPAGE="https://github.com/github/copilot-cli"
 # Upstream ships the native executable in per-platform packages
 # @github/copilot-<os>-<arch>, not in @github/copilot; install the linux-x64 one.
 SRC_URI="amd64? ( https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-${PV}.tgz -> ${P}-amd64.tgz )"
+
+
 S="${WORKDIR}/package"
 
 LICENSE="Apache-2.0"
