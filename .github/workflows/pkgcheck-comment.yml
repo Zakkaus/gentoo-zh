@@ -38,10 +38,16 @@ jobs:
         set -euo pipefail
         MARKER='<!-- pkgcheck-report -->'
 
-        # the artifact is written by a job running pull request code, so resolve the PR
-        # from the head commit instead of trusting anything inside it
-        pr=$(gh api "repos/${REPO}/commits/${HEAD_SHA}/pulls" --jq '.[0].number // empty')
-        [ -n "${pr}" ] || { echo 'no pull request for this run'; exit 0; }
+        # the artifact is written by a job running pull request code, so match the head
+        # commit against the open pull requests instead of trusting anything inside it.
+        # commits/${HEAD_SHA}/pulls looks like the obvious call but returns nothing when
+        # the pull request comes from a fork, which is all of them here.
+        # not piped into head: under pipefail an early close makes gh exit non-zero
+        matches=$(gh api "repos/${REPO}/pulls?state=open&per_page=100" --paginate \
+                  --jq ".[]|select(.head.sha==\"${HEAD_SHA}\")|.number")
+        pr=${matches%%$'\n'*}
+        [ -n "${pr}" ] || { echo 'no open pull request at this commit'; exit 0; }
+        echo "pull request #${pr}"
 
         count=$(wc -l < pkgcheck-report/packages)
         [ "${count}" -gt 0 ] || { echo 'no packages touched'; exit 0; }
