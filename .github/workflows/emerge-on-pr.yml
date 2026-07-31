@@ -190,6 +190,17 @@ jobs:
         net-libs/webkit-gtk keyring
         EOF
 
+        case "$(portageq envvar ARCH)" in
+          amd64)
+            echo "dev-util/hunk-bin cpu_flags_x86_avx cpu_flags_x86_avx2 cpu_flags_x86_bmi1 cpu_flags_x86_bmi2" >> /etc/portage/package.use/ci
+            echo "dev-util/hunk-bin cpu_flags_x86_f16c cpu_flags_x86_fma3 cpu_flags_x86_popcnt" >> /etc/portage/package.use/ci
+            echo "dev-util/hunk-bin cpu_flags_x86_sse3 cpu_flags_x86_sse4_1 cpu_flags_x86_sse4_2 cpu_flags_x86_ssse3" >> /etc/portage/package.use/ci
+            ;;
+          arm64)
+            echo "dev-util/hunk-bin cpu_flags_arm_asimd cpu_flags_arm_crc32" >> /etc/portage/package.use/ci
+            ;;
+        esac
+
         cat /etc/portage/make.conf
 
     - name: setup keyring for binpkgs
