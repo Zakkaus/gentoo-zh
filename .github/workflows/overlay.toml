@@ -88,13 +88,6 @@ github = "doy/rbw"
 use_latest_release = true
 github_account = "liangyongxiang"
 
-# dead upstream
-# ["app-admin/zenmonitor3"]
-# source = "git"
-# git = "https://git.exozy.me/a/zenmonitor3"
-# prefix = "v"
-# github_account = "liuyujielol"
-
 #["app-alternatives/v2ray-geoip"]
 
 #["app-alternatives/v2ray-geosite"]
@@ -233,12 +226,6 @@ github_account = "AmarBego"
 
 # TODO:
 #["app-emulation/deepin-udis86"]
-
-# TODO:
-#["app-emulation/deepin-wine-helper"]
-
-# TODO:
-#["app-emulation/deepin-wine-plugin"]
 
 ["app-emulation/la-ow-syscall"]
 source = "github"
@@ -455,9 +442,6 @@ github_account = ["liangyongxiang", "gouwazi"]
 # live package only
 #["app-i18n/rime-ice"]
 
-# no tracking entry yet
-#["app-i18n/vocotype"]
-
 ["app-i18n/zh-autoconvert"]
 source = "debianpkg"
 debianpkg = "zh-autoconvert"
@@ -496,13 +480,6 @@ github = "SaladDay/cc-switch-cli"
 use_latest_release = true
 prefix = "v"
 github_account = "liangyongxiang"
-
-# dead website, http status code 599
-# ["app-misc/ccal"]
-# source = "regex"
-# url = "https://ccal.chinesebay.com/ccal/ccal.htm"
-# regex = "<title>ccal-([\\d.]+)</title>"
-# github_account = "aieu"
 
 ["app-misc/cherry-studio-bin"]
 source = "github"
@@ -683,11 +660,6 @@ strip_release = true
 github_account = "zakkaus"
 
 # live package only
-#["app-pda/ipadcharge"]
-#source = "github"
-#github = "mkorenkov/ipad_charge"
-
-# live package only
 #["app-shells/blesh"]
 
 ["app-shells/flyline-bin"]
@@ -816,9 +788,6 @@ use_latest_release = true
 prefix = "v"
 github_account = ["CHN-beta", "gouwazi"]
 
-# TODO: multiple slot
-#["dev-db/mongodb"]
-
 ["dev-debug/lldb-mi"]
 source = "github"
 github = "lldb-tools/lldb-mi"
@@ -870,9 +839,6 @@ github = "koka-lang/koka"
 use_latest_release = true
 prefix = "v"
 github_account = "gouwazi"
-
-# TODO: no way check
-#["dev-lang/quickjs"]
 
 # packaged from a pinned commit, no tag to compare
 #["dev-libs/libpqmarble"]
@@ -1000,9 +966,6 @@ use_latest_release = true
 prefix = "v"
 github_account = "OriPoin"
 
-# no tracking entry yet
-#["dev-python/funasr-onnx"]
-
 ["dev-python/fuo-netease"]
 source = "pypi"
 pypi = "fuo-netease"
@@ -1029,18 +992,6 @@ github = "aio-libs/janus"
 use_latest_release = true
 prefix = "v"
 github_account = "wgjak47"
-
-# no tracking entry yet
-#["dev-python/jieba"]
-
-# no tracking entry yet
-#["dev-python/kaldi-native-fbank"]
-
-# no tracking entry yet
-#["dev-python/librosa"]
-
-# no tracking entry yet
-#["dev-python/llvmlite"]
 
 ["dev-python/menuinst"]
 source = "github"
@@ -1071,9 +1022,6 @@ source = "pypi"
 pypi = "nudatus"
 github_account = "blackteahamburger"
 
-# no tracking entry yet
-#["dev-python/numba"]
-
 ["dev-python/nvchecker"]
 source = "github"
 github = "lilydjwg/nvchecker"
@@ -1085,9 +1033,6 @@ github_account = "liangyongxiang"
 source = "pypi"
 pypi = "okonomiyaki"
 github_account = "f3rmata"
-
-# no tracking entry yet
-#["dev-python/onnxruntime"]
 
 ["dev-python/pure-protobuf"]
 source = "github"
@@ -1128,12 +1073,6 @@ github_account = "wgjak47"
 source = "pypi"
 pypi = "simplesat"
 github_account = "f3rmata"
-
-# no tracking entry yet
-#["dev-python/sounddevice"]
-
-# no tracking entry yet
-#["dev-python/soxr"]
 
 ["dev-python/uv-bin"]
 source = "github"
@@ -1244,9 +1183,6 @@ aur = "jetbrains-toolbox"
 strip_release = true
 github_account = "gouwazi"
 autobump = true
-
-# vendor download, no published version index
-#["dev-util/kimi-cli-bin"]
 
 ["dev-util/kimi-code-bin"]
 source = "github"
@@ -1752,9 +1688,6 @@ prefix = "v"
 use_latest_release = true
 github_account = "Puqns67"
 
-# live package only
-#["media-sound/barva"]
-
 # vendor download, no published version index
 #["media-sound/cider"]
 
@@ -1848,9 +1781,6 @@ github = "ytmdesktop/ytmdesktop"
 use_latest_release = true
 prefix = "v"
 github_account = ["oatiz", "gouwazi"]
-
-# live package only
-#["media-video/avplayer"]
 
 # always patch tag: v1.1.0-1 => 1.1.0_p1
 ["media-video/bilibili"]
@@ -2056,14 +1986,6 @@ github = "qjfoidnh/BaiduPCS-Go"
 use_latest_release = true
 prefix = "v"
 github_account = "123485k"
-
-# upstream archived, no new releases
-# ["net-misc/bbdown-bin"]
-# source = "github"
-# github = "nilaoda/BBDown"
-# use_latest_release = true
-# prefix = "v"
-# github_account = "gouwazi"
 
 ["net-misc/biliup-app-bin"]
 source = "github"
@@ -2403,13 +2325,6 @@ use_latest_release = true
 prefix = "v"
 github_account = "st0nie"
 
-# upstream disappearing, disable temporarily
-# ["net-proxy/yass"]
-# source = "github"
-# github = "Chilledheart/yass"
-# use_latest_tag = true
-# github_account = "Chilledheart"
-
 ["net-proxy/zashboard"]
 source = "github"
 github = "Zephyruso/zashboard"
@@ -2476,9 +2391,6 @@ github_account = "liangyongxiang"
 
 # key issued by this project, no upstream version to track
 #["sec-keys/openpgp-keys-gentoozh"]
-
-# virtual package
-#["sec-policy/apparmor-profile-deepinwine"]
 
 ["sys-apps/aptly"]
 source = "github"
@@ -2576,8 +2488,6 @@ prefix = "v"
 # from_pattern = "(.*)-xanmod(.*)"
 # to_pattern = "\\1"
 
-#["sys-kernel/xanmod-rt"]
-
 ["sys-kernel/xanmod-sources"]
 source = "gitlab"
 gitlab = "xanmod/linux"
@@ -2610,15 +2520,6 @@ github_account = "xz-dev"
 #["virtual/v2ray-domain-list-community"]
 
 #["virtual/v2ray-geoip"]
-
-["www-apps/folo-bin"]
-source = "github"
-github = "RSSNext/Folo"
-use_max_release = true
-include_regex = "desktop/v.*"
-prefix = "desktop/v"
-github_account = "gouwazi"
-autobump = true
 
 ["www-client/adspower-global"]
 source = "regex"
