@@ -17,13 +17,13 @@ gentoo-zh 是一个包容的 overlay。
 
 [![官网](https://img.shields.io/badge/%E5%AE%98%E7%BD%91-gentoozh.org-54487A?logo=gentoo&logoColor=white)](https://gentoozh.org/)
 [![GitHub Issues](https://img.shields.io/badge/GitHub-Issues-181717?logo=github)](https://github.com/gentoo-zh/overlay/issues)
-[![Email](https://img.shields.io/badge/Email-overlay%40gentoozh.org-EA4335?logo=maildotcom&logoColor=white)](mailto:overlay@gentoozh.org)
-[![论坛](https://img.shields.io/badge/%E8%AE%BA%E5%9D%9B-forum.gentoozh.org-000000?logo=discourse&logoColor=white)](https://forum.gentoozh.org/)
+[![Email](https://img.shields.io/badge/Email-overlay%40gentoozh.org-000000?logo=data:image/svg%2Bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjIiPjxyZWN0IHg9IjIiIHk9IjQiIHdpZHRoPSIyMCIgaGVpZ2h0PSIxNiIvPjxwYXRoIGQ9Im0yIDYgMTAgNyAxMC03Ii8%2BPC9zdmc%2B)](mailto:overlay@gentoozh.org)
+[![论坛](https://img.shields.io/badge/%E8%AE%BA%E5%9D%9B-forum.gentoozh.org-54487A?logo=discourse&logoColor=white)](https://forum.gentoozh.org/)
 [![维基](https://img.shields.io/badge/%E7%BB%B4%E5%9F%BA-Gentoo--zh-54487A?logo=gentoo&logoColor=white)](https://wiki.gentoo.org/wiki/Gentoo-zh/zh-cn)
 [![Telegram 群组](https://img.shields.io/badge/%E7%BE%A4%E7%BB%84-gentoo__zh-26A5E4?logo=telegram&logoColor=white)](https://t.me/gentoo_zh)
 [![公告频道](https://img.shields.io/badge/%E5%85%AC%E5%91%8A-gentoocn-26A5E4?logo=telegram&logoColor=white)](https://t.me/gentoocn)
 [![Matrix](https://img.shields.io/badge/Matrix-%23gentoo--zh-000000?logo=matrix&logoColor=white)](https://matrix.to/#/%23gentoo-zh:matrix.gentoozh.org)
-[![IRC](https://img.shields.io/badge/IRC-%23gentoo--zh-5A5A5A?logo=liberadotchat&logoColor=white)](https://web.libera.chat/#gentoo-zh)
+[![IRC](https://img.shields.io/badge/IRC-%23gentoo--zh-000000?logo=liberadotchat&logoColor=white)](https://web.libera.chat/#gentoo-zh)
 
 overlay 相关问题优先使用 GitHub Issues。
 
@@ -34,7 +34,7 @@ eselect repository enable gentoo-zh
 emaint sync
 ```
 
-中国大陆镜像加速相关请参考：https://gentoozh.org/overlay/
+中国大陆镜像加速相关请参考：https://gentoozh.org/overlay
 
 ## distfiles 与二进制包
 
@@ -49,7 +49,7 @@ https://github.com/gentoo-zh/overlay/blob/deps-table/relation.md
 **不要破坏用户的系统。**
 
 * 我们欢迎所有人贡献，但请提交者在提交前谨慎确认。
-* PR 中的每个提交都要包含所需的所有修改，不要无故拆分，例如 ebuild 和它的 `Manifest` 要在同一个提交里。
+* pull request 中的每个提交都要包含所需的所有修改，不要无故拆分，例如 ebuild 和它的 `Manifest` 要在同一个提交里。
 * 每个 ebuild 修改在提交前要确保编译正确。
 * 新增的软件包需要添加到 [`.github/workflows/overlay.toml`](./.github/workflows/overlay.toml) 中，并按照 `category/package` 的字母顺序插入相应位置；如果该软件包不适合使用 nvchecker 检查版本更新，请在对应位置添加注释并说明原因；如果可以自动 bump，参见 [scripts/autobump.zh.md](./scripts/autobump.zh.md)。
 * 在打开 pull request 前，请先在本地运行 `pkgcheck scan --commits --net`。
