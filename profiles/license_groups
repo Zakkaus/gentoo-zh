@@ -1,0 +1,14 @@
+# Groups for the licenses this repository carries. Portage merges these with the
+# ones the master repository defines, so each line lists only our own additions.
+
+# Each of these either forbids redistributing the software, restricts what the
+# redistributor may charge, or requires the licensor's written permission.
+EULA AdsPower-EULA Anthropic BaiduNetDisk Bcompare CAJVIEWER-EULA cursor Feishu-EULA Google-TOS harmonoid-EULA HarmonyOS-Sans JetBrainsToolbox JLC-EULA Kiro LCEDA-EULA MiSans NFTC Obsidian-EULA openclaude reqable_license SINEW-EULA SoftMaker Source-SDK Tencent tenvideo-privacy termius todesk trae typora unity-EULA VESTA wemeet_license windsurf
+
+# Free, but not listed by the FSF or the OSI: redistribution and modification
+# are granted, subject to keeping the copyright notice and not reusing the name.
+MISC-FREE Programmer-Dvorak
+
+# Redistributing the unmodified table carries no cost limit and needs no
+# permission; only re-encoding it and then redistributing is denied.
+BINARY-REDISTRIBUTABLE dayi
