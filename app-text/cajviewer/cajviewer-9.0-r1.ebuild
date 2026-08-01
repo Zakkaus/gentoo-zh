@@ -13,7 +13,7 @@ S="${WORKDIR}"
 LICENSE="CAJVIEWER-EULA"
 SLOT="0"
 KEYWORDS="~amd64"
-RESTRICT="mirror strip"
+RESTRICT="bindist mirror strip"
 
 RDEPEND="
 	dev-db/freetds
