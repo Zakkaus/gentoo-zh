@@ -15,7 +15,7 @@ S="${WORKDIR}/${MY_PN}-linux-x64-${PV}"
 LICENSE="JLC-EULA"
 SLOT="0"
 KEYWORDS="~amd64"
-RESTRICT="splitdebug mirror"
+RESTRICT="splitdebug mirror bindist"
 
 RDEPEND="
 	>=app-accessibility/at-spi2-core-2.46.0:2

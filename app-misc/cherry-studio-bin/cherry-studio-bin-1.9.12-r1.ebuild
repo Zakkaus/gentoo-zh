@@ -26,7 +26,7 @@ RDEPEND="
 
 BDEPEND="arm64? ( dev-util/patchelf )"
 
-RESTRICT="strip"
+RESTRICT="strip bindist mirror"
 
 src_unpack() {
 	if use amd64; then

@@ -15,7 +15,7 @@ LICENSE="typora"
 SLOT="0"
 KEYWORDS="-* ~amd64"
 
-RESTRICT="mirror"
+RESTRICT="mirror bindist"
 
 RDEPEND="x11-libs/libXScrnSaver"
 

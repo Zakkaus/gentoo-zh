@@ -15,6 +15,7 @@ EGIT_REPO_URI="https://github.com/nillerusr/source-engine.git"
 LICENSE="Source-SDK"
 SLOT="0"
 IUSE="debug"
+RESTRICT="bindist"
 BDEPEND="${PYTHON_DEPS}
 		 media-libs/libsdl2
 		 media-libs/freetype

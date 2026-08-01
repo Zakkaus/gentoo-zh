@@ -48,7 +48,7 @@ DEPEND="
 RDEPEND="${DEPEND}"
 BDEPEND="app-arch/unzip"
 
-RESTRICT="mirror"
+RESTRICT="mirror bindist"
 
 QA_PREBUILT="
 	/opt/lceda/swiftshader/libEGL.so

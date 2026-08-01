@@ -23,7 +23,7 @@ RDEPEND="
 	x11-libs/gtk+:3
 "
 
-RESTRICT="strip mirror"
+RESTRICT="strip mirror bindist"
 
 src_install() {
 	insinto /usr/share/reqable

@@ -27,7 +27,7 @@ KEYWORDS="-* ~amd64 ~arm64"
 
 IUSE="bwrap system-fdk-aac system-libssh2 system-openh264 system-zlib gnome"
 
-RESTRICT="strip mirror"
+RESTRICT="strip mirror bindist"
 
 RDEPEND="
 	app-accessibility/at-spi2-core:2

@@ -16,7 +16,7 @@ S="${WORKDIR}"
 LICENSE="BaiduNetDisk"
 SLOT="0"
 KEYWORDS="-* ~amd64"
-RESTRICT="strip mirror"
+RESTRICT="strip mirror bindist"
 
 RDEPEND="
 	app-crypt/p11-kit

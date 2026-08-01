@@ -20,7 +20,7 @@ RDEPEND="
 	x11-libs/libxkbcommon
 "
 
-RESTRICT="bindist strip"
+RESTRICT="bindist strip mirror"
 
 # Optional shell extensions are installed for KDE/Qt versions not required by the main app.
 REQUIRES_EXCLUDE="

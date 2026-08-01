@@ -14,7 +14,7 @@ LICENSE="typora"
 SLOT="0"
 KEYWORDS="~amd64"
 
-RESTRICT="mirror splitdebug"
+RESTRICT="mirror splitdebug bindist"
 
 RDEPEND="
 	app-accessibility/at-spi2-core:2

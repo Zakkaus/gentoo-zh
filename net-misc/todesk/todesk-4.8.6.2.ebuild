@@ -14,7 +14,7 @@ LICENSE="todesk"
 SLOT="0"
 KEYWORDS="-* ~amd64"
 IUSE="systemd"
-RESTRICT="strip mirror"
+RESTRICT="strip mirror bindist"
 
 RDEPEND="
 	dev-libs/nspr

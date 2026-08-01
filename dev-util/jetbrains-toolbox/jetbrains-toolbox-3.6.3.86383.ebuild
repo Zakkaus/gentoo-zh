@@ -23,7 +23,7 @@ RDEPEND="
 	sys-fs/fuse:0
 "
 
-RESTRICT="strip mirror"
+RESTRICT="strip mirror bindist"
 
 QA_PREBUILT="/opt/${PN}/${PN}"
 

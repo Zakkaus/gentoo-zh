@@ -58,7 +58,7 @@ DEPEND="
 RDEPEND="${DEPEND}"
 BDEPEND="app-arch/unzip"
 
-RESTRICT="mirror"
+RESTRICT="mirror bindist"
 
 QA_PREBUILT="/usr/share/trae-cn/*"
 # prebuilt Electron/sandbox blobs (sbox.so, crashpad_handler, bwrap, bundled .so) ship

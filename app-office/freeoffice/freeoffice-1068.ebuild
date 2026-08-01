@@ -20,7 +20,7 @@ for lang in ${LANGUAGES}; do
 	IUSE+="l10n_${lang%:*} "
 done
 
-RESTRICT="mirror strip"
+RESTRICT="mirror strip bindist"
 
 DEPEND="
 	app-admin/chrpath
