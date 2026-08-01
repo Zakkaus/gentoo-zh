@@ -15,6 +15,6 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm64 ~loong ~riscv ~x86"
 
 FONT_SUFFIX="ttf"
-RESTRICT="mirror"
+RESTRICT="bindist mirror"
 
 BDEPEND="app-arch/unzip"

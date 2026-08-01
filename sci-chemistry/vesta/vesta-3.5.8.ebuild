@@ -15,7 +15,7 @@ LICENSE="VESTA"
 SLOT="0"
 KEYWORDS="~amd64"
 
-RESTRICT="mirror strip"
+RESTRICT="bindist mirror strip"
 
 RDEPEND="
 	x11-libs/gtk+:3[wayland]

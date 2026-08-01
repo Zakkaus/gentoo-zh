@@ -19,6 +19,7 @@ S="${WORKDIR}"
 LICENSE="harmonoid-EULA"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
+RESTRICT="bindist mirror"
 
 QA_PRESTRIPPED="usr/share/harmonoid/lib/libapp.so"
 

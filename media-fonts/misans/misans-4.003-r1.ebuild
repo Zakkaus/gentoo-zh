@@ -18,7 +18,7 @@ KEYWORDS="~amd64"
 BDEPEND="app-arch/unzip"
 FONT_SUFFIX="otf ttf"
 
-RESTRICT="mirror"
+RESTRICT="bindist mirror"
 
 src_unpack() {
 	unpack "${A}"
