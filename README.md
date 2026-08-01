@@ -51,6 +51,7 @@ https://github.com/gentoo-zh/overlay/blob/deps-table/relation.md
 * 我们欢迎所有人贡献，但请提交者在提交前谨慎确认。
 * pull request 中的每个提交都要包含所需的所有修改，不要无故拆分，例如 ebuild 和它的 `Manifest` 要在同一个提交里。
 * 每个 ebuild 修改在提交前要确保编译正确。
+* `LICENSE` 要与上游实际授权一致。授权不在 `::gentoo` 时把全文放进 [`licenses/`](./licenses)，归入 [`profiles/license_groups`](./profiles/license_groups) 的相应分组，并按其散布条款设置 `RESTRICT`。
 * 新增的软件包需要添加到 [`.github/workflows/overlay.toml`](./.github/workflows/overlay.toml) 中，并按照 `category/package` 的字母顺序插入相应位置；如果该软件包不适合使用 nvchecker 检查版本更新，请在对应位置添加注释并说明原因；如果可以自动 bump，参见 [scripts/autobump.zh.md](./scripts/autobump.zh.md)。
 * 在打开 pull request 前，请先在本地运行 `pkgcheck scan --commits --net`。
 * 开 pull request 之后，请检查并修正 pkgcheck report 和 CI 报出的错误，QA 提示也要处理。

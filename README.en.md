@@ -55,6 +55,10 @@ https://github.com/gentoo-zh/overlay/blob/deps-table/relation.md
   change across commits without reason, e.g. an ebuild and its `Manifest` belong in
   the same commit.
 * Every ebuild change must compile before committing.
+* `LICENSE` must match what upstream actually grants. When the license is not in
+  `::gentoo`, add its full text under [`licenses/`](./licenses), put it in the matching
+  group in [`profiles/license_groups`](./profiles/license_groups), and set `RESTRICT`
+  from its redistribution terms.
 * A new package must be added to
   [`.github/workflows/overlay.toml`](./.github/workflows/overlay.toml), inserted in
   alphabetical order by `category/package`; if it is not suitable for nvchecker to
