@@ -18,6 +18,7 @@ KEYWORDS="~amd64"
 RESTRICT="bindist mirror strip"
 
 RDEPEND="
+	x11-libs/gtk+:2
 	x11-libs/gtk+:3[wayland]
 	virtual/glu
 	dev-util/desktop-file-utils
