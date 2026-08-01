@@ -19,7 +19,7 @@ else
 	"
 	KEYWORDS="~amd64 ~arm64"
 fi
-LICENSE="GPL-3+"
+LICENSE="GPL-3"
 # Dependent crate licenses
 LICENSE+="
 	Apache-2.0

@@ -12,7 +12,7 @@ SRC_URI="
 "
 S="${WORKDIR}/${PN}-debian-${MY_PV}"
 
-LICENSE="GPL-2"
+LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="static-libs"

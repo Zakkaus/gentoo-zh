@@ -9,7 +9,7 @@ DESCRIPTION="Chinese Lunar Library"
 HOMEPAGE="https://github.com/yetist/lunar-date"
 SRC_URI="https://github.com/yetist/lunar-date/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
-LICENSE="LGPL-2.1+"
+LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="+dbus doc introspection test"

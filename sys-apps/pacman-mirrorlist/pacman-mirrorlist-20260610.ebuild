@@ -13,7 +13,7 @@ HOMEPAGE="https://archlinux.org/mirrorlist/"
 SRC_URI="https://gitlab.archlinux.org/archlinux/packaging/packages/${PN}/-/raw/${PV}-1/mirrorlist -> ${P}"
 S="${WORKDIR}"
 
-LICENSE="GPL-2"
+LICENSE="GPL-2+"
 SLOT="0"
 
 KEYWORDS="~amd64"

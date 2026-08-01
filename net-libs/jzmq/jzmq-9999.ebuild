@@ -13,7 +13,7 @@ if [[ ${PV} == "9999" ]] ; then
 fi
 S="${WORKDIR}/${P}/${PN}-jni"
 
-LICENSE="LGPL-3"
+LICENSE="LGPL-3+"
 SLOT="0"
 
 DEPEND="net-libs/zeromq

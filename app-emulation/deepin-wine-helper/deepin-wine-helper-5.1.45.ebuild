@@ -13,11 +13,11 @@ COMMON_URI="https://home-store-packages.uniontech.com/appstore/pool/appstore/d"
 SRC_URI="${COMMON_URI}/${PN}/${PN}_${PV}-1_i386.deb"
 S=${WORKDIR}
 
-LICENSE="LGPL-2.1"
+LICENSE="all-rights-reserved"
 SLOT="0"
 KEYWORDS="~amd64"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
-RESTRICT="test"
+RESTRICT="bindist mirror test"
 
 RDEPEND="
 	${PYTHON_DEPS}

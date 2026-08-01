@@ -25,7 +25,6 @@ SRC_URI="
 "
 S="${WORKDIR}/linux-${OKV}${XANMOD_VERSION}"
 
-LICENSE+=" CDDL"
 KEYWORDS="~amd64"
 
 pkg_pretend() {

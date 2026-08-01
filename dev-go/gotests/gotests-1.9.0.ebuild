@@ -11,7 +11,7 @@ SRC_URI="https://github.com/cweill/gotests/archive/refs/tags/v${PV}.tar.gz -> ${
 	https://github.com/gentoo-zh-drafts/gotests/releases/download/v${PV}/${P}-vendor.tar.xz"
 S="${WORKDIR}/${P}"
 
-LICENSE="BSD MIT"
+LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 

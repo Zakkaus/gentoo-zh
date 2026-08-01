@@ -12,7 +12,7 @@ COMMON_URI="https://community-packages.deepin.com/deepin/pool/non-free/u"
 SRC_URI="${COMMON_URI}/udis86/udis86_${PV}-${PR/r/}_i386.deb"
 
 S=${WORKDIR}
-LICENSE="LGPL-2.1"
+LICENSE="BSD-2"
 SLOT="0"
 KEYWORDS="~amd64"
 

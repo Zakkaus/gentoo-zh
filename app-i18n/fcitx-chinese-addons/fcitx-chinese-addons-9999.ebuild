@@ -10,7 +10,7 @@ DESCRIPTION="Addons related to Chinese, including IME previous bundled inside fc
 HOMEPAGE="https://github.com/fcitx/fcitx5-chinese-addons"
 EGIT_REPO_URI="https://github.com/fcitx/fcitx5-chinese-addons.git"
 
-LICENSE="GPL-2+ LGPL-2+"
+LICENSE="GPL-2+ LGPL-2.1+ unicode"
 SLOT="5"
 KEYWORDS=""
 IUSE="+cloudpinyin +data +gui lua +opencc test webengine"

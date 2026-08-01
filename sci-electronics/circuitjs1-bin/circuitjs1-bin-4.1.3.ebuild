@@ -10,7 +10,7 @@ SRC_URI="https://www.falstad.com/circuit/offline/${MY_PN}-linux64.tgz -> ${P}.ta
 
 S="${WORKDIR}/${MY_PN}"
 
-LICENSE="MIT"
+LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="~amd64"
 

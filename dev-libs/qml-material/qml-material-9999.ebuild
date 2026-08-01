@@ -10,7 +10,7 @@ inherit git-r3 cmake
 DESCRIPTION="A library of Qml implementing Google's Material Design"
 HOMEPAGE="https://github.com/hypengw/QmlMaterial"
 
-LICENSE="MPL-2.0"
+LICENSE="MIT"
 SLOT="0"
 
 RDEPEND="

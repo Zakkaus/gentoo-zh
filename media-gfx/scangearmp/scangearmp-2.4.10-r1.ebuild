@@ -16,7 +16,7 @@ SRC_URI="https://gdlp01.c-wss.com/gds/4/0100010924/01/${MY_P}.tar.gz"
 
 S="${WORKDIR}/${MY_P}/${MY_PN}"
 
-LICENSE="Canon-IJ"
+LICENSE="GPL-2 Canon-IJ"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 

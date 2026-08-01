@@ -8,7 +8,7 @@ inherit toolchain-funcs
 DESCRIPTION="A simple command line calendar for Chinese lunar"
 HOMEPAGE="http://ccal.chinesebay.com/ccal/ccal.htm"
 SRC_URI="http://ccal.chinesebay.com/${PN}/${P}.tar.gz"
-LICENSE="GPL-2"
+LICENSE="GPL-2+ LGPL-2+"
 SLOT="0"
 KEYWORDS="amd64 ~arm ~arm64 ~mips x86"
 IUSE="pdf"

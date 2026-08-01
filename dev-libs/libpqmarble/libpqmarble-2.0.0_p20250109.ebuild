@@ -13,7 +13,7 @@ SRC_URI="https://gitlab.gnome.org/raggesilver/marble/-/archive/${COMMIT}/marble-
 
 S="${WORKDIR}/marble-${COMMIT}"
 
-LICENSE="GPL-3"
+LICENSE="GPL-3+"
 SLOT="0/2"
 KEYWORDS="~amd64"
 

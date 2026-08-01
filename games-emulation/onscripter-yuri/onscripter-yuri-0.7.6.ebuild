@@ -16,7 +16,7 @@ SRC_URI="https://github.com/YuriSizuku/OnscripterYuri/archive/refs/tags/v${_PV}.
 
 S="${WORKDIR}/${_PN}-${_PV}"
 
-LICENSE="GPL-3+"
+LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="~amd64"
 

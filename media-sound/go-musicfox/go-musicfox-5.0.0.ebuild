@@ -9,7 +9,7 @@ DESCRIPTION="Command-line Netease Cloud Music written in Go"
 HOMEPAGE="https://github.com/go-musicfox/go-musicfox"
 SRC_URI="https://github.com/go-musicfox/go-musicfox/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
 
-LICENSE="MIT"
+LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~loong"
 IUSE="clang"

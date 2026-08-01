@@ -16,7 +16,7 @@ SRC_URI="https://github.com/ytmdesktop/ytmdesktop/releases/download/v${PV}/${D_P
 
 S="${WORKDIR}"
 
-LICENSE="MIT"
+LICENSE="GPL-3"
 SLOT="0"
 
 KEYWORDS="~amd64"

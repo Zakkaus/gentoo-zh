@@ -15,7 +15,7 @@ HOMEPAGE="https://gitlab.archlinux.org/archlinux/archlinux-keyring"
 #SRC_URI="https://sources.archlinux.org/other/${PN}/${P}.tar.gz"
 SRC_URI="https://gitlab.archlinux.org/archlinux/${PN}/-/archive/${PV}/${P}.tar.bz2"
 
-LICENSE="GPL-2" # "GPL" for the Arch linux package
+LICENSE="GPL-3+"
 SLOT="0"
 
 KEYWORDS="~amd64"

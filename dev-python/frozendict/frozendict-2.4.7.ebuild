@@ -12,7 +12,7 @@ HOMEPAGE="https://github.com/Marco-Sulla/python-frozendict"
 SRC_URI="https://github.com/Marco-Sulla/python-frozendict/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 S="${WORKDIR}/python-${PN}-${PV}"
 
-LICENSE="BSD"
+LICENSE="LGPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
 

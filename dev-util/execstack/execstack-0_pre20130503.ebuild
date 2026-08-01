@@ -10,7 +10,7 @@ HOMEPAGE="https://people.redhat.com/jakub/prelink/"
 SRC_URI="https://people.redhat.com/jakub/prelink/prelink-20130503.tar.bz2"
 S="${WORKDIR}"/prelink
 
-LICENSE="GPL-1+"
+LICENSE="GPL-2+ LGPL-2+"
 SLOT="0"
 KEYWORDS="~amd64"
 

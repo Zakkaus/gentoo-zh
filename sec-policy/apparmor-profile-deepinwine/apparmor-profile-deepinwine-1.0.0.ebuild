@@ -8,7 +8,7 @@ HOMEPAGE="https://gitlab.com/apparmor/apparmor/wikis/home"
 
 S="${WORKDIR}"
 
-LICENSE="MIT"
+LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64"
 

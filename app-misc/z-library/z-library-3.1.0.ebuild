@@ -11,12 +11,12 @@ URI_PREFIX="https://s3proxy-alp.cdn-zlib.sk/swfs_second_public_files/soft/deskto
 SRC_URI="${URI_PREFIX}${PV}_amd64.deb"
 
 S="${WORKDIR}"
-LICENSE="ISC"
+LICENSE="all-rights-reserved"
 
 SLOT="0"
 KEYWORDS="-* ~amd64"
 
-RESTRICT="strip"
+RESTRICT="bindist mirror strip"
 
 RDEPEND="
 	dev-libs/nspr

@@ -12,10 +12,10 @@ SRC_URI="https://c.y.qq.com/cgi-bin/file_redirect.fcg?bid=dldir&file=ecosfile_pl
 
 S="${WORKDIR}"
 
-LICENSE="CC0-1.0"
+LICENSE="Tencent"
 SLOT="0"
 KEYWORDS="-* ~amd64"
-RESTRICT="strip mirror"
+RESTRICT="bindist mirror strip"
 
 RDEPEND="
 	dev-libs/nss

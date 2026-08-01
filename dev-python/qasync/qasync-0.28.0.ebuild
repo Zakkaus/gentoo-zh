@@ -10,7 +10,7 @@ inherit distutils-r1 pypi
 DESCRIPTION="Implementation of the asyncio (PEP 3156) event-loop with Qt"
 HOMEPAGE="https://github.com/CabbageDevelopment/qasync"
 
-LICENSE="BSD"
+LICENSE="BSD-2"
 SLOT="0"
 KEYWORDS="~amd64"
 

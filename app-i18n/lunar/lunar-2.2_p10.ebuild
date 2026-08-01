@@ -12,7 +12,7 @@ HOMEPAGE="https://packages.debian.org/unstable/utils/lunar"
 SRC_URI="https://salsa.debian.org/chinese-team/lunar/-/archive/debian/${MY_PV}/lunar-debian-${MY_PV}.tar.gz -> ${P}.tar.gz"
 
 S="${WORKDIR}/lunar-debian-${MY_PV}"
-LICENSE="GPL-2"
+LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 

@@ -14,7 +14,7 @@ SRC_URI="
 "
 
 S="${WORKDIR}"
-LICENSE="Cherry-Studio"
+LICENSE="AGPL-3"
 
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
@@ -26,7 +26,7 @@ RDEPEND="
 
 BDEPEND="arm64? ( dev-util/patchelf )"
 
-RESTRICT="strip bindist mirror"
+RESTRICT="strip"
 
 src_unpack() {
 	if use amd64; then

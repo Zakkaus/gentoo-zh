@@ -13,6 +13,7 @@ S="${WORKDIR}"
 
 # License same as vscode
 LICENSE="
+	windsurf
 	Apache-2.0
 	BSD
 	BSD-1

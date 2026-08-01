@@ -11,7 +11,7 @@ HOMEPAGE="https://www.kaufmann.no/roland/dvorak/index.html"
 SRC_URI="https://www.kaufmann.no/downloads/linux/${MY_P}.map.gz"
 
 S="${WORKDIR}"
-LICENSE="BSD"
+LICENSE="Programmer-Dvorak"
 SLOT="0"
 KEYWORDS="~amd64 ~mips ~x86"
 

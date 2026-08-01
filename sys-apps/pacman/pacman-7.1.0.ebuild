@@ -19,7 +19,7 @@ else
 fi
 
 S="${WORKDIR}/${PN}-v${PV}"
-LICENSE="GPL-2"
+LICENSE="GPL-2+"
 SLOT="0/10"
 
 IUSE="curl doc +gpg test"

@@ -9,7 +9,7 @@ SRC_URI="https://github.com/cginternals/glbinding/archive/refs/tags/v${PV}.tar.g
 
 inherit cmake-multilib
 
-LICENSE="LGPL-2"
+LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 IUSE="lto"

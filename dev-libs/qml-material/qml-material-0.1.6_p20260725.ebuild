@@ -17,7 +17,7 @@ SRC_URI="
 
 S="${WORKDIR}/QmlMaterial-${MY_PV}"
 
-LICENSE="MPL-2.0"
+LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64"
 

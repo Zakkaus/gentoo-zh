@@ -47,6 +47,8 @@ SRC_URI="
 "
 
 # Dependent crate licenses
+LICENSE="Apache-2.0"
+# Dependent crate licenses
 LICENSE+="
 	0BSD Apache-2.0 BSD-2 BSD CC0-1.0 CDLA-Permissive-2.0 GPL-3+ ISC MIT
 	MPL-2.0 Unicode-3.0 Unlicense ZLIB

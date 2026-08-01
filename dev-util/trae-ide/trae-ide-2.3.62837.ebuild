@@ -17,7 +17,7 @@ SRC_URI="
 
 S="${WORKDIR}"
 
-LICENSE="LCEDA-EULA"
+LICENSE="trae"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
 DEPEND="

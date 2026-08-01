@@ -5,7 +5,7 @@ EAPI=8
 DESCRIPTION="Linux Wifi Hotspot"
 HOMEPAGE="https://github.com/lakinduakash/linux-wifi-hotspot"
 # inherit toolchain-funcs eutils
-LICENSE=BSD
+LICENSE="BSD-2"
 SLOT="0"
 
 DEPEND="

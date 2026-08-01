@@ -14,7 +14,7 @@ SRC_URI="
 "
 S="${WORKDIR}"
 
-LICENSE="MIT"
+LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 

@@ -15,10 +15,11 @@ SRC_URI="${COMMON_URI}/deepin-wine-helper/${PN}_${PV}-${PR/r/}_amd64.deb
 
 S=${WORKDIR}
 
-LICENSE="LGPL-2.1"
+LICENSE="all-rights-reserved"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="+virtual-pkg"
+RESTRICT="bindist mirror"
 REQUIRED_USE="virtual-pkg? ( ${PYTHON_REQUIRED_USE} )"
 
 RDEPEND="

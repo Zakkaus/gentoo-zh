@@ -9,7 +9,7 @@ HOMEPAGE="https://code.google.com/archive/p/wangfonts"
 SRC_URI="https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/wangfonts/${P}.tar.gz"
 
 S="${WORKDIR}/${PN}"
-LICENSE="GPL-2"
+LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~mips ~ppc ~s390 ~sparc ~x86"
 

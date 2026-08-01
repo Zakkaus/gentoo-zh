@@ -33,7 +33,7 @@ SRC_URI="
 
 S="${WORKDIR}/${P/_p1/-fix}"
 
-LICENSE="MIT"
+LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64"
 

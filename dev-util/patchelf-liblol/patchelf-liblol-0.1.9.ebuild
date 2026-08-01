@@ -14,7 +14,7 @@ HOMEPAGE="https://github.com/NixOS/patchelf https://liblol.aosc.io"
 SRC_URI="https://github.com/NixOS/${PATCHELF_PN}/archive/${PATCHELF_PV}.tar.gz -> ${PATCHELF_P}.tar.gz"
 S="${WORKDIR}/${PATCHELF_P}"
 
-LICENSE="GPL-3"
+LICENSE="GPL-3+"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~x86"
 

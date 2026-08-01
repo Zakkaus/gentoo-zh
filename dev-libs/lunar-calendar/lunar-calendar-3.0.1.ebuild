@@ -9,7 +9,7 @@ DESCRIPTION="a gtk+ calendar widget for chinese lunar library"
 HOMEPAGE="https://github.com/yetist/lunar-calendar"
 SRC_URI="https://github.com/yetist/lunar-calendar/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
-LICENSE="GPL-2"
+LICENSE="LGPL-2.1+"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="doc vala introspection test"

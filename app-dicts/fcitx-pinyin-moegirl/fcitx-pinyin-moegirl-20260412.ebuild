@@ -15,7 +15,7 @@ SRC_URI="
 
 S="${WORKDIR}/mw2fcitx-${PV}"
 
-LICENSE="Unlicense CC-BY-NC-SA-3.0"
+LICENSE="MIT CC-BY-NC-SA-3.0"
 SLOT="5"
 KEYWORDS="~amd64"
 IUSE="+fcitx rime"

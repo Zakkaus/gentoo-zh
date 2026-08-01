@@ -10,7 +10,7 @@ inherit distutils-r1 pypi
 
 DESCRIPTION="Mixed sync-async queue to interoperate between asyncio tasks and classic threads"
 HOMEPAGE="https://github.com/aio-libs/janus"
-LICENSE="BSD"
+LICENSE="Apache-2.0"
 
 SLOT="0"
 KEYWORDS="~amd64"

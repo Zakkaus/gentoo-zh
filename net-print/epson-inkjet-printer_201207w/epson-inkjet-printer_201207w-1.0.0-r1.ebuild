@@ -17,7 +17,7 @@ HOMEPAGE="https://openprinting.github.io/foomatic/driver/epson-201207w"
 SRC_URI="https://web.archive.org/web/20150803102803if_/http://download.ebz.epson.net/dsc/op/stable/SRPMS/epson-inkjet-printer-201207w-1.0.0-1lsb3.2.src.rpm"
 
 S="${WORKDIR}/epson-inkjet-printer-filter-${PV}"
-LICENSE="LGPL-2.1 EPSON"
+LICENSE="LGPL-2.1+ GPL-2+ EPSON"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 RESTRICT="mirror"

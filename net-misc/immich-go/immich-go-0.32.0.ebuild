@@ -11,7 +11,7 @@ SRC_URI="
 	https://github.com/gentoo-zh-drafts/immich-go/releases/download/v${PV}/${P}-vendor.tar.xz
 "
 
-LICENSE="GPL-3"
+LICENSE="AGPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
 
