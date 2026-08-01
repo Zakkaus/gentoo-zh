@@ -2,6 +2,8 @@ name: mirror to codeberg
 on:
   workflow_dispatch:
   push:
+    branches: [master]
+    tags: ['**']
   delete:
   schedule:
     - cron: '40 4 * * *'
@@ -12,7 +14,7 @@ concurrency:
 jobs:
   mirror:
     runs-on: ubuntu-latest
-    if: github.repository == 'gentoo-zh/overlay'
+    if: github.repository == 'gentoo-zh/overlay' && github.actor != 'dependabot[bot]'
     steps:
     - name: Clone GitHub repository (bare mirror)
       run: git clone --mirror "https://github.com/${GITHUB_REPOSITORY}.git" repo.git
