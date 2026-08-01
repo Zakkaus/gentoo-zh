@@ -1910,9 +1910,9 @@ regex = 'com.alibabainc.dingtalk_(.*)_amd64.deb'
 github_account = "gouwazi"
 
 ["net-im/tencent-qq"]
-source = "jq"
+source = "regex"
 url = "https://qq-web.cdn-go.cn/im.qq.com_new/latest/rainbow/pcConfig.json"
-filter = ".Linux.version"
+regex = '"Linux":\s*\{\s*"version":\s*"([\d.]+)"'
 github_account = ["Puqns67", "gouwazi"]
 
 ["net-im/vesktop-bin"]
