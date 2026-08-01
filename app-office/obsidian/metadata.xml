@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="project">
+		<email>overlay@gentoozh.org</email>
+		<name>gentoo-zh</name>
+	</maintainer>
+	<use>
+		<flag name="appindicator">Enable tray icon support through <pkg>dev-libs/libayatana-appindicator</pkg></flag>
+		<flag name="wayland">Install an extra desktop entry that runs under Wayland natively</flag>
+	</use>
+	<upstream>
+		<remote-id type="github">obsidianmd/obsidian-releases</remote-id>
+	</upstream>
+</pkgmetadata>
