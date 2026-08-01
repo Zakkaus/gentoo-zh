@@ -19,7 +19,7 @@ IUSE="qt6"
 
 RDEPEND="
 	>=app-i18n/fcitx-5.1.13:5
-	app-i18n/fcitx-qt[qt6?,-onlyplugin]
+	app-i18n/fcitx-qt[qt6(+)?,-onlyplugin]
 	app-i18n/libskk
 	app-i18n/skk-jisyo
 	qt6? (
