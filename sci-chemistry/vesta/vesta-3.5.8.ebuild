@@ -15,6 +15,7 @@ LICENSE="VESTA"
 SLOT="0"
 KEYWORDS="~amd64"
 
+IUSE="powderplot"
 RESTRICT="bindist mirror strip"
 
 RDEPEND="
@@ -22,12 +23,17 @@ RDEPEND="
 	virtual/glu
 	dev-util/desktop-file-utils
 	x11-libs/libXtst
-	virtual/jdk
+	powderplot? (
+		virtual/jdk
+		x11-libs/gtk+:2
+	)
 	${DEPEND}"
 
 QA_PREBUILT="*"
 
 src_install() {
+	use powderplot || rm -r PowderPlot || die
+
 	insinto /opt/VESTA
 	doins -r *
 	fperms +x /opt/VESTA/VESTA

@@ -5,4 +5,7 @@
 		<email>chn@chn.moe</email>
 		<name>Haonan Chen</name>
 	</maintainer>
+	<use>
+		<flag name="powderplot">Install the bundled PowderPlot tool, which plots powder diffraction patterns produced by RIETAN</flag>
+	</use>
 </pkgmetadata>
