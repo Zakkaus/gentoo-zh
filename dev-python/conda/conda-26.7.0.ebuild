@@ -37,9 +37,10 @@ DEPEND="dev-vcs/git
 		dev-python/toolz[${PYTHON_USEDEP}]
 		dev-python/tqdm[${PYTHON_USEDEP}]
 		dev-python/truststore[${PYTHON_USEDEP}]
-		dev-python/zstandard[${PYTHON_USEDEP}]
 		dev-python/msgpack[${PYTHON_USEDEP}]
 		dev-python/pycosat[${PYTHON_USEDEP}]')
+		$(python_gen_cond_dep '
+		dev-python/backports-zstd[${PYTHON_USEDEP}]' python3_12 python3_13)
 		mamba? ( dev-python/conda-libmamba-solver[${PYTHON_SINGLE_USEDEP}] )"
 RDEPEND="${DEPEND}"
 
