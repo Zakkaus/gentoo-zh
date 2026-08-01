@@ -45,13 +45,13 @@ pkg_postinst() {
 	xdg_pkg_postinst
 
 	if [ "$(uname -m)" = "aarch64" ]; then
-		ewarn "libflutter_linux_gtk.so from the official arm64 flutter engine"
-		ewarn "is not linked against fontconfig, which prevents flutter from"
-		ewarn "finding system CJK fonts, rendering those characters tofu box."
-		ewarn " "
-		ewarn "The flutter officials have noticed this and are in progress."
-		ewarn "( https://github.com/flutter/flutter/pull/180235 )"
-		ewarn "Rebuilding flutter engine with fontconfig enabled might"
-		ewarn "tackle the issue temporarily."
+		elog "libflutter_linux_gtk.so from the official arm64 flutter engine"
+		elog "is not linked against fontconfig, which prevents flutter from"
+		elog "finding system CJK fonts, rendering those characters tofu box."
+		elog " "
+		elog "The flutter officials have noticed this and are in progress."
+		elog "( https://github.com/flutter/flutter/pull/180235 )"
+		elog "Rebuilding flutter engine with fontconfig enabled might"
+		elog "tackle the issue temporarily."
 	fi
 }
