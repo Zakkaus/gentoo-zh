@@ -14,7 +14,7 @@ LICENSE="unity-EULA"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="+appindicator legacy"
-RESTRICT="mirror strip"
+RESTRICT="bindist mirror strip"
 
 DEPEND="
 	appindicator? (
