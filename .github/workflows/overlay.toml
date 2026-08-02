@@ -1137,6 +1137,13 @@ github_account = "peeweep"
 # live package only
 #["dev-util/codewhale-bin"]
 
+["dev-util/codegraph"]
+source = "github"
+github = "colbymchenry/codegraph"
+use_latest_release = true
+prefix = "v"
+github_account = "zakkaus"
+
 ["dev-util/codex"]
 source = "github"
 github = "openai/codex"

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>zakk@gentoozh.org</email>
+		<name>Zakk</name>
+	</maintainer>
+	<longdescription lang="en">
+		CodeGraph parses a repository with tree-sitter and stores the symbols,
+		call paths and references in a local SQLite database, so an AI coding
+		agent can answer questions about the codebase from the index instead of
+		reading files one by one. It covers 20+ languages and runs entirely on
+		the machine.
+	</longdescription>
+	<upstream>
+		<remote-id type="github">colbymchenry/codegraph</remote-id>
+		<bugs-to>https://github.com/colbymchenry/codegraph/issues</bugs-to>
+	</upstream>
+</pkgmetadata>
