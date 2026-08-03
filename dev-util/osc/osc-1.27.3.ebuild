@@ -20,7 +20,10 @@ DEPEND="
 	dev-python/ruamel-yaml
 	dev-python/urllib3
 "
-RDEPEND="${DEPEND}"
+RDEPEND="
+	${DEPEND}
+	dev-util/diffstat
+"
 BDEPEND="
 	dev-python/argparse-manpage
 	dev-python/cryptography
