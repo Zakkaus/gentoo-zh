@@ -9,6 +9,11 @@ EULA AdsPower-EULA Anthropic BaiduNetDisk Bcompare CAJVIEWER-EULA cursor Feishu-
 # are granted, subject to keeping the copyright notice and not reusing the name.
 MISC-FREE Programmer-Dvorak
 
-# Redistributing the unmodified table carries no cost limit and needs no
-# permission; only re-encoding it and then redistributing is denied.
-BINARY-REDISTRIBUTABLE dayi
+# Binary redistribution is granted and needs no permission: the dayi table may
+# be redistributed unmodified, only re-encoding it is denied, and the LCEDA
+# client may be shipped in a GNU/Linux repository as long as a copy of the
+# licence and the upstream notices travel with it. LCEDA-Software-EULA, which
+# applies to the same package, is deliberately left out of @EULA: the archive
+# ships this grant next to it, so the redistribution that @EULA membership
+# would deny is in fact allowed.
+BINARY-REDISTRIBUTABLE dayi LCEDA-Distribution-License
