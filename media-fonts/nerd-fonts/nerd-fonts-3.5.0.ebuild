@@ -15,6 +15,7 @@ FONTS=(
 	3270
 	AdwaitaMono
 	Agave
+	AnnotationMono
 	AnonymousPro
 	Arimo
 	AtkinsonHyperlegibleMono
@@ -39,6 +40,7 @@ FONTS=(
 	GeistMono
 	Go-Mono
 	Gohu
+	GoogleSansCode
 	Hack
 	Hasklig
 	HeavyData
@@ -88,6 +90,7 @@ SRC_URI="
 	3270? ( ${COMMON_URI}/3270.tar.xz -> 3270-nf-${PV}.tar.xz )
 	adwaitamono? ( ${COMMON_URI}/AdwaitaMono.tar.xz -> AdwaitaMono-nf-${PV}.tar.xz )
 	agave? ( ${COMMON_URI}/Agave.tar.xz -> Agave-nf-${PV}.tar.xz )
+	annotationmono? ( ${COMMON_URI}/AnnotationMono.tar.xz -> AnnotationMono-nf-${PV}.tar.xz )
 	anonymouspro? ( ${COMMON_URI}/AnonymousPro.tar.xz -> AnonymousPro-nf-${PV}.tar.xz )
 	arimo? ( ${COMMON_URI}/Arimo.tar.xz -> Arimo-nf-${PV}.tar.xz )
 	atkinsonhyperlegiblemono? (
@@ -113,6 +116,7 @@ SRC_URI="
 	geistmono? ( ${COMMON_URI}/GeistMono.tar.xz -> GeistMono-nf-${PV}.tar.xz )
 	go-mono? ( ${COMMON_URI}/Go-Mono.tar.xz -> Go-Mono-nf-${PV}.tar.xz )
 	gohu? ( ${COMMON_URI}/Gohu.tar.xz -> Gohu-nf-${PV}.tar.xz )
+	googlesanscode? ( ${COMMON_URI}/GoogleSansCode.tar.xz -> GoogleSansCode-nf-${PV}.tar.xz )
 	hack? ( ${COMMON_URI}/Hack.tar.xz -> Hack-nf-${PV}.tar.xz )
 	hasklig? ( ${COMMON_URI}/Hasklig.tar.xz -> Hasklig-nf-${PV}.tar.xz )
 	heavydata? ( ${COMMON_URI}/HeavyData.tar.xz -> HeavyData-nf-${PV}.tar.xz )
