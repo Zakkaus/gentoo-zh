@@ -10,7 +10,7 @@ HOMEPAGE="https://lceda.cn/"
 SRC_URI="https://image.lceda.cn/files/${PN}-linux-x64-${PV}.zip"
 
 S="${WORKDIR}/lceda-linux-x64"
-LICENSE="LCEDA-EULA"
+LICENSE="LCEDA-Software-EULA LCEDA-Distribution-License"
 SLOT="0"
 KEYWORDS="~amd64"
 
@@ -48,8 +48,6 @@ DEPEND="
 RDEPEND="${DEPEND}"
 BDEPEND="app-arch/unzip"
 
-RESTRICT="mirror bindist"
-
 QA_PREBUILT="
 	/opt/lceda/swiftshader/libEGL.so
 	/opt/lceda/swiftshader/libGLESv2.so
@@ -64,4 +62,7 @@ src_install(){
 	doins -r .
 	fperms 0755 /opt/lceda/lceda
 	newmenu LCEDA.dkt LCEDA.desktop
+
+	dodoc "${FILESDIR}"/LCEDA-Distribution-License.txt
+	docompress -x "/usr/share/doc/${PF}/LCEDA-Distribution-License.txt"
 }
