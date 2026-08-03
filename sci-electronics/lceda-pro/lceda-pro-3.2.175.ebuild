@@ -13,7 +13,7 @@ SRC_URI="
 	arm64?	( https://image.lceda.cn/files/${PN}-linux-arm64-${PV}.zip )
 "
 S="${WORKDIR}/lceda-pro"
-LICENSE="LCEDA-Distribution-License"
+LICENSE="LCEDA-Software-EULA LCEDA-Distribution-License"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
 DEPEND="
