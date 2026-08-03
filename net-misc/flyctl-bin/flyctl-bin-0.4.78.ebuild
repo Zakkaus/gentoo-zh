@@ -15,7 +15,6 @@ S="${WORKDIR}"
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
-RDEPEND="sys-libs/glibc"
 
 QA_PREBUILT="/usr/bin/flyctl"
 RESTRICT="strip"
