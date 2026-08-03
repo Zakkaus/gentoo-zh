@@ -3,11 +3,13 @@
 
 EAPI=8
 
+inherit desktop xdg
+
 DESCRIPTION="Beyond Compare -- Compare, sync, and merge files and folders"
 HOMEPAGE="https://www.scootersoftware.com/"
 SRC_URI="amd64? ( https://www.scootersoftware.com/bcompare-${PV}.x86_64.tar.gz )"
 
-LICENSE="Bcompare"
+LICENSE="Bcompare-5"
 SLOT="0"
 KEYWORDS="-* ~amd64"
 
@@ -57,6 +59,12 @@ src_install() {
 	sed -i ./install.sh -e "s%^# Copy the files.*%BC_BIN=\"$D/\$BC_BIN\"; BC_LIB=\"$D/\$BC_LIB\";%g" || die
 	sed -i ./install.sh -e "s/^\texit 1.*//g" || die
 	./install.sh --prefix="${targetdir}" || die
+
+	sed -i '/^Encoding=/d' bcompare.desktop || die
+	domenu bcompare.desktop
+	insinto /usr/share/mime/packages
+	doins bcompare.xml
+	doicon bcompare.png bcomparefull32.png bcomparehalf32.png
 
 	dosym "../../opt/${LAUNCHER}" "/usr/bin/bcompare"
 }
