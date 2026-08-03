@@ -48,19 +48,22 @@ DEPEND="
 RDEPEND="${DEPEND}"
 BDEPEND="app-arch/unzip"
 
-QA_PREBUILT="
-	/opt/lceda/swiftshader/libEGL.so
-	/opt/lceda/swiftshader/libGLESv2.so
-	/opt/lceda/lceda
-	/opt/lceda/libEGL.so
-	/opt/lceda/libffmpeg.so
-	/opt/lceda/libGLESv2.so
-"
+RESTRICT="strip"
+
+QA_PREBUILT="*"
 
 src_install(){
 	insinto /opt/lceda
 	doins -r .
 	fperms 0755 /opt/lceda/lceda
+	fperms 0755 /opt/lceda/chrome_crashpad_handler
+
+	local size
+	for size in 16 32 48 64 128 256; do
+		newicon -s ${size} icon/${size}x${size}/lceda.png lceda.png
+	done
+
+	sed -i 's|^Icon=.*|Icon=lceda|' LCEDA.dkt || die
 	newmenu LCEDA.dkt LCEDA.desktop
 
 	dodoc "${FILESDIR}"/LCEDA-Distribution-License.txt
