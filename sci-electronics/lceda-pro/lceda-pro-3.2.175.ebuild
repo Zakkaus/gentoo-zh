@@ -51,22 +51,20 @@ DEPEND="
 RDEPEND="${DEPEND}"
 BDEPEND="app-arch/unzip"
 
-QA_PREBUILT="
-	/opt/lceda-pro/chrome-sandbox
-	/opt/lceda-pro/chrome_crashpad_handler
-	/opt/lceda-pro/libEGL.so
-	/opt/lceda-pro/libffmpeg.so
-	/opt/lceda-pro/resources/app/node_modules/sqlite3/lib/binding/napi-v3-linux-x64/node_sqlite3.node
-	/opt/lceda-pro/lceda-pro
-	/opt/lceda-pro/libvk_swiftshader.so
-	/opt/lceda-pro/libGLESv2.so
-	/opt/lceda-pro/libvulkan.so.1
-"
+RESTRICT="strip"
+
+QA_PREBUILT="*"
 
 src_install(){
 	insinto /opt/lceda-pro
 	doins -r .
 	fperms 0755 /opt/lceda-pro/lceda-pro
 	fperms 0755 /opt/lceda-pro/chrome_crashpad_handler
+
+	local size
+	for size in 16 24 32 48 64 96 128 256 512; do
+		newicon -s ${size} icon/icon_${size}x${size}.png lceda-pro.png
+	done
+
 	domenu "${FILESDIR}"/JLCEDA_Pro.desktop
 }
