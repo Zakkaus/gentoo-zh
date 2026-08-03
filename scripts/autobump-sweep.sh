@@ -165,7 +165,13 @@ for n in "${ISSUES[@]}"; do
     echo "==== #$n $pkg -> $ver ($attempts/$LIMIT) ===="
     status_comment "$n" "**autobump** is bumping \`$pkg\` → \`$ver\`…$(run_link)"
     out=$($ENGINE "$n" $KEEP_OLD $PR 2>&1); ec=$?
-    echo "$out" | tail -4
+    # on success the tail is enough. on failure print everything: the engine's evidence dir is
+    # inside the CI container and dies with it, so this log is the only postmortem material left.
+    if [ "$ec" = 0 ]; then
+        echo "$out" | tail -4
+    else
+        echo "$out"
+    fi
 
     case "$ec" in
     0)
