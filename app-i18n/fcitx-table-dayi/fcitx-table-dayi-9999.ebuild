@@ -14,6 +14,7 @@ EGIT_REPO_URI="https://github.com/fcitx/fcitx5-table-dayi.git"
 LICENSE="dayi"
 SLOT="5"
 KEYWORDS=""
+RESTRICT="bindist"
 
 DEPEND="
 	app-i18n/fcitx:5
