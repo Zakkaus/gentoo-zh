@@ -14,7 +14,7 @@ S=${WORKDIR}
 LICENSE="all-rights-reserved"
 SLOT="0"
 KEYWORDS="-* ~amd64"
-RESTRICT="mirror strip"
+RESTRICT="bindist mirror strip"
 
 DEPEND="
 	dev-libs/nss
