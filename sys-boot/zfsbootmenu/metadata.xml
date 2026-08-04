@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>zakk@gentoozh.org</email>
+		<name>Zakk</name>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">zbm-dev/zfsbootmenu</remote-id>
+		<bugs-to>https://github.com/zbm-dev/zfsbootmenu/issues</bugs-to>
+		<doc>https://docs.zfsbootmenu.org/</doc>
+	</upstream>
+</pkgmetadata>

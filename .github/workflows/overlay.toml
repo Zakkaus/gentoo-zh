@@ -2446,6 +2446,13 @@ prefix = "v"
 github_account = ["st0nie", "gouwazi"]
 autobump = true
 
+["sys-boot/zfsbootmenu"]
+source = "github"
+github = "zbm-dev/zfsbootmenu"
+use_latest_release = true
+prefix = "v"
+github_account = "zakkaus"
+
 # live package only
 #["sys-fs/ltfs"]
 
