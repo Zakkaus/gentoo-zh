@@ -46,6 +46,7 @@ DEPEND="
 	vulkan? ( dev-util/vulkan-headers )
 "
 BDEPEND="
+	sys-devel/gettext
 	virtual/pkgconfig
 	layer? ( ${RUST_DEPEND} )
 "
