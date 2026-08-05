@@ -16,11 +16,11 @@ DESCRIPTION="A dynamic wallpaper solution for Linux desktops"
 HOMEPAGE="https://github.com/waywallen/waywallen"
 
 VMA_TAG="3.4.0"
-RSTD_COMMIT="bf5f855ddb1b84390306e0913b89149ac72a3510"
-VVK_COMMIT="8fcfd34b43a13ade515f029b0b4209bd3684645f"
+RSTD_COMMIT="c697a4b08cbb9183f78c18915f59c8f72dac5d14"
+VVK_COMMIT="b6b1cc66e3cce61307f71c5479b3a774555d3c13"
 WAVSEN_COMMIT="e49fc62fdc1b57abeabb643daa6ebab96fb3821f"
-NCREQUEST_COMMIT="37d3c588fb1307dd6c40fbc8681790b45eb5402a"
-QEXTRA_COMMIT="2106172c8c55693248661f5ddfc0623ff489285d"
+NCREQUEST_COMMIT="8d703215bc9154618bc84d2c8517ff7b264c93f3"
+QEXTRA_COMMIT="37724d1fd44fc013e938652e2fcb25897be10e63"
 
 SRC_URI="
 	https://github.com/waywallen/waywallen/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
@@ -44,7 +44,7 @@ KEYWORDS="~amd64"
 IUSE="+ui mpv pipewire vaapi +wallhaven"
 
 RDEPEND="
-	media-plugins/waywallen-display
+	>=media-plugins/waywallen-display-0.3.0
 	dev-db/sqlite
 	dev-libs/glib
 	dev-libs/icu
@@ -84,7 +84,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}/${PN}-0.2.6-use-system-depends.patch"
+	"${FILESDIR}/${PN}-0.3.0-use-system-depends.patch"
 )
 
 export LIBSQLITE3_SYS_USE_PKG_CONFIG=1
