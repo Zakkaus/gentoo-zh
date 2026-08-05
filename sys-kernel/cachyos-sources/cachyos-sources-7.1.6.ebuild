@@ -5,7 +5,7 @@ EAPI="8"
 
 ETYPE="sources"
 K_WANT_GENPATCHES="base extras"
-K_GENPATCHES_VER="8"
+K_GENPATCHES_VER="9"
 K_SECURITY_UNSUPPORTED="1"
 
 inherit check-reqs kernel-2
@@ -77,7 +77,8 @@ apply_gentoo_genpatches() {
 	[[ -n ${version_patch} ]] ||
 		die "genpatches-${CACHYOS_SERIES}-${K_GENPATCHES_VER} is missing linux-${PV}.patch"
 
-	# CachyOS 7.1.5 already contains this fix, so do not apply it twice.
+	# CachyOS already ships the full ${PV} tree, so skip genpatches stable bumps
+	# (10*_linux-*.patch). Also drop any listed fix already present in CachyOS.
 	find "${WORKDIR}" -maxdepth 1 -type f \
 		\( -name '10*linux*patch' \
 		-o -name '2700_drm-amdgpu-fix-check-in-amdgpu-hmm-invalidate-gfx.patch' \) \
