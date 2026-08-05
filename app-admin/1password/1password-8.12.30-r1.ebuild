@@ -21,6 +21,7 @@ SRC_URI="
 LICENSE="all-rights-reserved"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
+IUSE="policykit"
 RESTRICT="mirror strip bindist"
 
 DEPEND="
@@ -34,7 +35,10 @@ DEPEND="
 	x11-libs/gtk+:3
 	x11-libs/libxkbcommon
 "
-RDEPEND="${DEPEND}"
+RDEPEND="
+	${DEPEND}
+	policykit? ( sys-auth/polkit[pam] )
+"
 
 QA_PREBUILT="*"
 
@@ -76,9 +80,15 @@ src_install() {
 	insopts -m0755
 	doins resources/custom_allowed_browsers
 
+	if use policykit; then
+		insinto /usr/share/polkit-1/actions
+		insopts -m0644
+		newins com.1password.1Password.policy.tpl com.1password.1Password.policy
+	fi
+
 	insinto /opt/1Password/
-	doins *.pak *.bin *.json *.dat
 	insopts -m0755
+	doins *.pak *.bin *.json *.dat
 	doins -r locales resources
 
 	# Chrome-sandbox requires the setuid bit to be specifically set.
@@ -89,4 +99,35 @@ src_install() {
 	fperms g+s /opt/1Password/1Password-BrowserSupport
 
 	dosym ../../opt/1Password/1password /usr/bin/1password
+}
+
+pkg_preinst() {
+	xdg_pkg_preinst
+
+	use policykit || return 0
+
+	[[ -r ${EROOT}/etc/passwd ]] || die "Unable to read ${EROOT}/etc/passwd"
+
+	local -a policy_owners=()
+	local username uid
+
+	# Same as install_biometrics_policy.sh: first ten accounts with
+	# four-digit UIDs.
+	while IFS=: read -r username _ uid _; do
+		[[ ${uid} =~ ^[0-9]{4}$ ]] || continue
+		policy_owners+=( "unix-user:${username}" )
+		(( ${#policy_owners[@]} == 10 )) && break
+	done < "${EROOT}"/etc/passwd
+
+	sed -i -e "s/\${POLICY_OWNERS}/${policy_owners[*]}/" \
+		"${ED}"/usr/share/polkit-1/actions/com.1password.1Password.policy || die
+}
+
+pkg_postinst() {
+	xdg_pkg_postinst
+	use policykit || return 0
+
+	elog "The Polkit policy owner list contains the first ten accounts with"
+	elog "four-digit UIDs that existed when this package was merged. Re-emerge"
+	elog "${CATEGORY}/${PN} after adding an eligible account."
 }
