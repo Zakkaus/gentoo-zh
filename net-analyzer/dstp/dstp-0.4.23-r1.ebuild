@@ -9,7 +9,7 @@ DESCRIPTION="Run common networking tests against any site"
 HOMEPAGE="https://github.com/ycd/dstp"
 SRC_URI="
 	https://github.com/ycd/${PN}/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
-	https://github.com/gentoo-zh/gentoo-deps/releases/download/${P}/${P}-deps.tar.xz
+	https://github.com/gentoo-zh-drafts/${PN}/releases/download/v${PV}/${P}-vendor.tar.xz
 "
 
 LICENSE="BSD MIT"
