@@ -4,7 +4,7 @@
 EAPI=8
 inherit go-module systemd
 
-COMMIT_ID="bc766a2de2d81340b80c61be5410cfbe71dc11fa"
+COMMIT_ID="23c90861add39acd9adde1898b6ae052b3b3d877"
 
 DESCRIPTION="A powerful, lightning fast and censorship resistant proxy"
 HOMEPAGE="https://github.com/apernet/hysteria"
