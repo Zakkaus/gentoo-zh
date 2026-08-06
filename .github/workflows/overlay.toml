@@ -1869,8 +1869,13 @@ prefix = "v"
 github_account = "gouwazi"
 autobump = true
 
-# duplicate source/binary package
-# ["net-analyzer/dstp-bin"]
+["net-analyzer/dstp-bin"]
+source = "github"
+github = "ycd/dstp"
+use_latest_release = true
+prefix = "v"
+github_account = "gouwazi"
+autobump = true
 
 # dead upstream
 # ["net-analyzer/nali"]
