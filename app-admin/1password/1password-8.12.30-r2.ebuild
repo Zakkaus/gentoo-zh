@@ -21,7 +21,7 @@ SRC_URI="
 LICENSE="all-rights-reserved"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
-IUSE="policykit"
+IUSE="mcp policykit"
 RESTRICT="mirror strip bindist"
 
 DEPEND="
@@ -37,6 +37,7 @@ DEPEND="
 "
 RDEPEND="
 	${DEPEND}
+	mcp? ( acct-group/onepassword-mcp )
 	policykit? ( sys-auth/polkit[pam] )
 "
 
@@ -75,9 +76,12 @@ src_install() {
 	exeinto /opt/1Password/
 	doexe 1password 1Password-{BrowserSupport,Crash-Handler,LastPass-Exporter} op-ssh-sign
 	doexe chrome-sandbox chrome_crashpad_handler *.so*
+	if use mcp; then
+		doexe 1password-mcp
+	fi
 
 	insinto /etc/1password/
-	insopts -m0755
+	insopts -m0644
 	doins resources/custom_allowed_browsers
 
 	if use policykit; then
@@ -91,6 +95,9 @@ src_install() {
 	doins *.pak *.bin *.json *.dat
 	doins -r locales resources
 
+	docinto examples
+	dodoc resources/custom_allowed_browsers
+
 	# Chrome-sandbox requires the setuid bit to be specifically set.
 	# see https://github.com/electron/electron/issues/17972
 	fperms 4755 /opt/1Password/chrome-sandbox
@@ -99,6 +106,16 @@ src_install() {
 	fperms g+s /opt/1Password/1Password-BrowserSupport
 
 	dosym ../../opt/1Password/1password /usr/bin/1password
+	dosym ../../opt/1Password/op-ssh-sign /usr/bin/op-ssh-sign
+
+	if use mcp; then
+		# Upstream after-install.sh: setgid so OPH can verify MCP peers via SO_PEERCRED.
+		fowners root:onepassword-mcp /opt/1Password/1password-mcp
+		fperms g+s /opt/1Password/1password-mcp
+		dosym ../../opt/1Password/1password-mcp /usr/bin/1password-mcp
+		# Pre-rename alias retained by upstream after-install.sh.
+		dosym 1password-mcp /opt/1Password/onepassword-mcp
+	fi
 }
 
 pkg_preinst() {
