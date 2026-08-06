@@ -61,9 +61,12 @@ https://github.com/gentoo-zh/overlay/blob/deps-table/relation.md
   from its redistribution terms.
 * A new package must be added to
   [`.github/workflows/overlay.toml`](./.github/workflows/overlay.toml), inserted in
-  alphabetical order by `category/package`; if it is not suitable for nvchecker to
-  check for new versions, add a comment in that position explaining why; if it can be
-  bumped automatically, see [scripts/autobump.md](./scripts/autobump.md).
+  alphabetical order by `category/package`. If it can be bumped automatically, see
+  [scripts/autobump.md](./scripts/autobump.md).
+* If a package is not suitable for nvchecker to check for new versions, add a comment
+  in that position explaining why. When multiple nvchecker entries point at the same
+  upstream source, comment out one of them; packages that can enable autobump are an
+  exception.
 * Run `pkgcheck scan --commits --net` locally before you open a pull request.
 * After opening the pull request, fix whatever the pkgcheck report and CI flag, QA
   warnings included.
