@@ -37,7 +37,7 @@ on:
       limit:
         description: 'max issues per run'
         required: false
-        default: '3'
+        default: '10'
 
 concurrency:
   group: autobump
@@ -197,7 +197,7 @@ jobs:
         # dispatch inputs via env, NOT inlined into the command below: this job holds a
         # write-scoped App token, so a crafted input must not be able to inject shell.
         ISSUES: ${{ github.event.inputs.issues }}
-        LIMIT: ${{ github.event.inputs.limit || 3 }}
+        LIMIT: ${{ github.event.inputs.limit || 10 }}
       run: |
         # validate before use: ISSUES is space-separated issue numbers, LIMIT an int.
         case "$ISSUES" in *[!0-9\ ]*) echo "issues must be numbers: $ISSUES" >&2; exit 1;; esac
