@@ -641,6 +641,15 @@ prefix = "v"
 github_account = ["peeweep", "zakkaus"]
 autobump = true
 
+["app-office/notesnook-bin"]
+source = "github"
+github = "streetwriters/notesnook"
+use_max_tag = true
+prefix = "v"
+include_regex = "v\\d+\\.\\d+\\.\\d+"
+github_account = "zakkaus"
+autobump = true
+
 ["app-office/siyuan-bin"]
 source = "github"
 github = "siyuan-note/siyuan"
