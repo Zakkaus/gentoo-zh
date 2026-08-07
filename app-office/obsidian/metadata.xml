@@ -7,7 +7,7 @@
 	</maintainer>
 	<use>
 		<flag name="appindicator">Enable tray icon support through <pkg>dev-libs/libayatana-appindicator</pkg></flag>
-		<flag name="wayland">Install an extra desktop entry that runs under Wayland natively</flag>
+		<flag name="wayland">Run under Wayland natively instead of XWayland</flag>
 	</use>
 	<upstream>
 		<remote-id type="github">obsidianmd/obsidian-releases</remote-id>
