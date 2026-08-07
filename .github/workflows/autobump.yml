@@ -105,11 +105,16 @@ jobs:
         emerge --quiet --getbinpkg --autounmask=y --autounmask-write=y --autounmask-continue=y \
           dev-lang/ruby dev-vcs/git dev-util/pkgdev dev-util/pkgcheck app-portage/portage-utils \
           app-portage/iwdevtools dev-util/github-cli app-misc/jq net-misc/curl \
-          x11-base/xorg-server
+          app-portage/cpuid2cpuflags x11-base/xorg-server
         # curl: the engine's finalize stage re-checks pkgcheck DeadUrl hits with curl;
         # stage3 ships only wget, so without it that probe crashes and defers the bump.
         # qlist (portage-utils) drives the --version smoke; qa-vdb (iwdevtools)
         # checks RDEPEND vs linked libs on source packages; Xvfb the GUI probe
+
+    # stage3 sets no CPU_FLAGS_X86, so REQUIRED_USE=cpu_flags_x86_avx2 never resolves
+    # and the bump reports a build failure. Derive from the runner, do not pin a list.
+    - name: set CPU flags from the runner
+      run: echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/autobump-cpuflags
 
     - name: checkout
       uses: actions/checkout@v7
