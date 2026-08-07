@@ -9,7 +9,7 @@
 1. nvchecker 发现新版本，开一个 issue。
 2. 引擎判定这次升级是不是纯机械的：只改版本号，还是要动依赖、USE 或 patch。
 3. 判定为机械的，就改版本号、重新生成 Manifest，在 CI 容器里跑一次真实 emerge。
-4. emerge 通过才创建 PR。PR 照样要过 `emerge-on-pr` 和 `pkgcheck`，由人 review 后合并。
+4. emerge 通过才创建 PR。PR 仍要通过 `emerge-on-pr` 和 `pkgcheck`，由人 review 后合并。
 
 第 2 步有三种结果：
 
@@ -50,11 +50,39 @@ autobump = true          # 添加此行开启，删除即关闭
 
 再加一行 `keep_old = N`，bump 时就保留最近 N 个版本，而不是只替换最新那一个。`app-misc/go-yq-bin` 和 `media-fonts/sarasa-gothic` 用 `keep_old = 2`；`keep_old = 0` 表示保留全部版本。
 
-## 运行方式
+## 运行
 
-* Actions → autobump → Run workflow。`issues` 留空表示处理所有 open 的 nvchecker issue，未开启的会跳过；`limit` 是本次处理数量的上限。
-* 本地运行先把引擎 clone 到 overlay 根目录、安装 `dev-lang/ruby`，然后执行 `AUTOBUMP_ENGINE='ruby autobump-rb/bin/autobump' bash scripts/autobump-sweep.sh [issue#...] [--limit N] [--pr]`。
-* `autobump.yml` 顶部的 cron 默认是注释掉的。手动运行几次确认稳定后再取消注释。
+每天 11:00 UTC 自动执行一次，比 nvchecker 的 cron 晚两小时。
+
+### 网页
+
+[Actions → autobump → Run workflow](https://github.com/gentoo-zh/overlay/actions/workflows/autobump.yml)
+
+### 使用 gh
+
+```bash
+# 处理所有 open 的 nvchecker issue
+gh workflow run autobump.yml --repo gentoo-zh/overlay
+
+# 只处理指定 issue，空格分隔
+gh workflow run autobump.yml --repo gentoo-zh/overlay -f issues="11855 11860"
+
+# 调整本次上限
+gh workflow run autobump.yml --repo gentoo-zh/overlay -f limit=20
+```
+
+两种方式的输入相同，`issues` 只接受数字和空格。
+
+`limit` 默认 10，限制引擎实际尝试的包数。未开启和已处理过的包会跳过，跳过不占额度。
+
+一次运行最多 200 分钟，到时由 GitHub 取消，脚本自身不会提前结束。单个包另有两小时上限，`ebuild install`、`emerge` 和 `ebuild unpack` 超时后标记暂缓，下次重试。
+
+本地运行先把引擎 clone 到 overlay 根目录、安装 `dev-lang/ruby`：
+
+```bash
+AUTOBUMP_ENGINE='ruby autobump-rb/bin/autobump' \
+    bash scripts/autobump-sweep.sh [issue#...] [--limit N] [--pr]
+```
 
 某次运行处理了哪些 issue、各自结果如何，见那次 Actions run 日志末尾的 sweep summary。
 

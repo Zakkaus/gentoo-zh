@@ -67,13 +67,40 @@ top one. `app-misc/go-yq-bin` and `media-fonts/sarasa-gothic` use `keep_old = 2`
 
 ## Running it
 
-* Actions → autobump → Run workflow. An empty `issues` field processes every open
-  nvchecker issue and skips the ones not opted in; `limit` caps how many this run does.
-* Locally, clone the engine into the overlay root, install `dev-lang/ruby`, then run
-  `AUTOBUMP_ENGINE='ruby autobump-rb/bin/autobump' bash scripts/autobump-sweep.sh
-  [issue#...] [--limit N] [--pr]`.
-* The cron at the top of `autobump.yml` is commented out. Uncomment it once a few manual
-  runs look stable.
+It runs daily at 11:00 UTC, two hours after nvchecker's cron, once the issues are filed.
+
+### Web
+
+[Actions → autobump → Run workflow](https://github.com/gentoo-zh/overlay/actions/workflows/autobump.yml)
+
+### With gh
+
+```bash
+# every open nvchecker issue
+gh workflow run autobump.yml --repo gentoo-zh/overlay
+
+# only these issues, space separated
+gh workflow run autobump.yml --repo gentoo-zh/overlay -f issues="11855 11860"
+
+# change the cap for this run
+gh workflow run autobump.yml --repo gentoo-zh/overlay -f limit=20
+```
+
+Both take the same inputs; `issues` accepts digits and spaces only.
+
+`limit` defaults to 10 and caps how many packages the engine actually attempts. Packages
+that are not opted in, or already done, are skipped without spending the budget.
+
+A run lasts at most 200 minutes and GitHub cancels it there; the script itself does not
+stop early. Each package has a separate two-hour ceiling: `ebuild install`, `emerge` and
+`ebuild unpack` are deferred on timeout and retried next run.
+
+Locally, clone the engine into the overlay root, install `dev-lang/ruby`, then run:
+
+```bash
+AUTOBUMP_ENGINE='ruby autobump-rb/bin/autobump' \
+    bash scripts/autobump-sweep.sh [issue#...] [--limit N] [--pr]
+```
 
 Which issues a run processed and how each came out is in the sweep summary at the end of
 that Actions run log.
