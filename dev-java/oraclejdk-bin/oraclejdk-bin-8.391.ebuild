@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -9,7 +9,7 @@ MY_PV=${PV/./u}
 
 DESCRIPTION="Oracle's Java SE Development Kit"
 HOMEPAGE="https://www.oracle.com/java/technologies/java-se-glance.html"
-SRC_URI="jdk-${MY_PV}-linux-x64.tar.gz"
+SRC_URI="https://cfdownload.adobe.com/pub/adobe/coldfusion/java/java8/java8u391/jdk/jdk-${MY_PV}-linux-x64.tar.gz -> ${P}.tar.gz"
 S="${WORKDIR}/jdk1.8.0_${PV/8./}"
 LICENSE="OTN"
 SLOT=$(ver_cut 1)
@@ -48,33 +48,16 @@ RDEPEND="
 		virtual/opengl
 		)"
 
-pkg_nofetch() {
-	ewarn "\e[1;33m############################################################################## \e[0m"
-	ewarn "\e[1;33m# If you're seeing this warning on your screen,please pay attention:		# \e[0m"
-	ewarn "\e[1;33m# Portage can not download JDK tar file directly from Oracle's website	# \e[0m"
-	ewarn "\e[1;33m# Please download it manually to your distfiles directory			# \e[0m"
-	ewarn "\e[1;33m# Distfile directory is '/var/cache/distfile' by default			# \e[0m"
-	ewarn "\e[1;33m# Please download 'x64 Compressed Archive' file from following url:		# \e[0m"
-	ewarn "\e[1;33m# https://www.oracle.com/java/technologies/downloads/#java8-linux		# \e[0m"
-	ewarn "\e[1;33m# If the above mentioned URL does not point to the correct version anymore,	# \e[0m"
-	ewarn "\e[1;33m# please download the file from Oracle's Java download archive		# \e[0m"
-	ewarn "\e[1;33m# Do Not Continue untill	you put it to your distfiles directory		# \e[0m"
-	ewarn "\e[1;33m############################################################################## \e[0m"
-	ewarn "\e[1;33m# Portage没法直接从甲骨文官网下载jdk压缩包文件\e[0m"
-	ewarn "\e[1;33m# 请先别急着继续，仔细读上述提示！！\e[0m"
-}
-
-RESTRICT="preserve-libs splitdebug fetch"
+RESTRICT="bindist mirror preserve-libs splitdebug"
 QA_PREBUILT="*"
 
 src_install() {
 	local dest="/opt/${P}"
 	local ddest="${ED}/${dest#/}"
-	# Notion:
-	# There is a libav*.so* related problem not yet get fixed
-	# Maybe downgrading ffmpeg version can resolve this,or maybe should wait for Oracle to make
-	# jdk use high versioned .so stuff.
 	rm COPYRIGHT LICENSE README.html THIRDPARTYLICENSEREADME-JAVAFX.txt THIRDPARTYLICENSEREADME.txt || die
+
+	# Unusable without obsolete ffmpeg SONAMEs absent from the tree.
+	rm -v jre/lib/*/libavplugin*.so || die
 
 	if ! use alsa ; then
 		rm -v jre/lib/*/libjsoundalsa.so* || die
