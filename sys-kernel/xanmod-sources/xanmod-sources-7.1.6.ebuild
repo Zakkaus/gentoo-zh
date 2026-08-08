@@ -32,6 +32,16 @@ pkg_pretend() {
 	check-reqs_pkg_pretend
 }
 
+pkg_setup() {
+	ewarn ""
+	ewarn "${PN} is *not* supported by the Gentoo Kernel Project in any way."
+	ewarn "Report problems to https://github.com/gentoo-zh/overlay rather than"
+	ewarn "Gentoo's bugzilla."
+	ewarn ""
+
+	kernel-2_pkg_setup
+}
+
 src_unpack() {
 	default
 	mv "${WORKDIR}/${MY_P}" "${WORKDIR}/linux-${OKV}${XANMOD_VERSION}"

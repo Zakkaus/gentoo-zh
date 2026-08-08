@@ -114,3 +114,13 @@ src_prepare() {
 
 	kernel-build_merge_configs "${merge_configs[@]}"
 }
+
+pkg_postinst() {
+	kernel-build_pkg_postinst
+
+	ewarn ""
+	ewarn "${PN} is *not* supported by the Gentoo Kernel Project in any way."
+	ewarn "Report problems to https://github.com/gentoo-zh/overlay rather than"
+	ewarn "Gentoo's bugzilla."
+	ewarn ""
+}

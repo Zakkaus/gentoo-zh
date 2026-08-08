@@ -46,6 +46,16 @@ IUSE="+cjk"
 
 K_EXTRAEINFO="For more info on liquorix-kernel and details on how to report problems, see: ${HOMEPAGE}."
 
+pkg_setup() {
+	ewarn ""
+	ewarn "${PN} is *not* supported by the Gentoo Kernel Project in any way."
+	ewarn "Report problems to https://github.com/gentoo-zh/overlay rather than"
+	ewarn "Gentoo's bugzilla."
+	ewarn ""
+
+	kernel-2_pkg_setup
+}
+
 src_unpack() {
 	UNIPATCH_LIST_DEFAULT="${DISTDIR}/v${PV}-lqx1.patch.xz"
 	UNIPATCH_LIST=""
