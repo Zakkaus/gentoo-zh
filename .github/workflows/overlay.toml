@@ -2521,6 +2521,10 @@ github_account = ["blackteahamburger", "Zakkaus", "locez"]
 # it and nvchecker has nothing useful to report.
 # ["sys-kernel/gentoo-cjk-sources"]
 
+# gentoo-cjk-kernel follows sys-kernel/gentoo-kernel in ::gentoo, which tracks the
+# dist-kernel release schedule rather than an upstream tag of its own.
+# ["sys-kernel/gentoo-cjk-kernel"]
+
 ["sys-kernel/liquorix-sources"]
 source = "github"
 github = "zen-kernel/zen-kernel"
