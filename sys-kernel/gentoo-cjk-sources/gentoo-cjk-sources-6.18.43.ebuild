@@ -11,6 +11,11 @@ inherit kernel-2
 detect_version
 detect_arch
 
+# kernel-2 truncates ${PN} at the first dash, so without this the sources land
+# in linux-${OKV}-gentoo and collide with sys-kernel/gentoo-sources.
+KV_FULL+="-cjk"
+EXTRAVERSION+="-cjk"
+
 # The patch is named after the kernel it was ported to, not after ${PV}.
 CJKTTY_PV="6.18"
 
@@ -18,6 +23,7 @@ DESCRIPTION="Gentoo kernel sources with the cjktty patch for CJK text on the con
 HOMEPAGE="https://github.com/gentoo-zh/cjktty-patches"
 SRC_URI="${KERNEL_URI} ${GENPATCHES_URI} ${ARCH_URI}
 	cjk? ( https://raw.githubusercontent.com/gentoo-zh/cjktty-patches/master/v${KV_MAJOR}.x/cjktty-${CJKTTY_PV}.patch )"
+S="${WORKDIR}/linux-${KV_FULL}"
 KEYWORDS="~amd64"
 # To use CJKTTY, please enable this USE
 IUSE="+cjk experimental"
