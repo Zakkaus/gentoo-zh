@@ -1278,6 +1278,12 @@ use_latest_release = true
 prefix = "v"
 autobump = true
 
+["dev-util/reasonix-desktop-bin"]
+source = "jq"
+url = "https://dl.reasonix.io/latest/latest.json"
+filter = '.version | ltrimstr("v")'
+github_account = "peeweep"
+
 ["dev-util/reasonix-bin"]
 source = "github"
 github = "esengine/DeepSeek-Reasonix"
