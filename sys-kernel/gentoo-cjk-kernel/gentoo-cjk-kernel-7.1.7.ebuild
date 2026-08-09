@@ -51,9 +51,6 @@ BDEPEND="
 	debug? ( dev-util/pahole )
 	verify-sig? ( >=sec-keys/openpgp-keys-kernel-20250702 )
 "
-PDEPEND="
-	=virtual/dist-kernel-${PV}-r100
-"
 
 QA_FLAGS_IGNORED="
 	usr/src/linux-.*/scripts/gcc-plugins/.*.so
@@ -213,4 +210,11 @@ pkg_postinst() {
 	ewarn "Report problems to https://github.com/gentoo-zh/overlay rather than"
 	ewarn "Gentoo's bugzilla."
 	ewarn ""
+	ewarn "This kernel is not a virtual/dist-kernel provider, so external"
+	ewarn "modules are not rebuilt when it is installed or upgraded. Select it"
+	ewarn "and rebuild them, then regenerate the initramfs:"
+	ewarn "    eselect kernel set linux-${KV_FULL}"
+	ewarn "    emerge @module-rebuild"
+	ewarn "    emerge --config ${CATEGORY}/${PN}"
+	ewarn
 }

@@ -38,10 +38,6 @@ BDEPEND="
 	sys-libs/binutils-libs
 "
 
-PDEPEND="
-	=virtual/dist-kernel-${PV}-r100
-"
-
 QA_FLAGS_IGNORED="usr/src/linux-.*/scripts/gcc-plugins/.*.so usr/src/linux-.*/certs/.*.o"
 
 pkg_setup() {
@@ -99,4 +95,17 @@ src_prepare() {
 	kernel-build_merge_configs "${merge_configs[@]}"
 	# delete localversion
 	rm "${S}/localversion" || die
+}
+
+pkg_postinst() {
+	kernel-build_pkg_postinst
+
+	ewarn
+	ewarn "This kernel is not a virtual/dist-kernel provider, so external"
+	ewarn "modules are not rebuilt when it is installed or upgraded. Select it"
+	ewarn "and rebuild them, then regenerate the initramfs:"
+	ewarn "    eselect kernel set linux-${KV_FULL}"
+	ewarn "    emerge @module-rebuild"
+	ewarn "    emerge --config ${CATEGORY}/${PN}"
+	ewarn
 }

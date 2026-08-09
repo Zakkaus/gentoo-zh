@@ -41,9 +41,6 @@ S=${WORKDIR}
 KEYWORDS="~amd64"
 IUSE="+cjk debug"
 
-PDEPEND="
-	=virtual/dist-kernel-${PV}-r100
-"
 BDEPEND="
 	app-alternatives/bc
 	app-alternatives/lex
@@ -233,5 +230,12 @@ pkg_postinst() {
 	ewarn "The binary package comes from distfiles.gentoozh.org, which is a single"
 	ewarn "host with no mirror network behind it. Report problems to"
 	ewarn "https://github.com/gentoo-zh/overlay rather than Gentoo's bugzilla."
+	ewarn
+	ewarn "This kernel is not a virtual/dist-kernel provider, so external"
+	ewarn "modules are not rebuilt when it is installed or upgraded. Select it"
+	ewarn "and rebuild them, then regenerate the initramfs:"
+	ewarn "    eselect kernel set linux-${KV_FULL}"
+	ewarn "    emerge @module-rebuild"
+	ewarn "    emerge --config ${CATEGORY}/${PN}"
 	ewarn
 }
