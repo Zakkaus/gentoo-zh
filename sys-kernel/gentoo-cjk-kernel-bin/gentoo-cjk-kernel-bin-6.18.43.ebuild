@@ -229,8 +229,21 @@ pkg_postinst() {
 	kernel-install_pkg_postinst
 
 	ewarn
-	ewarn "The binary package comes from distfiles.gentoozh.org, which is a single"
-	ewarn "host with no mirror network behind it. Report problems to"
-	ewarn "https://github.com/gentoo-zh/overlay rather than Gentoo's bugzilla."
+	ewarn "The binary package comes from distfiles.gentoozh.org."
+	ewarn "This kernel does not provide virtual/dist-kernel."
+	ewarn "External modules are not rebuilt: sys-fs/zfs, x11-drivers/nvidia-drivers"
+	ewarn "and others stay built for the old kernel."
+	ewarn "Report problems at https://github.com/gentoo-zh/overlay/issues,"
+	ewarn "not Gentoo's bugzilla."
+	ewarn
+	ewarn "此内核不提供 virtual/dist-kernel。"
+	ewarn "外部模块不会重新编译，sys-fs/zfs、x11-drivers/nvidia-drivers 等模块"
+	ewarn "仍属于旧内核。"
+	ewarn "问题请前往 https://github.com/gentoo-zh/overlay/issues，"
+	ewarn "不要使用 Gentoo 的 bugzilla。"
+	ewarn
+	ewarn "    eselect kernel set linux-${KV_FULL}"
+	ewarn "    emerge @module-rebuild"
+	ewarn "    emerge --config ${CATEGORY}/${PN}"
 	ewarn
 }
