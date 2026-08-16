@@ -2134,6 +2134,9 @@ use_latest_release = true
 prefix = "v"
 github_account = "peeweep"
 
+# same upstream as net-misc/localsend-bin below
+#["net-misc/localsend"]
+
 ["net-misc/localsend-bin"]
 source = "github"
 github = "localsend/localsend"
