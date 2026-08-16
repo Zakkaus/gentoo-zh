@@ -1,0 +1,263 @@
+# Copyright 2024-2026 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=8
+
+# the plain crates ship as a vendor tarball; only the git ones are fetched here
+CRATES=""
+
+declare -A GIT_CRATES=(
+	[android-wakelock]='https://github.com/rustdesk-org/android-wakelock;d0292e5a367e627c4fa6f1ca6bdfad005dca7d90;android-wakelock-%commit%'
+	[arboard]='https://github.com/rustdesk-org/arboard;c7d5781f563176df9efd8df6287e823fb1b9bed5;arboard-%commit%'
+	[cacao]='https://github.com/clslaid/cacao;05e1536b0b43aaae308ec72c0eed703e875b7b95;cacao-%commit%'
+	[cidre-macros]='https://github.com/yury/cidre;f05c4288f9870c9fab53272ddafd6ec01c7b2dbf;cidre-%commit%/cidre-macros'
+	[cidre]='https://github.com/yury/cidre;f05c4288f9870c9fab53272ddafd6ec01c7b2dbf;cidre-%commit%/cidre'
+	[clipboard-master]='https://github.com/rustdesk-org/clipboard-master;7762d74e38db37cfeb6ded88c964b9cdbddfb6db;clipboard-master-%commit%'
+	[confy]='https://github.com/rustdesk-org/confy;83db9ec19a2f97e9718aef69e4fc5611bb382479;confy-%commit%'
+	[core-foundation-sys]='https://github.com/madsmtm/core-foundation-rs;7d593d016175755e492a92ef89edca68ac3bd5cd;core-foundation-rs-%commit%/core-foundation-sys'
+	[core-foundation]='https://github.com/madsmtm/core-foundation-rs;7d593d016175755e492a92ef89edca68ac3bd5cd;core-foundation-rs-%commit%/core-foundation'
+	[core-graphics-types]='https://github.com/madsmtm/core-foundation-rs;7d593d016175755e492a92ef89edca68ac3bd5cd;core-foundation-rs-%commit%/core-graphics-types'
+	[core-graphics]='https://github.com/madsmtm/core-foundation-rs;7d593d016175755e492a92ef89edca68ac3bd5cd;core-foundation-rs-%commit%/core-graphics'
+	[cpal]='https://github.com/rustdesk-org/cpal;6b374bcaed076750ca8fce6da518ab39b882e14a;cpal-%commit%'
+	[default_net]='https://github.com/rustdesk-org/default_net;78f8f70cd85151a3a2c4a3230d80d5272703c02e;default_net-%commit%'
+	[evdev]='https://github.com/rustdesk-org/evdev;cec616e37790293d2cd2aa54a96601ed6b1b35a9;evdev-%commit%'
+	[filedescriptor]='https://github.com/rustdesk-org/wezterm;80174f8009f41565f0fa8c66dab90d4f9211ae16;wezterm-%commit%/filedescriptor'
+	[hwcodec]='https://github.com/rustdesk-org/hwcodec;778df1f99597722473b29443bac22ae6c23946fe;hwcodec-%commit%'
+	[impersonate_system]='https://github.com/rustdesk-org/impersonate-system;2f429010a5a10b1fe5eceb553c6672fd53d20167;impersonate-system-%commit%'
+	[kcp-sys]='https://github.com/rustdesk-org/kcp-sys;32a6c09fc6223f54aea83981a6aa8995931d29be;kcp-sys-%commit%'
+	[keepawake]='https://github.com/rustdesk-org/keepawake-rs;64d568586dd16551d02120e19668d2b0fec8e3c9;keepawake-rs-%commit%'
+	[machine-uid]='https://github.com/rustdesk-org/machine-uid;381ff579c1dc3a6c54db9dfec47c44bcb0246542;machine-uid-%commit%'
+	[magnum-opus]='https://github.com/rustdesk-org/magnum-opus;588c6e1f9ed50c3a01fa64f3bd3e7cdb0378a114;magnum-opus-%commit%'
+	[nokhwa-bindings-linux]='https://github.com/rustdesk-org/nokhwa;c2f74662b6ce117f7f94301693fdfadc0b1ec91a;nokhwa-%commit%/nokhwa-bindings-linux'
+	[nokhwa-bindings-macos]='https://github.com/rustdesk-org/nokhwa;c2f74662b6ce117f7f94301693fdfadc0b1ec91a;nokhwa-%commit%/nokhwa-bindings-macos'
+	[nokhwa-bindings-windows]='https://github.com/rustdesk-org/nokhwa;c2f74662b6ce117f7f94301693fdfadc0b1ec91a;nokhwa-%commit%/nokhwa-bindings-windows'
+	[nokhwa-core]='https://github.com/rustdesk-org/nokhwa;c2f74662b6ce117f7f94301693fdfadc0b1ec91a;nokhwa-%commit%/nokhwa-core'
+	[nokhwa]='https://github.com/rustdesk-org/nokhwa;c2f74662b6ce117f7f94301693fdfadc0b1ec91a;nokhwa-%commit%'
+	[pam-sys]='https://github.com/rustdesk-org/pam-sys;3337c9bb9a9c68d7497ec8c93cad2368c26091b7;pam-sys-%commit%'
+	[pam]='https://github.com/rustdesk-org/pam;7bfd25510202cd269292cbdd7c71f3977a6fd762;pam-%commit%'
+	[parity-tokio-ipc]='https://github.com/rustdesk-org/parity-tokio-ipc;d0ae39bffe5d5a3e8d82a1b6bcb1ca5a9b2f1c01;parity-tokio-ipc-%commit%'
+	[portable-pty]='https://github.com/rustdesk-org/wezterm;80174f8009f41565f0fa8c66dab90d4f9211ae16;wezterm-%commit%/pty'
+	[rdev]='https://github.com/rustdesk-org/rdev;871bf1c856d6a30af2f56ab8848396a025140855;rdev-%commit%'
+	[rust-pulsectl]='https://github.com/rustdesk-org/pulsectl;aa34dde499aa912a3abc5289cc0b547bd07dd6e2;pulsectl-%commit%'
+	[sciter-rs]='https://github.com/rustdesk-org/rust-sciter;5322f3a755a0e6bf999fbc60d1efc35246c0f821;rust-sciter-%commit%'
+	[sysinfo]='https://github.com/rustdesk-org/sysinfo;90b1705d909a4902dbbbdea37ee64db17841077d;sysinfo-%commit%'
+	[tao-macros]='https://github.com/rustdesk-org/tao;288c219cb0527e509590c2b2d8e7072aa9feb2d3;tao-%commit%/tao-macros'
+	[tao]='https://github.com/rustdesk-org/tao;288c219cb0527e509590c2b2d8e7072aa9feb2d3;tao-%commit%'
+	[tfc]='https://github.com/rustdesk-org/The-Fat-Controller;78bb80a8e596e4c14ae57c8448f5fca75f91f2b0;The-Fat-Controller-%commit%'
+	[tokio-socks]='https://github.com/rustdesk-org/tokio-socks;bdb9aa3de5bac41602d0742b8ef6bbc6bfebd127;tokio-socks-%commit%'
+	[tray-icon]='https://github.com/tauri-apps/tray-icon;0a5835b0e6828e37a1f781de9c2d671ae7a939e6;tray-icon-%commit%'
+	[wallpaper]='https://github.com/rustdesk-org/wallpaper.rs;ce4a0cd3f58327c7cc44d15a63706fb0c022bacf;wallpaper.rs-%commit%'
+	[webm-sys]='https://github.com/rustdesk-org/rust-webm;d2c4d3ac133c7b0e4c0f656da710b48391981e64;rust-webm-%commit%/src/sys'
+	[webm]='https://github.com/rustdesk-org/rust-webm;d2c4d3ac133c7b0e4c0f656da710b48391981e64;rust-webm-%commit%'
+	[x11-clipboard]='https://github.com/clslaid/x11-clipboard;5fc2e73bc01ada3681159b34cf3ea8f0d14cd904;x11-clipboard-%commit%'
+	[x11]='https://github.com/bjornsnoen/x11-rs;c2e9bfaa7b196938f8700245564d8ac5d447786a;x11-rs-%commit%/x11'
+)
+
+LLVM_COMPAT=( 18 19 20 21 22 )
+# the vendored rustix 0.37 and 0.38 broke on newer rustc, so the toolchain is
+# capped at the newest version this release was built with
+# https://github.com/bytecodealliance/rustix/issues/1620
+RUST_MAX_VER="1.96.1"
+RUST_MIN_VER="1.81.0"
+# pinned by flutter-version in .github/workflows/flutter-build.yml; re-check
+# it on every bump
+FLUTTER_PV="3.24.5"
+
+inherit cargo desktop flutter-app systemd xdg
+
+DESCRIPTION="An open-source remote desktop, and alternative to TeamViewer"
+HOMEPAGE="https://rustdesk.com/"
+
+# Several of the crates above vendor another repository as a subdirectory that
+# the GitHub archive leaves empty, so those are fetched separately and linked
+# into place in src_prepare. Each commit is the submodule pointer: read it with
+# git ls-tree <tag> <path> in the crate's repository.
+LIBWEBM_COMMIT="3b630045052e1e4d563207ab9e3be8d137c26067"
+KCP_COMMIT="7f9805887b0909c52c825925f123e7a84da37167"
+HBB_COMMON_COMMIT="7e1c392c62d39c364127307cd408421dd5f8cfb0"
+HWCODEC_EXTERNALS_COMMIT="8903740a1f47884906a6e347ad3d8d56304d9771"
+# pinned by the vcpkg checkout in .github/workflows/flutter-build.yml
+VCPKG_TAG="2025.08.27"
+SRC_URI="
+	https://github.com/rustdesk/rustdesk/archive/refs/tags/${PV}.tar.gz
+		-> ${P}.tar.gz
+	https://github.com/gentoo-zh-drafts/rustdesk-vcpkg/releases/download/${PV}/${P}-vcpkg-${VCPKG_TAG}-lite.tar.gz
+	https://github.com/webmproject/libwebm/archive/${LIBWEBM_COMMIT}.tar.gz
+		-> libwebm-${LIBWEBM_COMMIT}.tar.gz
+	https://github.com/skywind3000/kcp/archive/${KCP_COMMIT}.tar.gz
+		-> kcp-${KCP_COMMIT}.tar.gz
+	https://github.com/rustdesk/hbb_common/archive/${HBB_COMMON_COMMIT}.tar.gz
+		-> hbb_common-${HBB_COMMON_COMMIT}.tar.gz
+	https://github.com/rustdesk-org/externals/archive/${HWCODEC_EXTERNALS_COMMIT}.tar.gz
+		-> hwcodec-externals-${HWCODEC_EXTERNALS_COMMIT}.tar.gz
+	https://github.com/gentoo-zh-drafts/${PN}/releases/download/${PV}/${P}-crates.tar.xz
+	https://github.com/gentoo-zh-drafts/${PN}/releases/download/${PV}/${P}-flutter-deps.tar.xz
+	${CARGO_CRATE_URIS}
+"
+
+LICENSE="AGPL-3"
+# bundled crates and Dart packages
+LICENSE+="
+	Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD BSD-2 Boost-1.0
+	CC-BY-SA-2.5 CC0-1.0 CDLA-Permissive-2.0 EUPL-1.2 GPL-3+ IJG ISC
+	MIT MIT-0 MPL-2.0 Unicode-DFS-2016 Unlicense W3C WTFPL-2 ZLIB
+	public-domain
+"
+SLOT="0"
+KEYWORDS="~amd64"
+
+IUSE="wayland +hwaccel"
+
+# the pub cache is generated with the bridge sources, not fetched per package
+EPUB_CACHE="${WORKDIR}/${P}-flutter-deps/pub-cache"
+FLUTTER_APP_DIR="${S}/flutter"
+
+DEPEND="
+	app-accessibility/at-spi2-core
+	dev-libs/glib:2
+	dev-libs/libayatana-appindicator
+	dev-libs/wayland
+	media-libs/alsa-lib
+	media-libs/fontconfig
+	media-libs/gst-plugins-base
+	media-libs/gstreamer
+	media-libs/harfbuzz
+	media-libs/libepoxy
+	media-libs/libpulse
+	media-libs/libva[X]
+	sys-apps/dbus
+	sys-libs/pam
+	virtual/zlib:=
+	x11-libs/cairo
+	x11-libs/gdk-pixbuf:2
+	x11-libs/gtk+:3
+	x11-libs/libdrm
+	x11-libs/libX11
+	x11-libs/libxcb
+	x11-libs/libXfixes
+	x11-libs/libxkbcommon
+	x11-libs/libXtst
+	x11-libs/pango
+	hwaccel? ( x11-libs/libvdpau )
+"
+RDEPEND="
+	${DEPEND}
+	x11-misc/xdotool
+	wayland? ( media-video/pipewire[gstreamer] )
+"
+BDEPEND="
+	${FLUTTER_DEPEND}
+	dev-lang/nasm
+	dev-lang/yasm
+	dev-libs/wayland-protocols
+	dev-util/patchelf
+	$(llvm_gen_dep '
+		llvm-core/llvm:${LLVM_SLOT}
+	')
+"
+
+QA_PREBUILT="usr/share/${PN}/lib/libflutter_linux_gtk.so"
+QA_PRESTRIPPED="
+	usr/share/${PN}/lib/libapp.so
+	usr/share/${PN}/lib/libflutter_linux_gtk.so
+	usr/share/${PN}/lib/librustdesk.so
+"
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-1.4.8-fix-llvm22-bindgen.patch
+	"${FILESDIR}"/${PN}-1.4.8-disable-check-x11.patch
+	"${FILESDIR}"/${P}-drop-gpu-renderer-plugin.patch
+)
+
+pkg_setup() {
+	llvm-r2_pkg_setup
+	rust_pkg_setup
+}
+
+src_unpack() {
+	cargo_src_unpack
+	flutter-app_setup_sdk
+}
+
+# Link a separately fetched tree over the empty directory a crate vendors:
+# rustdesk_link_vendored <crate> <subdirectory> <fetched-tree>
+rustdesk_link_vendored() {
+	local crate=${1} subdir=${2} source=${3} entry commit dir
+
+	# a GIT_CRATES entry is url;commit;directory
+	entry=${GIT_CRATES[${crate}]}
+	commit=${entry#*;}
+	commit=${commit%%;*}
+	dir=${WORKDIR}/${entry##*;}
+	dir=${dir/\%commit\%/${commit}}/${subdir}
+
+	rm -r "${dir}" || die
+	ln -s "${WORKDIR}/${source}" "${dir}" || die
+}
+
+src_prepare() {
+	default
+
+	pushd "${WORKDIR}" >/dev/null || die
+	eapply "${FILESDIR}/rust-sciter.patch"
+	popd >/dev/null || die
+
+	pushd "${EFLUTTER_ROOT}" >/dev/null || die
+	eapply "${S}/.github/patches/flutter_3.24.4_dropdown_menu_enableFilter.diff"
+	popd >/dev/null || die
+
+	rm -r "${S}"/libs/hbb_common || die
+	ln -s "${WORKDIR}/hbb_common-${HBB_COMMON_COMMIT}" "${S}"/libs/hbb_common || die
+
+	rustdesk_link_vendored webm src/sys/libwebm libwebm-${LIBWEBM_COMMIT}
+	rustdesk_link_vendored hwcodec externals externals-${HWCODEC_EXTERNALS_COMMIT}
+	rustdesk_link_vendored kcp-sys kcp kcp-${KCP_COMMIT}
+
+	# flutter_rust_bridge output, generated with the pub cache
+	local deps="${WORKDIR}/${P}-flutter-deps"
+	cp "${deps}"/generated/bridge_generated{,.io}.rs src/ || die
+	cp "${deps}"/generated/generated_bridge{,.freezed}.dart flutter/lib/ || die
+	cp "${deps}"/pubspec.lock flutter/ || die
+
+	flutter-app_pub_get --enforce-lockfile
+}
+
+src_configure() {
+	local myfeatures=( flutter unix-file-copy-paste )
+	use hwaccel && myfeatures+=( hwcodec )
+
+	cargo_src_configure
+}
+
+src_compile() {
+	VCPKG_ROOT="${WORKDIR}/vcpkg" cargo_src_compile --lib
+
+	flutter-app_src_compile
+}
+
+src_install() {
+	local bundle dir=/usr/share/${PN}
+	bundle=$(flutter-app_bundle_dir)
+
+	exeinto "${dir}"
+	doexe "${bundle}"/${PN}
+	insinto "${dir}"
+	doins -r "${bundle}"/{data,lib}
+	newbin "${FILESDIR}"/rustdesk.sh ${PN}
+
+	# these keep the ephemeral build directory as their RUNPATH
+	local lib
+	for lib in "${ED}${dir}"/lib/librustdesk.so "${ED}${dir}"/lib/lib*plugin.so; do
+		[[ -e ${lib} ]] || continue
+		patchelf --set-rpath '$ORIGIN' "${lib}" || die
+	done
+
+	newicon -s 32 res/32x32.png ${PN}.png
+	newicon -s 128 res/128x128.png ${PN}.png
+	newicon -s 256 res/128x128@2x.png ${PN}.png
+
+	domenu "${FILESDIR}"/rustdesk{,-link}.desktop
+	systemd_dounit "${FILESDIR}"/rustdesk.service
+
+	einstalldocs
+}
