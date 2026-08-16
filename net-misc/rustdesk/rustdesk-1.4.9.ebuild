@@ -59,10 +59,9 @@ LLVM_COMPAT=( 18 19 20 21 22 )
 # have no idea why CI use rust-bin-9999, rustix broken on it
 # https://github.com/bytecodealliance/rustix/issues/1620
 # set RUST_MAX_VER to a max version now
-RUST_MAX_VER="1.95.0"
+RUST_MAX_VER="1.96.1"
 RUST_MIN_VER="1.81.0"
-RUST_NEEDS_LLVM=1
-inherit cargo desktop llvm-r1 systemd xdg
+inherit cargo desktop llvm-r2 systemd xdg
 
 DESCRIPTION="An open-source remote desktop, and alternative to TeamViewer"
 HOMEPAGE="https://rustdesk.com/"
@@ -150,7 +149,7 @@ PATCHES=(
 )
 
 pkg_setup() {
-	llvm-r1_pkg_setup
+	llvm-r2_pkg_setup
 	rust_pkg_setup
 }
 
