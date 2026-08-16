@@ -1492,6 +1492,14 @@ github_account = "liuyujielol"
 # no tracking entry yet
 #["kde-misc/plasma-ions-china"]
 
+["kde-misc/plasma-panel-colorizer"]
+source = "github"
+github = "luisbocanegra/plasma-panel-colorizer"
+use_latest_release = true
+prefix = "v"
+github_account = "zakkaus"
+autobump = true
+
 # packaged from a pinned commit, no tag to compare
 #["media-fonts/chocolate-classical"]
 
