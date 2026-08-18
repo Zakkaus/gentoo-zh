@@ -1,0 +1,16 @@
+Pass --no-warn-unused-cli when lito invokes cmake for a dependency, so a
+project that does not consume every variable lito hands it does not end its
+configure with a "Manually-specified variables were not used" warning.
+
+Gentoo packaging only, not sent upstream.
+
+--- a/toolchain/src/cmake/invocation.cppm
++++ b/toolchain/src/cmake/invocation.cppm
+@@ -155,6 +155,7 @@ auto configure_source(const ResolvedCMakeDependencyRequirement& requirement,
+     auto executable = path_text(provider.executable.as_path(), "CMake executable"_str);
+     if (executable.is_err()) return Err(rstd::move(executable).unwrap_err());
+     arguments.push(rstd::move(executable).unwrap());
++    arguments.push(String::make("--no-warn-unused-cli"_str));
+     arguments.push(String::make("-S"_str));
+     auto source = path_text(area.source.as_path(), "CMake source"_str);
+     if (source.is_err()) return Err(rstd::move(source).unwrap_err());
