@@ -1,0 +1,34 @@
+Add an install manifest for WebViewer so lito install also lays down the
+CEF runtime files the binary loads at startup.
+
+Gentoo packaging only, not suitable for upstream.
+
+--- /dev/null
++++ b/viewer/WebViewer/install.lua
+@@ -0,0 +1,15 @@
++lito.install({
++    artifacts = {
++        {
++            target = { kind = "bin", name = "WebViewer" },
++            destination = "bin/WebViewer",
++        },
++    },
++    external_assets = {
++        {
++            dependency = "cef",
++            set = "runtime",
++            destination = "bin/weweb",
++        },
++    },
++})
+--- a/waywallen/plugins/org.waywallen.open-wallpaper-engine/install.lua
++++ b/waywallen/plugins/org.waywallen.open-wallpaper-engine/install.lua
+@@ -1,7 +1,7 @@
+ local bundle_layout = lito.env("OWE_WAYWALLEN_PLUGIN_BUNDLE_LAYOUT") == "ON"
+ local plugin = "share/waywallen/plugins/org.waywallen.open-wallpaper-engine"
+ local scene_bin = "../../../../bin/waywallen-wescene-renderer"
+-local web_bin = "../../../../bin/weweb/waywallen-weweb-renderer"
++local web_bin = "../../../../libexec/open-wallpaper-engine/weweb/waywallen-weweb-renderer"
+ if bundle_layout then
+     plugin = ""
+     scene_bin = "bin/waywallen-wescene-renderer"
