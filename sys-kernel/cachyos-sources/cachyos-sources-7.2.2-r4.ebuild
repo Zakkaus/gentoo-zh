@@ -404,9 +404,6 @@ src_prepare() {
 			# symbol with an underscore.
 			march=${march//-/_}
 			case ${march} in
-				GENERIC)
-					scripts/config -e GENERIC_CPU -d MZEN4 -d X86_NATIVE_CPU || die
-					;;
 				GENERIC_V[1-4])
 					scripts/config -e GENERIC_CPU -d MZEN4 -d X86_NATIVE_CPU \
 						--set-val X86_64_VERSION "${march#GENERIC_V}" || die
@@ -416,11 +413,6 @@ src_prepare() {
 					;;
 				NATIVE)
 					scripts/config -d GENERIC_CPU -d MZEN4 -e X86_NATIVE_CPU || die
-					;;
-				*)
-					# Without this arm an unmatched flag configures nothing and
-					# the build silently keeps the shipped -march=native.
-					die "no Kconfig mapping for USE=${march_flag}"
 					;;
 			esac
 			break
