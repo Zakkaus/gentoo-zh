@@ -6,8 +6,6 @@ EAPI="8"
 ETYPE="sources"
 EXTRAVERSION="-cachyos"
 K_NOSETEXTRAVERSION="1"
-# Use the pre-patched CachyOS release tarball.
-K_PREPATCHED="1"
 
 # Pin patch and config inputs so Manifest checks cover exact upstream bytes.
 CACHYOS_PATCHES_COMMIT="a40b85abdcb9f4ba653e2e1ea89d3d1f0cf563ba"
@@ -188,8 +186,6 @@ src_unpack() {
 src_prepare() {
 	local patches_prefix="${DISTDIR}/${CACHYOS_PATCH_PREFIX}"
 	local configs_prefix="${DISTDIR}/${CACHYOS_CONFIG_PREFIX}"
-	local cachyos_revision="${PR#r}"
-	local cachyos_localversion="-cachyos"
 	local march_flag march=""
 	local -a march_flags=(
 		mgeneric mgeneric-v1 mgeneric-v2 mgeneric-v3 mgeneric-v4 mnative mzen4
@@ -233,11 +229,9 @@ src_prepare() {
 	# CachyOS ships this generated BPF object; remove it so sources remain rebuildable.
 	rm -f tools/testing/selftests/tc-testing/action-ebpf || die
 
-	# Follow upstream localversion naming and append Gentoo's revision when present.
-	if [[ ${cachyos_revision} != 0 ]]; then
-		cachyos_localversion+="${cachyos_revision}"
-	fi
-	echo "${cachyos_localversion}" > localversion.20-pkgname || die
+	# Take the suffix from KV_FULL so the source directory, the slot and
+	# kernelrelease cannot drift apart across revisions.
+	echo "${KV_FULL#${PV}}" > localversion.20-pkgname || die
 
 	if use server; then
 		scripts/config -d CACHY || die
