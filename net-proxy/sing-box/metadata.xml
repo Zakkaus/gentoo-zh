@@ -26,5 +26,8 @@
 		<flag name="ocm">Build with OpenAI Codex Multiplexer service support</flag>
 		<flag name="naive">Build with NaiveProxy outbound support</flag>
 		<flag name="cloudflared">Build with Cloudflare Tunnel inbound support</flag>
+		<flag name="openconnect">Build with OpenConnect client support</flag>
+		<flag name="openvpn">Build with OpenVPN client and server support</flag>
+		<flag name="usbip">Build with USB/IP service support</flag>
 	</use>
 </pkgmetadata>
