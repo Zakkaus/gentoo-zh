@@ -2451,6 +2451,7 @@ source = "regex"
 url = "https://lceda.cn/page/download?src=index"
 regex = "lceda-pro-linux-x64-([\\d.]+).zip"
 github_account = ["123485k", "gouwazi"]
+# autobump off: upstream host times out from CI too
 
 ["sci-electronics/openfpgaloader"]
 source = "github"
