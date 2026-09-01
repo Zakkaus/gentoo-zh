@@ -32,7 +32,7 @@ excluded() {  # already decided -- whitelisted (autobump = true) OR deliberately
     awk -v w="[\"$1\"]" '
         {h=$0; sub(/[[:space:]]*#.*/,"",h); gsub(/[[:space:]]+$/,"",h)}
         h==w{f=1;next}/^\[/{f=0}
-        f&&/autobump = true/{e=1}
+        f&&h~/^[[:space:]]*autobump[[:space:]]*=/&&h!~/=[[:space:]]*false/{e=1}
         f&&/#[[:space:]]*autobump[[:space:]]+off/{e=1}
         END{exit !e}' "$TOML" 2>/dev/null
 }

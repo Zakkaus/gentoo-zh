@@ -150,8 +150,7 @@ source = "github"
 github = "outloudvi/mw2fcitx"
 use_latest_release = true
 github_account = "blackteahamburger"
-autobump = true
-keep_old = 3
+autobump = 3
 
 ["app-dicts/fcitx-pinyin-sougou-dict"]
 source = "github"
@@ -549,8 +548,7 @@ github = "mikefarah/yq"
 use_latest_release = true
 prefix = "v"
 github_account = "gouwazi"
-autobump = true
-keep_old = 2
+autobump = 2
 
 ["app-misc/gpick"]
 source = "github"
@@ -1398,8 +1396,7 @@ github = "sourcegit-scm/sourcegit"
 use_latest_release = true
 prefix = "v"
 github_account = "gouwazi"
-autobump = true
-keep_old = 3
+autobump = 3
 
 ["games-action/vintagestory"]
 source = "regex"
@@ -1542,8 +1539,7 @@ github = "lxgw/LxgwNeoXiHei"
 use_latest_release = true
 prefix = "v"
 github_account = "Linerre"
-autobump = true
-keep_old = 2
+autobump = 2
 
 ["media-fonts/lxgw-neo-zhisong"]
 source = "github"
@@ -1609,8 +1605,7 @@ github = "be5invis/sarasa-gothic"
 use_latest_release = true
 prefix = "v"
 github_account = "Linerre"
-autobump = true
-keep_old = 2
+autobump = 2
 
 ["media-fonts/sarasa-term-sc-nerd"]
 source = "github"

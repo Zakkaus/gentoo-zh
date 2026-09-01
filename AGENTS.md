@@ -127,7 +127,7 @@ A bump replaces the version it supersedes—`add NEW, drop OLD`. Retention is th
 - Otherwise drop. A package with no cross-version state, no reverse dependencies, and nothing worth downgrading to keeps exactly one version. Being prebuilt is not a reason to keep the old one.
 - Follow the package's own history where it shows an explicit pattern; otherwise apply the rules above and state the choice. Never keep a version merely because the previous commit did.
 - Stop for direction when an old version loses its immutable source bytes, or when a replacement in place is unexplained.
-- `keep_old = N` in `.github/workflows/overlay.toml` applies the same policy to autobump: set it only for a package meeting a reason above, and remove it when the reason lapses.
+- `autobump = N` in `.github/workflows/overlay.toml` applies the same policy to autobump: set a number only for a package meeting a reason above, and return it to `true` when the reason lapses.
 
 ## Dependencies and Revisions
 
