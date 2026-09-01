@@ -169,6 +169,7 @@ source = "regex"
 url = "https://antigravity-hub-auto-updater-974169037036.us-central1.run.app/releases"
 regex = '"version":"([\d.]+)"'
 github_account = "zakkaus"
+# autobump off: ICON_COMMIT does not track the package version
 
 ["app-editors/antigravity-ide"]
 source = "regex"
