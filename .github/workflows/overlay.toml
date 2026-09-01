@@ -2774,6 +2774,7 @@ github = "bikass/kora"
 use_latest_release = true
 prefix = "v"
 github_account = ["Nuralii1i", "gouwazi"]
+autobump = true
 
 ["x11-themes/mint-themes"]
 source = "github"
