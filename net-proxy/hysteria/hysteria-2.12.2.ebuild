@@ -4,7 +4,7 @@
 EAPI=8
 inherit go-module systemd
 
-COMMIT_ID="14e9fff1d972ab0187ac7fcf75b9514dc8664065"
+MY_COMMIT="14e9fff1d972ab0187ac7fcf75b9514dc8664065"
 
 DESCRIPTION="A powerful, lightning fast and censorship resistant proxy"
 HOMEPAGE="https://github.com/HyNetworks/hysteria"
@@ -45,7 +45,7 @@ src_compile() {
 		-X ${APP_SRC_CMD_PKG}.appPlatform=linux \
 		-X ${APP_SRC_CMD_PKG}.appArch=$(go env GOARCH) \
 		-X '${APP_SRC_CMD_PKG}.appToolchain=$(go env GOVERSION)' \
-		-X ${APP_SRC_CMD_PKG}.appCommit=${COMMIT_ID} \
+		-X ${APP_SRC_CMD_PKG}.appCommit=${MY_COMMIT} \
 		-X ${APP_SRC_CMD_PKG}.libVersion=${APP_LIB_VERSION} \
 		" \
 		-o "${PN}" "./app"
