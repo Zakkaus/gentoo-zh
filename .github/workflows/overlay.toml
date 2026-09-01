@@ -712,6 +712,7 @@ github = "HalFrgrd/flyline"
 use_latest_release = true
 prefix = "v"
 github_account = "gouwazi"
+autobump = true
 
 ["app-shells/gentoo-fish-completion"]
 source = "github"
