@@ -1873,6 +1873,9 @@ source = "aur"
 aur = "piliplus-bin"
 strip_release = true
 github_account = ["xysgh", "gouwazi"]
+autobump = true
+autobump_my_pv_url = "https://api.github.com/repos/bggRGjQaUbCoE/PiliPlus/releases/tags/${PV}"
+autobump_my_pv_regex = 'PiliPlus_linux_([^"_]+)_amd64\.tar\.gz'
 
 # TODO: upstream removed linux support
 #["media-video/tenvideo"]
