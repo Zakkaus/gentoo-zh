@@ -175,6 +175,8 @@ source = "regex"
 url = "https://antigravity-ide-auto-updater-974169037036.us-central1.run.app/releases"
 regex = '"version":"([\d.]+)"'
 github_account = "zakkaus"
+autobump = true
+autobump_my_build_regex = '"version":"${PV}","execution_id":"([0-9]+)"'
 
 ["app-editors/appflowy-bin"]
 source = "github"
