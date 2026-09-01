@@ -2347,6 +2347,7 @@ github = "SagerNet/sing-box"
 use_latest_release = true
 prefix = "v"
 github_account = "Puqns67"
+autobump = true
 
 ["net-proxy/sing-box-windows-bin"]
 source = "github"
