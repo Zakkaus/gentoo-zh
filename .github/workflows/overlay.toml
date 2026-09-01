@@ -61,13 +61,10 @@ github = "twpayne/chezmoi"
 use_latest_tag = true
 prefix = "v"
 
-# FIXME: github graphql api seems to be some confusion between chezmoi and
-# chezmoi-bin, so we disable one of them
-# ["app-admin/chezmoi-bin"]
-# source = "github"
-# github = "twpayne/chezmoi"
-# use_latest_release = true
-# prefix = "v"
+["app-admin/chezmoi-bin"]
+source = "regex"
+url = "https://api.github.com/repos/twpayne/chezmoi/releases/latest"
+regex = '"tag_name":\s*"v([\d.]+)"'
 
 ["app-admin/enpass"]
 source = "apt"
