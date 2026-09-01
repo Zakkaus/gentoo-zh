@@ -61,9 +61,36 @@ autobump = true          # add to enable, remove to disable
 Packages without the line are never bumped, so removing it is how you stop one that
 keeps opening bad PRs.
 
-`keep_old = N` alongside it keeps the N most recent versions instead of replacing the
-top one. `app-misc/go-yq-bin` and `media-fonts/sarasa-gothic` use `keep_old = 2`;
-`keep_old = 0` keeps every version.
+The value of `autobump` also says how many old versions to keep: `true` replaces, `N` keeps the
+N most recent, `"all"` keeps every one.
+
+## Packages whose SRC_URI depends on an ebuild variable
+
+`app-editors/cursor` builds `SRC_URI` from `MY_COMMIT`, so a version-only copy fetches nothing.
+One regex makes autobump replace that variable after it copies the ebuild and before it
+regenerates the Manifest:
+
+```toml
+["app-editors/cursor"]
+source = "regex"
+url = "https://cursor.com/api/download?platform=linux-x64&releaseTrack=latest"
+regex = '"version":"([\d.]+)"'
+autobump = true
+autobump_my_commit_regex = '"commitSha":"([0-9a-f]{40})"'
+```
+
+The `my_commit` in the key is `MY_COMMIT`, the value is capture group 1, and the document
+defaults to the entry's own `url`. Both accept `${PV}`, replaced with the version being bumped
+to:
+
+```toml
+autobump_my_build_regex = '"version":"${PV}","execution_id":"([0-9]+)"'
+autobump_my_build_url = "https://example.org/releases/${PV}"
+```
+
+Write the regex as a TOML literal (single-quoted) string. If the document cannot be fetched, the
+regex does not match, or the value equals the current one, nothing is rewritten and nothing is
+bumped.
 
 ## Running it
 

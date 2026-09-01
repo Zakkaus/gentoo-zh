@@ -48,7 +48,29 @@ autobump = true          # 添加此行开启，删除即关闭
 
 没有这一行的包不会被 bump，所以某个包频繁产生错误的 PR 时，删掉这行就能停掉它。
 
-再加一行 `keep_old = N`，bump 时就保留最近 N 个版本，而不是只替换最新那一个。`app-misc/go-yq-bin` 和 `media-fonts/sarasa-gothic` 用 `keep_old = 2`；`keep_old = 0` 表示保留全部版本。
+`autobump` 的值同时指定旧版本保留数：`true` 不保留，`N` 保留最近 N 个，`"all"` 保留全部。
+
+## SRC_URI 依赖 ebuild 变量的包
+
+`app-editors/cursor` 的 `SRC_URI` 由 `MY_COMMIT` 构造。仅改版本号无法获取文件。配置正则后，`autobump` 在复制 ebuild 后、生成 Manifest 前替换该变量：
+
+```toml
+["app-editors/cursor"]
+source = "regex"
+url = "https://cursor.com/api/download?platform=linux-x64&releaseTrack=latest"
+regex = '"version":"([\d.]+)"'
+autobump = true
+autobump_my_commit_regex = '"commitSha":"([0-9a-f]{40})"'
+```
+
+`autobump_my_commit_regex` 中的 `my_commit` 对应 ebuild 变量 `MY_COMMIT`，值取第一个捕获组，默认从该条目的 `url` 获取。正则和 URL 都支持 `${PV}`，替换为目标版本：
+
+```toml
+autobump_my_build_regex = '"version":"${PV}","execution_id":"([0-9]+)"'
+autobump_my_build_url = "https://example.org/releases/${PV}"
+```
+
+正则使用 TOML 单引号字面字符串。无法读取值、正则不匹配或新值与旧值相同时，不改写 ebuild，也不 bump。
 
 ## 运行
 
