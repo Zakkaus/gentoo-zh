@@ -8,6 +8,10 @@ EAPI=8
 CRATES="
 "
 
+declare -A GIT_CRATES=(
+	[ratatui-core]='https://github.com/yazi-rs/ratatui;dde5e05eccfe5b7cb7712b4bdf76edd0c2cd1f25;ratatui-%commit%/ratatui-core'
+)
+
 RUST_MIN_VER="1.95.0"
 
 inherit cargo desktop shell-completion xdg
@@ -39,15 +43,31 @@ DOCS=(
 	README.md
 )
 
+gen_git_crate_dir() {
+	# https://github.com/gentoo/gentoo/blob/b09dd88412fe2d5eee5a8891e08bfa2d67848da3/eclass/cargo.eclass#L442
+	IFS=';' read -r crate_uri commit crate_dir <<<"${GIT_CRATES[$1]}"
+	echo "${WORKDIR}/${crate_dir//%commit%/${commit}}"
+}
+
 src_prepare() {
 	export YAZI_GEN_COMPLETIONS=true
 	export YAZI_NO_GITCL=true
 	sed -i -r 's/strip\s+= true/strip = false/' Cargo.toml || die "Sed failed!"
+
+	# Remove the [patch.crates-io] section and add path-based patches
+	sed -i '/^\[patch\.crates-io\]/,/^$/d' Cargo.toml || die
+
+	cat >> Cargo.toml <<-EOF || die
+
+	[patch.crates-io]
+	ratatui-core = { path = "$(gen_git_crate_dir ratatui-core)" }
+	EOF
+
 	eapply_user
 }
 
 src_compile() {
-	cargo_src_compile --locked
+	cargo_src_compile
 	use cli && cargo_src_compile -p "${PN}-cli"
 }
 
