@@ -1215,6 +1215,7 @@ github = "modem-dev/hunk"
 use_latest_release = true
 prefix = "v"
 github_account = "gouwazi"
+autobump = true
 
 # TODO:
 # https://data.services.jetbrains.com/products/releases?code=TBA&latest=true&type=release
@@ -2347,6 +2348,7 @@ github = "SagerNet/sing-box"
 use_latest_release = true
 prefix = "v"
 github_account = "Puqns67"
+autobump = true
 
 ["net-proxy/sing-box-windows-bin"]
 source = "github"
