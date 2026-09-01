@@ -151,7 +151,9 @@ jobs:
           fi
           echo "==== #$n  $pkg -> $ver ===="
           trial_comment "$n" "**autobump-trial** build-testing \`$pkg\` → \`$ver\` (not opted in)… · [run]($RUN_URL)"
-          ruby autobump-rb/bin/autobump "$n" --install; ec=$?   # build+install+pkgcheck, no --pr, no opt-in
+          # the package's own rewrite/retention flags, so a trial runs what a real sweep would
+          args=(); a=$(python3 scripts/autobump-args.py "$pkg") && [ -n "$a" ] && mapfile -t args <<<"$a"
+          ruby autobump-rb/bin/autobump "$n" --install "${args[@]}"; ec=$?   # build+install+pkgcheck, no --pr, no opt-in
           case "$ec" in
             0)   res='PASS — mechanical, built + installed + pkgcheck clean' ;;
             3)   res='FAIL — escalate / build-fail (major jump, deps, patch, vendor, or emerge/QA/pkgcheck failure)' ;;

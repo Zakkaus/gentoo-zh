@@ -36,7 +36,8 @@ done
 autobump_enabled() {
     awk -v want="[\"$1\"]" '
         {h=$0; sub(/[[:space:]]*#.*/,"",h); gsub(/[[:space:]]+$/,"",h)}
-        h==want{f=1;next}/^\[/{f=0}f&&/^[[:space:]]*autobump[[:space:]]*=[[:space:]]*true/{e=1}END{exit !e}' \
+        h==want{f=1;next}/^\[/{f=0}
+        f&&h~/^[[:space:]]*autobump[[:space:]]*=/&&h!~/=[[:space:]]*false/{e=1}END{exit !e}' \
         .github/workflows/overlay.toml
 }
 
@@ -64,10 +65,12 @@ for n in "${ISSUES[@]}"; do
     autobump_disabled "$pkg" && continue    # deliberately off -- keep it out of the recommendation
     tag=""; autobump_enabled "$pkg" && tag=" [opted-in]"
 
-    $ENGINE "$n" --check >/dev/null 2>&1; ec=$?
+    ab_args=$(python3 scripts/autobump-args.py "$pkg" 2>/dev/null) || ab_args=""
+    AB_ARGS=(); [ -n "$ab_args" ] && mapfile -t AB_ARGS <<<"$ab_args"
+    $ENGINE "$n" --check "${AB_ARGS[@]}" >/dev/null 2>&1; ec=$?
     case "$ec" in
     0)  if [ "$DEEP" = 1 ]; then
-            $ENGINE "$n" --diff-only >/dev/null 2>&1; dc=$?
+            $ENGINE "$n" --diff-only "${AB_ARGS[@]}" >/dev/null 2>&1; dc=$?
             case "$dc" in
             0) CAND+=("#$n  $pkg -> $ver$tag") ;;
             3) ESC+=("#$n  $pkg -> $ver: surface/vendor changed (--diff-only)$tag") ;;

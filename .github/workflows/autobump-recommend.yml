@@ -140,7 +140,8 @@ jobs:
             ver=$(sed -nE 's/.* can be bump to ([A-Za-z0-9._+-]+)$/\1/p' <<<"$title")
             [ -n "$pkg" ] && [ -n "$ver" ] || continue
             echo "==== trial #$n  $pkg -> $ver ===="
-            ruby autobump-rb/bin/autobump "$n" --install; ec=$?   # build+install+pkgcheck, no --pr, no opt-in
+            args=(); a=$(python3 scripts/autobump-args.py "$pkg") && [ -n "$a" ] && mapfile -t args <<<"$a"
+            ruby autobump-rb/bin/autobump "$n" --install "${args[@]}"; ec=$?   # build+install+pkgcheck, no --pr, no opt-in
             [ "$ec" = 0 ] && built="${built}- #${n}  ${pkg} -> ${ver}"$'\n'
           done
           [ -n "$built" ] || built='(no not-opted-in candidate built OK this run)'

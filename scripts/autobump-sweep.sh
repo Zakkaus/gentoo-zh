@@ -60,7 +60,7 @@ declare -A STATUS_COMMENT_FAILED
 # run the judge from a copy: the engine switches branches, and if the script only
 # exists on the current branch it would vanish mid-sweep
 TOOLS=$(mktemp -d /tmp/autobump-tools-XXXX)
-cp scripts/autobump-judge.sh "$TOOLS/"
+cp scripts/autobump-judge.sh scripts/autobump-args.py "$TOOLS/"
 # AUTOBUMP_ENGINE points at the engine (e.g. "ruby .../autobump-rb/bin/autobump"). Required:
 # autobump-rb is the single engine, there is no in-tree fallback to default to.
 ENGINE=${AUTOBUMP_ENGINE:?set AUTOBUMP_ENGINE, e.g. ruby autobump-rb/bin/autobump}
@@ -104,8 +104,9 @@ status_comment() {  # $1=issue $2=body ; edit the bot's marked comment in place,
     STATUS_COMMENT_FAILED[$n]=1
 }
 
-# opt-in whitelist: only bump packages a maintainer marked `autobump = true` in the
-# nvchecker config, so which packages are trusted for auto-bumping is an explicit choice.
+# opt-in whitelist: only bump packages a maintainer marked `autobump` in the nvchecker
+# config, so which packages are trusted for auto-bumping is an explicit choice. The value
+# carries the retention (true, N, "all"); autobump-args.py turns it into engine flags.
 # TOML permits a trailing comment after a table header (`["cat/pkg"] # note`); strip an
 # inline comment + trailing space before the exact-match compare, else an opted-in package
 # with a commented header is silently skipped as not-opted-in.
@@ -114,23 +115,8 @@ autobump_enabled() {
         {h=$0; sub(/[[:space:]]*#.*/,"",h); gsub(/[[:space:]]+$/,"",h)}
         h==want {in_pkg=1; next}
         /^\[/   {in_pkg=0}
-        in_pkg && /^[[:space:]]*autobump[[:space:]]*=[[:space:]]*true/ {found=1; exit}
+        in_pkg && h ~ /^[[:space:]]*autobump[[:space:]]*=/ && h !~ /=[[:space:]]*false/ {found=1; exit}
         END {exit !found}
-    ' .github/workflows/overlay.toml
-}
-
-# keep-old opt-in: a package that must KEEP older versions (a real multi-version slot, or an
-# upstream that leaves old distfiles fetchable) marks `keep_old = N`; the sweep forwards
-# --keep-old=N so the engine keeps the N most-recent versions (0 or true = keep all). Independent
-# of autobump (a package is only swept when opted in); same header-match + inline-comment strip.
-keep_old_value() {  # print the package's keep_old value (true, or an integer N), else nothing
-    awk -v want="[\"$1\"]" '
-        {h=$0; sub(/[[:space:]]*#.*/,"",h); gsub(/[[:space:]]+$/,"",h)}
-        h==want {in_pkg=1; next}
-        /^\[/   {in_pkg=0}
-        in_pkg && /^[[:space:]]*keep_old[[:space:]]*=/ {
-            v=h; sub(/^[^=]*=[[:space:]]*/,"",v); print v; exit   # h already had the inline comment + trailing space stripped
-        }
     ' .github/workflows/overlay.toml
 }
 
@@ -144,20 +130,16 @@ for n in "${ISSUES[@]}"; do
     pkg=$(sed -nE 's/^\[nvchecker\] ([a-z0-9-]+\/[A-Za-z0-9_.+-]+) can be bump to .*/\1/p' <<<"$title")
     ver=$(sed -nE 's/.* can be bump to ([A-Za-z0-9._+-]+)$/\1/p' <<<"$title")
     if [ -z "$pkg" ] || [ -z "$ver" ]; then RESULT[$n]="unparseable title"; continue; fi
-    if ! autobump_enabled "$pkg"; then RESULT[$n]="skip (not opted in: no autobump=true)"; continue; fi
-    # unquoted below (like $PR) so an empty value word-splits away instead of passing a literal ''
-    KEEP_OLD=""; kov=$(keep_old_value "$pkg")
-    case "$kov" in
-        true)   KEEP_OLD="--keep-old" ;;         # keep all prior versions
-        [0-9]*) KEEP_OLD="--keep-old=$kov" ;;     # keep the N most-recent versions
-    esac
-    # opt-in marker appended to every status comment for this issue, so watchers can see at a
-    # glance that the package is auto-managed (and whether old versions are kept).
-    AB_FOOTER="— \`autobump\` enabled"
-    case "$kov" in
-        true|0) AB_FOOTER="$AB_FOOTER · keep_old=all" ;;
-        [1-9]*) AB_FOOTER="$AB_FOOTER · keep_old=$kov" ;;
-    esac
+    if ! autobump_enabled "$pkg"; then RESULT[$n]="skip (not opted in: no autobump key)"; continue; fi
+    # stderr is merged in: on refusal the script prints only the reason, so this is the reason
+    if ! ab_args=$(python3 "$TOOLS/autobump-args.py" "$pkg" 2>&1); then
+        RESULT[$n]="skip (${ab_args//$'\n'/ })"; continue
+    fi
+    # an array, because a rewrite regex may contain anything but a newline
+    AB_ARGS=()
+    [ -n "$ab_args" ] && mapfile -t AB_ARGS <<<"$ab_args"
+    # every status comment for this issue says the package is auto-managed, and with what
+    AB_FOOTER="— \`autobump\` enabled$(python3 "$TOOLS/autobump-args.py" --describe "$pkg")"
 
     if prior=$(grep -m1 -F "$pkg $ver " "$DONE"); then
         RESULT[$n]="skip ($prior)"; continue
@@ -166,7 +148,7 @@ for n in "${ISSUES[@]}"; do
     attempts=$((attempts + 1))
     echo "==== #$n $pkg -> $ver ($attempts/$LIMIT) ===="
     status_comment "$n" "**autobump** is bumping \`$pkg\` → \`$ver\`…$(run_link)"
-    out=$($ENGINE "$n" $KEEP_OLD $PR 2>&1); ec=$?
+    out=$($ENGINE "$n" "${AB_ARGS[@]}" $PR 2>&1); ec=$?
     # on success the tail is enough. on failure print everything: the engine's evidence dir is
     # inside the CI container and dies with it, so this log is the only postmortem material left.
     if [ "$ec" = 0 ]; then
@@ -213,7 +195,7 @@ for n in "${ISSUES[@]}"; do
         fi
         verdict=$(jq -r .verdict <<<"$verdict_json")
         if [ "$verdict" = proceed ]; then
-            out2=$($ENGINE "$n" --accept-surface --accept-payload $KEEP_OLD $PR 2>&1); ec2=$?
+            out2=$($ENGINE "$n" --accept-surface --accept-payload "${AB_ARGS[@]}" $PR 2>&1); ec2=$?
             echo "$out2" | tail -3
             if [ "$ec2" = 0 ]; then
                 echo "$pkg $ver bumped-after-judge $(date +%F)" >> "$DONE"
