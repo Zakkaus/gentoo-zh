@@ -188,6 +188,8 @@ source = "regex"
 url = "https://cursor.com/api/download?platform=linux-x64&releaseTrack=latest"
 regex = '"version":"([\d.]+)"'
 github_account = "zakkaus"
+autobump = true
+autobump_my_commit_regex = '"commitSha":"([0-9a-f]{40})"'
 
 ["app-editors/edit"]
 source = "github"
