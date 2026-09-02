@@ -75,10 +75,24 @@ jobs:
         context: .github/autobump-env
         push: true
         no-cache: true
+        # a plain image, not an index with attestation manifests: those show up as untagged
+        # versions that belong to the image, and the cleanup below removes untagged versions
+        provenance: false
         tags: ${{ steps.image.outputs.ref }}
 
-    # a day's image supersedes the one before it and nothing removes the old one; keep a
-    # few so a worker still pulling one is unaffected
+    # rebuilding a day leaves the version it replaced untagged; it is nobody's image and
+    # would otherwise take one of the three slots below
+    - name: drop replaced images
+      uses: actions/delete-package-versions@v5
+      with:
+        owner: ${{ github.repository_owner }}
+        package-name: autobump-env
+        package-type: container
+        delete-only-untagged-versions: true
+        min-versions-to-keep: 0
+
+    # a day's image supersedes the one before it and nothing removes the old one; keep three
+    # days so a worker still pulling an earlier one is unaffected
     - name: drop superseded images
       uses: actions/delete-package-versions@v5
       with:
