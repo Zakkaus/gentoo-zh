@@ -75,7 +75,8 @@ jobs:
         REF: ${{ steps.image.outputs.ref }}
         DAY: ${{ inputs.date }}
       run: |
-        if docker manifest inspect "$REF" > /dev/null 2>&1; then
+        # stdout is the manifest, stderr is why it is not there - keep the second
+        if docker manifest inspect "$REF" > /dev/null; then
           echo "exists=true" >> "$GITHUB_OUTPUT"
         elif [ -n "$DAY" ]; then
           # an earlier day cannot be rebuilt: the tree and binpkgs it was built from are
