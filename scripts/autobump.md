@@ -18,7 +18,8 @@ Step 2 has three outcomes:
 
 * **mechanical** — version change only and emerge passed, so it opens a PR.
 * **escalate** — major version jump, changed dependencies, or a `files/` patch to
-  re-verify. It comments the evidence on the issue and opens no PR.
+  re-verify. It comments the evidence on the issue, uploads the engine's evidence
+  directory as a run artifact, and opens no PR.
 * **defer** — a transient network, mirror or upstream-file problem, a per-version
   vendor bundle that is not generated yet, or a heavy dependency with no binpkg on
   the binhost that would exceed the CI timeout. Retried

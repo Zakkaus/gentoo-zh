@@ -108,6 +108,12 @@ class AutobumpSweepTest(unittest.TestCase):
         self.bin.mkdir()
         self.evidence.mkdir()
         (self.evidence / "escalations.txt").write_text("payload layout changed\n")
+        (self.evidence / "tree-added.txt").write_text("usr/lib/libnew.so\n")
+        (self.evidence / "build.log").write_text(
+            "  1000K .......... .......... 71% 80.5M 0s\n"
+            + "".join(f"build line {index}\n" for index in range(300))
+        )
+        self.kept = Path(self.tempdir.name) / "kept"
         self.repo.joinpath(".github", "workflows", "overlay.toml").write_text(
             textwrap.dedent(
                 """\
@@ -156,6 +162,7 @@ class AutobumpSweepTest(unittest.TestCase):
             "XDG_STATE_HOME": str(self.state_home),
             "GH_TOKEN": "test-token",
             "EVIDENCE_DIR": str(self.evidence),
+            "AUTOBUMP_EVIDENCE_DIR": str(self.kept),
             "ENGINE_LOG": str(self.engine_log),
             "GH_LOG": str(self.gh_log),
             "GH_STATE": str(self.gh_state),
@@ -259,6 +266,32 @@ class AutobumpSweepTest(unittest.TestCase):
                 and "payload layout changed" in call[-1]
                 for call in self.gh_calls()
             )
+        )
+
+    def test_escalation_comment_carries_every_evidence_file(self):
+        self.run_sweep("4", "--comment")
+
+        body = [
+            call[-1] for call in self.gh_calls() if call[:3] == ["issue", "comment", "4"]
+        ][-1]
+        self.assertIn("tree-added.txt", body)
+        self.assertIn("usr/lib/libnew.so", body)
+        # a log is cut from its start, so the failure at its end survives
+        self.assertIn("build.log (200 of 300 lines)", body)
+        # wget progress lines are not a record of anything
+        self.assertNotIn("80.5M", body)
+        # the diff comes before the log it would otherwise be buried under
+        self.assertLess(body.index("tree-added.txt"), body.index("build.log"))
+        self.assertIn("build line 299", body)
+        self.assertNotIn("build line 0\n", body)
+
+    def test_escalation_evidence_is_kept_for_upload(self):
+        self.run_sweep("4", "--comment")
+
+        kept = self.kept / "cat_escalate-3.0"
+        self.assertEqual(
+            sorted(path.name for path in kept.iterdir()),
+            ["build.log", "escalations.txt", "tree-added.txt"],
         )
 
     def test_exit_2_retries(self):

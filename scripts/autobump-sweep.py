@@ -59,6 +59,7 @@ class Settings:
     delta_files: list[Path]
     ledger_additions: dict[str, list[str]]
     worker_attempts: dict[tuple[str, str], int]
+    evidence_dir: Path | None
 
 
 def command_output(command, *, stderr=None):
@@ -232,7 +233,11 @@ def run_link(upstream_repo, label="run"):
     return f" · [{label}]({server}/{repository}/actions/runs/{run_id})"
 
 
-# Status comments stay short because detailed evidence belongs in the Actions log or collapsed evidence block.
+# A comment takes 65536 characters; leave the verdict line and footer room around the evidence.
+EVIDENCE_COMMENT_BUDGET = 55000
+EVIDENCE_FILE_LINES = 200
+
+
 def short_status_reason(reason):
     reason = re.sub(r"[ \t\r\n\v\f]+", " ", reason).strip(SPACE)
     if len(reason) > 200:
@@ -313,8 +318,18 @@ def status_comment(issue, body, *, comment, footer, upstream_repo, status_commen
     status_comment_failed.add(issue)
 
 
-def print_tail_lines(text, count):
-    print("\n".join(text.split("\n")[-count:]))
+def keep_evidence(settings, evidence, package, version):
+    # The engine's evidence dir is a tmpdir inside the worker: without a copy under
+    # AUTOBUMP_EVIDENCE_DIR (uploaded as a run artifact) every log and diff behind an
+    # escalation dies with the container.
+    if not settings.evidence_dir or not evidence.is_dir():
+        return
+    kept = settings.evidence_dir / f"{package.replace('/', '_')}-{version}"
+    shutil.rmtree(kept, ignore_errors=True)
+    try:
+        shutil.copytree(evidence, kept)
+    except OSError as error:
+        print(f"could not keep evidence for {package}: {error}")
 
 
 # Parsed from the engine's own line, never hard-coded: its mkdtemp follows TMPDIR, which
@@ -372,14 +387,53 @@ def last_clear_reason(text):
     return clear_reasons[-1] if clear_reasons else ""
 
 
-def evidence_excerpt(evidence):
+# wget writes one of these per 50K downloaded; a fetch log is mostly them.
+PROGRESS_LINE = re.compile(r"^[ \t]*[0-9]+K[ .]+[0-9]+%")
+
+
+def evidence_file_excerpt(path):
     try:
-        with (evidence / "escalations.txt").open() as f:
-            lines = [line.rstrip("\n").replace("```", "") for line in f]
+        text = path.read_text(errors="replace")
+    except OSError:
+        return "", 0, 0
+    lines = [
+        line.replace("```", "")
+        for line in text.split("\n")
+        if not re.fullmatch(r"[ \t\r\v\f]*", line) and not PROGRESS_LINE.match(line)
+    ]
+    if len(lines) <= EVIDENCE_FILE_LINES:
+        return "\n".join(lines), len(lines), len(lines)
+    # a log carries its failure at the end, a listing at the start
+    kept = lines[-EVIDENCE_FILE_LINES:] if path.suffix == ".log" else lines[:EVIDENCE_FILE_LINES]
+    return "\n".join(kept), len(kept), len(lines)
+
+
+def evidence_excerpt(evidence):
+    # Every file the engine wrote, not a summary of them: the reason line says what tripped,
+    # these say what the tools actually printed. Long files are cut, never paraphrased, and
+    # the run artifact holds them whole.
+    try:
+        paths = sorted(path for path in evidence.iterdir() if path.is_file())
     except OSError:
         return ""
-    filtered = [line for line in lines if not re.fullmatch(r"[ \t\r\v\f]*", line)]
-    return "\n".join(filtered[:25])
+    # the reason first, then the diffs and scan results, then the logs: a log is the bulkiest
+    # file and the one the evidence artifact holds anyway, so it must not crowd out the rest
+    paths.sort(key=lambda path: (path.suffix == ".log", path.name != "escalations.txt"))
+
+    sections, budget = [], EVIDENCE_COMMENT_BUDGET
+    for index, path in enumerate(paths):
+        excerpt, kept, total = evidence_file_excerpt(path)
+        if not excerpt:
+            continue
+        title = path.name if kept == total else f"{path.name} ({kept} of {total} lines)"
+        section = f"<details><summary>{title}</summary>\n\n```\n{excerpt}\n```\n</details>"
+        if len(section) > budget:
+            left = len(paths) - index
+            sections.append(f"({left} more files in the run's evidence artifact)")
+            break
+        sections.append(section)
+        budget -= len(section)
+    return "\n\n".join(sections)
 
 
 def read_settings(argv):
@@ -390,6 +444,8 @@ def read_settings(argv):
     upstream_repo = os.environ.get("AUTOBUMP_UPSTREAM_REPO") or "gentoo-zh/overlay"
     # An unset judge sends each escalation to a human; configure one only when its semantic judgment merits a call.
     judge = os.environ.get("AUTOBUMP_JUDGE", "")
+    # where escalation evidence is kept for upload; unset means the run keeps none
+    evidence_dir = os.environ.get("AUTOBUMP_EVIDENCE_DIR")
     state_home = os.environ.get("XDG_STATE_HOME") or f"{os.environ.get('HOME', '')}/.local/state"
     state_dir = Path(state_home) / "autobump"
     done_ledger = state_dir / "done.list"
@@ -428,6 +484,7 @@ def read_settings(argv):
         delta_files=[Path(path) for path in arguments.delta_files],
         ledger_additions={"done": [], "attempts": []},
         worker_attempts=worker_attempts,
+        evidence_dir=Path(evidence_dir) if evidence_dir else None,
     )
 
 
@@ -562,7 +619,7 @@ def run_engine(engine, issue, args, pr):
     # Successful runs need only a tail; failures print all evidence because the CI container disappears after the run.
     status, engine_output = command_output_with_stderr(engine + [issue, *args] + ([pr] if pr else []))
     if status == 0:
-        print_tail_lines(engine_output, 4)
+        print(engine_output)
     else:
         print(engine_output)
     return status, engine_output
@@ -611,7 +668,7 @@ def retry_accepted_escalation(
     retry_status, retry_output = command_output_with_stderr(
         engine + [issue, "--accept-surface", "--accept-payload", *args] + ([settings.pr] if settings.pr else [])
     )
-    print_tail_lines(retry_output, 3)
+    print(retry_output)
     if retry_status == 0:
         record_ledger(settings, "done", package, version, "bumped-after-judge")
         return "bumped (judge accepted surface delta)"
@@ -654,10 +711,9 @@ def record_escalation(settings, issue, package, version, evidence, verdict, engi
         f"**autobump** can't bump `{package}` → `{version}` mechanically: "
         f"**{short_status_reason(reason)}**. Needs a manual bump.{run_link(settings.upstream_repo, 'log')}"
     )
-    # Keep the issue comment scannable while retaining raw evidence one click away.
     excerpt = evidence_excerpt(evidence)
     if excerpt:
-        body += f"\n\n<details><summary>evidence</summary>\n\n```\n{excerpt}\n```\n</details>"
+        body += f"\n\n{excerpt}"
     status_comment(
         issue,
         body,
@@ -677,6 +733,7 @@ def handle_escalation(
     if not evidence_path or not evidence.is_dir():
         return defer_unparseable_evidence(settings, package, version)
 
+    keep_evidence(settings, evidence, package, version)
     verdict = escalation_verdict(
         settings, tools, evidence, package, current_version(engine_output), version
     )

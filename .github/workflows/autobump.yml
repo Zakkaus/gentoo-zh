@@ -226,6 +226,8 @@ jobs:
         # allow a generous per-op ceiling so a heavy from-source build (net-libs/nodejs ~1h)
         # finishes instead of timing out and deferring; keep in step with timeout-minutes above.
         AUTOBUMP_OP_TIMEOUT: '7200'
+        # inside the container: ${{ runner.temp }} is a host path the container lacks
+        AUTOBUMP_EVIDENCE_DIR: /tmp/autobump-evidence
         SHARD: ${{ toJSON(fromJSON(needs.plan.outputs.plan).shards[matrix.shard]) }}
         SHARD_ID: ${{ matrix.shard }}
         LIMIT: ${{ github.event.inputs.limit || 30 }}
@@ -244,6 +246,14 @@ jobs:
       with:
         name: autobump-delta-${{ matrix.shard }}
         path: autobump-delta-${{ matrix.shard }}.json
+
+    - name: upload escalation evidence
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: autobump-evidence-${{ matrix.shard }}
+        path: /tmp/autobump-evidence
+        if-no-files-found: ignore
 
   collect:
     needs: [plan, bump]
