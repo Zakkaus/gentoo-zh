@@ -42,9 +42,13 @@ on:
         required: false
         default: ''
       limit:
-        description: 'max issues per run'
+        description: 'max issues per run (0 = the whole queue)'
         required: false
-        default: '30'
+        default: '0'
+      rebuild_env:
+        description: 'rebuild the worker environment image'
+        type: boolean
+        default: false
 
 concurrency:
   group: autobump
@@ -79,6 +83,8 @@ jobs:
       contents: read
       packages: write
     uses: ./.github/workflows/autobump-env.yml
+    with:
+      force: ${{ github.event_name == 'workflow_dispatch' && inputs.rebuild_env }}
 
   # plan and collect need python3 and gh, both on the runner image; only the bump workers
   # need portage, and a container start costs a 3.5 GB pull.
@@ -114,7 +120,7 @@ jobs:
         GH_TOKEN: ${{ steps.app-token.outputs.token }}
         XDG_STATE_HOME: ${{ github.workspace }}/.autobump-state
         ISSUES: ${{ github.event.inputs.issues }}
-        LIMIT: ${{ github.event.inputs.limit || 30 }}
+        LIMIT: ${{ github.event.inputs.limit || 0 }}
         SHARDS: '8'
       run: |
         # validate before use: ISSUES is space-separated issue numbers, LIMIT and SHARDS are ints.
@@ -249,7 +255,7 @@ jobs:
         AUTOBUMP_EVIDENCE_DIR: /tmp/autobump-evidence
         SHARD: ${{ toJSON(fromJSON(needs.plan.outputs.plan).shards[matrix.shard]) }}
         SHARD_ID: ${{ matrix.shard }}
-        LIMIT: ${{ github.event.inputs.limit || 30 }}
+        LIMIT: ${{ github.event.inputs.limit || 0 }}
       run: python3 scripts/autobump-sweep.py --worker "$SHARD" --delta "autobump-delta-$SHARD_ID.json" --limit "$LIMIT" --pr --comment
 
     - name: save dependency binpkgs

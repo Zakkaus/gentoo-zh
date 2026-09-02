@@ -1,17 +1,29 @@
 # Build the bump workers' environment image (see .github/autobump-env/Dockerfile).
 #
-# autobump.yml calls this every run, so the tooling matches the tree the workers sync.
-# Tagged per ref, so a branch test does not overwrite the image scheduled runs pull.
+# autobump.yml calls this every run, but the image is tagged by ref and date, so only the
+# first run of a day builds and the rest reuse it - a day is as stale as the tooling may get
+# against the tree the workers sync. Tagging by ref keeps a branch test off the image the
+# scheduled runs pull.
 
 name: autobump-env
 
 on:
   workflow_call:
+    inputs:
+      force:
+        description: rebuild even if today's image exists
+        type: boolean
+        default: false
     outputs:
       image:
         description: the image the bump workers run in
         value: ${{ jobs.build.outputs.image }}
   workflow_dispatch:
+    inputs:
+      force:
+        description: rebuild even if today's image exists
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -37,7 +49,7 @@ jobs:
       run: |
         owner=$(printf '%s' "$OWNER" | tr 'A-Z' 'a-z')
         tag=$(printf '%s' "$REF" | tr 'A-Z' 'a-z' | tr -c 'a-z0-9._-' '-')
-        echo "ref=ghcr.io/$owner/autobump-env:$tag" >> "$GITHUB_OUTPUT"
+        echo "ref=ghcr.io/$owner/autobump-env:$tag-$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
 
     - name: log in to ghcr
       uses: docker/login-action@v3
@@ -46,8 +58,18 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: look for today's image
+      id: existing
+      env:
+        REF: ${{ steps.image.outputs.ref }}
+      run: |
+        if docker manifest inspect "$REF" > /dev/null 2>&1; then
+          echo "exists=true" >> "$GITHUB_OUTPUT"
+        fi
+
     # no build cache: the point of rebuilding is to pick up today's tree and binpkgs
     - name: build and push
+      if: ${{ inputs.force || steps.existing.outputs.exists != 'true' }}
       uses: docker/build-push-action@v6
       with:
         context: .github/autobump-env
