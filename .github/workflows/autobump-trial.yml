@@ -3,7 +3,7 @@
 # Given nvchecker issue numbers, it runs the engine's real build trial (bump + emerge build +
 # install + pkgcheck) in the same gentoo container autobump.yml uses, then reports PASS/FAIL per
 # target. It calls `bin/autobump <issue> --install` directly, so it bypasses the `autobump = true`
-# opt-in gate (which lives only in autobump-sweep.sh) and passes no `--pr` -- nothing is pushed,
+# opt-in gate (which lives only in autobump-sweep.py) and passes no `--pr` -- nothing is pushed,
 # no PR is opened, no state is kept. Use it to prove a not-yet-whitelisted package builds
 # mechanically before a maintainer adds `autobump = true` in overlay.toml.
 #

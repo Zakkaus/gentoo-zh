@@ -103,7 +103,7 @@ gh workflow run autobump.yml --repo gentoo-zh/overlay -f limit=20
 
 ```bash
 AUTOBUMP_ENGINE='ruby autobump-rb/bin/autobump' \
-    bash scripts/autobump-sweep.sh [issue#...] [--limit N] [--pr]
+    python3 scripts/autobump-sweep.py [issue#...] [--limit N] [--pr]
 ```
 
 某次运行处理了哪些 issue、各自结果如何，见那次 Actions run 日志末尾的 sweep summary。

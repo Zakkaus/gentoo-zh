@@ -84,6 +84,7 @@ jobs:
             metadata
             profiles
             scripts
+            test
         )
         for i in "${ignore_list[@]}"; do
             packages=($(printf '%s\n' "${packages[@]}" | grep -v "^$i" || true))

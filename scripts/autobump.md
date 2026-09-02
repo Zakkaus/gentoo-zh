@@ -126,7 +126,7 @@ Locally, clone the engine into the overlay root, install `dev-lang/ruby`, then r
 
 ```bash
 AUTOBUMP_ENGINE='ruby autobump-rb/bin/autobump' \
-    bash scripts/autobump-sweep.sh [issue#...] [--limit N] [--pr]
+    python3 scripts/autobump-sweep.py [issue#...] [--limit N] [--pr]
 ```
 
 Which issues a run processed and how each came out is in the sweep summary at the end of

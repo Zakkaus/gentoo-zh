@@ -4,7 +4,7 @@
 # - Runs 2h after nvchecker's daily cron, so bumpbot has filed the issues.
 # - v1 uses NO model anywhere (AUTOBUMP_JUDGE is unset): whatever is not
 #   mechanically safe gets an evidence comment on its issue and stops.
-#   The judge hook exists in autobump-sweep.sh for later, where semantic
+#   The judge hook exists in autobump-sweep.py for later, where semantic
 #   judgment is worth a cheap model call - it is optional by design.
 # - Mechanical bumps become normal PRs (draft when multi-arch), so the
 #   existing emerge-on-pr + pkgcheck CI re-verifies everything and a human
@@ -203,4 +203,4 @@ jobs:
         case "$ISSUES" in *[!0-9\ ]*) echo "issues must be numbers: $ISSUES" >&2; exit 1;; esac
         case "$LIMIT" in ''|*[!0-9]*) echo "limit must be a number: $LIMIT" >&2; exit 1;; esac
         # $ISSUES intentionally unquoted so it word-splits into positional args (validated above).
-        bash scripts/autobump-sweep.sh $ISSUES --limit "$LIMIT" --pr --comment
+        python3 scripts/autobump-sweep.py $ISSUES --limit "$LIMIT" --pr --comment
