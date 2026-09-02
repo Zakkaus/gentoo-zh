@@ -1732,6 +1732,7 @@ github = "waylyrics/waylyrics"
 prefix = "v"
 use_latest_release = true
 github_account = "liuyujielol"
+autobump = true
 
 # vendor download, no published version index
 #["media-sound/cider"]
@@ -1744,6 +1745,7 @@ use_latest_tag = true
 from_pattern = "^v?([^-]+)(?:-.*)?$"
 to_pattern = "\\1"
 github_account = "Jack77793"
+autobump = true
 
 ["media-sound/feeluown"]
 source = "github"
@@ -1890,6 +1892,7 @@ github = "tsukinaha/tsukimi"
 use_latest_release = true
 prefix = "v"
 github_account = ["peeweep", "irort"]
+autobump = true
 
 ["media-video/wiliwili"]
 source = "github"

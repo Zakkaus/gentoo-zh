@@ -220,7 +220,7 @@ jobs:
         SHARD: ${{ matrix.items }}
         SHARD_ID: ${{ matrix.shard }}
         LIMIT: ${{ github.event.inputs.limit || 30 }}
-      run: python3 scripts/autobump-sweep.py --worker "$SHARD" --delta "autobump-delta-$SHARD_ID.json" --limit "$LIMIT" --pr --comment
+      run: python3 scripts/autobump-sweep.py --worker "$SHARD" --delta "autobump-delta-$SHARD_ID.json" --limit "$LIMIT"   # CI TEST: no --pr, no --comment
 
     - name: upload shard delta
       if: always()
