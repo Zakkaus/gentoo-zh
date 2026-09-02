@@ -74,9 +74,12 @@ jobs:
         echo "nvchecker concluded ${{ github.event.workflow_run.conclusion }}; nothing to bump" >&2
         exit 1
 
+    # nvchecker files the issues inside its own run, so they exist by the time this fires.
+    # The wait is for the search index the queue is read through, which can trail a new
+    # issue by a few minutes.
     - name: wait for the issues to settle
       if: github.event_name == 'workflow_run'
-      run: sleep 1800
+      run: sleep 300
 
   # After plan, so a run with an empty queue builds nothing; the 13 minutes this adds
   # ahead of the workers are nothing against a run that bumps for hours.

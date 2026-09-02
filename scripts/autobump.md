@@ -95,7 +95,7 @@ bumped.
 
 ## Running it
 
-It runs 30 minutes after each nvchecker run finishes, once the issues are filed, and daily
+It runs 5 minutes after each nvchecker run finishes, once the issues are filed, and daily
 at 11:00 UTC as a backstop.
 
 ### Web
