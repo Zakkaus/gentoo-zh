@@ -180,6 +180,18 @@ class AutobumpSweepTest(unittest.TestCase):
         if not self.gh_log.exists():
             return []
         return [json.loads(line) for line in self.gh_log.read_text().splitlines()]
+    def run_worker(self, items, delta, *args):
+        return self.run_sweep(
+            "--worker",
+            json.dumps({"items": items}),
+            "--delta",
+            str(delta),
+            *args,
+        )
+
+    def run_collect(self, plan, *deltas):
+        return self.run_sweep("--collect", json.dumps(plan), *(str(delta) for delta in deltas))
+
 
     def attempt_lines(self):
         attempts = self.state_home / "autobump" / "attempts"
@@ -296,6 +308,100 @@ class AutobumpSweepTest(unittest.TestCase):
             self.engine_calls(),
         )
 
+
+    def test_planning_output_is_disjoint_and_covers_eligible_issues(self):
+        result = self.run_sweep("--plan", "3")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        plan = json.loads(result.stdout)
+        items = [
+            item
+            for shard in plan["shards"]
+            for item in shard["items"]
+        ]
+        self.assertEqual({item["issue"] for item in items}, {"3", "4", "5", "6", "7"})
+        self.assertEqual(len(items), len({item["issue"] for item in items}))
+        self.assertEqual(self.engine_calls(), [])
+
+    def test_planning_keeps_existing_terminal_skip_wording(self):
+        result = self.run_sweep("--plan", "3")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        plan = json.loads(result.stdout)
+        # nothing bulky in the matrix: GitHub would make it the job title
+        self.assertEqual(
+            [sorted(entry) for entry in plan["matrix"]["include"]],
+            [["packages", "shard"]] * len(plan["matrix"]["include"]),
+        )
+        self.assertEqual(plan["results"]["1"], "skip (not opted in: no autobump key)")
+        self.assertEqual(plan["results"]["2"], "skip (cat/done 1.0 bumped 2026-09-01)")
+
+    def test_worker_only_processes_its_shard_and_delta(self):
+        plan = json.loads(self.run_sweep("--plan", "1").stdout)
+        item = plan["shards"][0]["items"][0]
+        delta = Path(self.tempdir.name) / "worker-0.json"
+        done_before = self.done.read_text()
+
+        result = self.run_worker([item], delta)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual([call[0] for call in self.engine_calls()], ["3"])
+        self.assertEqual(self.done.read_text(), done_before)
+        worker_delta = json.loads(delta.read_text())
+        self.assertEqual(set(worker_delta["results"]), {"3"})
+        self.assertEqual(len(worker_delta["done"]), 1)
+        self.assertEqual(self.attempt_lines(), [])
+
+    def test_collect_merges_worker_deltas_without_duplicates(self):
+        plan = json.loads(self.run_sweep("--plan", "2").stdout)
+        items = {
+            item["issue"]: item
+            for shard in plan["shards"]
+            for item in shard["items"]
+        }
+        first = Path(self.tempdir.name) / "worker-0.json"
+        second = Path(self.tempdir.name) / "worker-1.json"
+        self.assertEqual(self.run_worker([items["3"]], first).returncode, 0)
+        self.assertEqual(self.run_worker([items["6"]], second).returncode, 0)
+        second_delta = json.loads(second.read_text())
+        second_delta["done"].append(json.loads(first.read_text())["done"][0])
+        second.write_text(json.dumps(second_delta))
+
+        result = self.run_collect({"issues": ["3", "6"], "results": {}}, first, second)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.done.read_text().count("cat/bump 2.0 bumped"), 1)
+        self.assertIn("#3  bumped", result.stdout)
+        self.assertIn("#6  bumped", result.stdout)
+
+    def test_planning_enforces_the_run_limit_across_shards(self):
+        result = self.run_sweep("--limit", "2", "--plan", "3")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        plan = json.loads(result.stdout)
+        deltas = []
+        for index, shard in enumerate(plan["shards"]):
+            delta = Path(self.tempdir.name) / f"worker-{index}.json"
+            worker = self.run_worker(shard["items"], delta, "--limit", "2")
+            self.assertEqual(worker.returncode, 0, worker.stderr)
+            deltas.append(delta)
+        collected = self.run_collect(plan, *deltas)
+
+        self.assertEqual(collected.returncode, 0, collected.stderr)
+        self.assertEqual([call[0] for call in self.engine_calls()], ["3", "4"])
+        self.assertIn("#5  skip (per-run attempt limit 2 reached)", collected.stdout)
+        self.assertIn("#7  skip (per-run attempt limit 2 reached)", collected.stdout)
+
+    def test_single_job_invocation_keeps_existing_output(self):
+        result = self.run_sweep("3")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(
+            result.stdout,
+            "==== #3 cat/bump -> 2.0 (1/5) ====\n"
+            "stage one\nhttps://github.com/test/overlay/pull/123\n\n"
+            "==== sweep summary ====\n#3  bumped\n",
+        )
 
 if __name__ == "__main__":
     unittest.main()
