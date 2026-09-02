@@ -1,9 +1,5 @@
-# Build the bump workers' environment image (see .github/autobump-env/Dockerfile).
-#
-# autobump.yml calls this every run, but the image is tagged by ref and date, so only the
-# first run of a day builds and the rest reuse it - a day is as stale as the tooling may get
-# against the tree the workers sync. Tagging by ref keeps a branch test off the image the
-# scheduled runs pull.
+# The bump workers' environment image, tagged by ref and date: one build a day, and a
+# branch test never overwrites what the scheduled runs pull.
 
 name: autobump-env
 
@@ -79,8 +75,7 @@ jobs:
         if docker manifest inspect "$REF" > /dev/null; then
           echo "exists=true" >> "$GITHUB_OUTPUT"
         elif [ -n "$DAY" ]; then
-          # an earlier day cannot be rebuilt: the tree and binpkgs it was built from are
-          # gone, and building today's under its tag would be a lie. Only three are kept.
+          # an earlier day cannot be rebuilt: its tree and binpkgs are gone
           echo "no image for $DAY: $REF" >&2
           exit 1
         fi
@@ -94,13 +89,11 @@ jobs:
         context: .github/autobump-env
         push: true
         no-cache: true
-        # a plain image, not an index with attestation manifests: those show up as untagged
-        # versions that belong to the image, and the cleanup below removes untagged versions
+        # no attestation manifests: the cleanup below deletes untagged versions
         provenance: false
         tags: ${{ steps.image.outputs.ref }}
 
-    # rebuilding a day leaves the version it replaced untagged; it is nobody's image and
-    # would otherwise take one of the three slots below
+    # rebuilding a day leaves the version it replaced untagged, taking a slot below
     - name: drop replaced images
       uses: actions/delete-package-versions@v5
       with:
@@ -110,8 +103,7 @@ jobs:
         delete-only-untagged-versions: true
         min-versions-to-keep: 0
 
-    # a day's image supersedes the one before it and nothing removes the old one; keep three
-    # days so a worker still pulling an earlier one is unaffected
+    # keep three days, the range env_date can fall back to
     - name: drop superseded images
       if: steps.build.outcome == 'success'
       uses: actions/delete-package-versions@v5

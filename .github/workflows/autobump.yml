@@ -1,18 +1,13 @@
 # autobump: try the mechanical version bumps that nvchecker filed as issues.
 #
 # Design:
-# - Runs 30 minutes after each nvchecker run, so bumpbot has filed the issues.
-# - The plan job reads cached state once, resolves the queue and passes disjoint shards
-#   to workers. Workers never claim or share state; collect merges their deltas afterward.
-# - v1 uses NO model anywhere (AUTOBUMP_JUDGE is unset): whatever is not
-#   mechanically safe gets an evidence comment on its issue and stops.
-#   The judge hook exists in autobump-sweep.py for later, where semantic
-#   judgment is worth a cheap model call - it is optional by design.
-# - Mechanical bumps become normal PRs (draft when multi-arch), so the
-#   existing emerge-on-pr + pkgcheck CI re-verifies everything and a human
-#   is still the only merger.
-# - State (which pkg/version was already bumped or deferred) is cached so
-#   the daily run never redoes work.
+# - The plan job resolves the queue against cached state and hands workers disjoint shards;
+#   workers share no state and collect merges their deltas.
+# - No model anywhere while AUTOBUMP_JUDGE is unset: whatever is not mechanically safe gets
+#   an evidence comment on its issue and stops. The judge hook in autobump-sweep.py is for
+#   later, where semantic judgment is worth a cheap model call.
+# - Mechanical bumps become normal PRs (draft when multi-arch), so emerge-on-pr and pkgcheck
+#   re-verify everything and a human is still the only merger.
 #
 # Requires: repo setting "Allow GitHub Actions to create and approve pull
 # requests", and maintainer agreement that the bot pushes its topic branches
@@ -26,9 +21,8 @@
 name: autobump
 
 on:
-  # Chained to nvchecker rather than a clock: scheduled runs here start hours after their
-  # cron, so a fixed offset cannot keep autobump behind the issues it reads. A human still
-  # merges every PR; not-opted-in packages are skipped and non-mechanical bumps only comment.
+  # chained to nvchecker rather than a clock: scheduled runs here start hours after their
+  # cron, so a fixed offset cannot keep autobump behind the issues it reads
   workflow_run:
     workflows: [nvchecker]
     types: [completed]
@@ -74,15 +68,12 @@ jobs:
         echo "nvchecker concluded ${{ github.event.workflow_run.conclusion }}; nothing to bump" >&2
         exit 1
 
-    # nvchecker files the issues inside its own run, so they exist by the time this fires.
-    # The wait is for the search index the queue is read through, which can trail a new
-    # issue by a few minutes.
+    # the issues exist by now; this waits on the search index the queue is read through
     - name: wait for the issues to settle
       if: github.event_name == 'workflow_run'
       run: sleep 300
 
-  # After plan, so a run with an empty queue builds nothing; the 13 minutes this adds
-  # ahead of the workers are nothing against a run that bumps for hours.
+  # after plan, so a run with an empty queue builds nothing
   env:
     needs: plan
     if: ${{ fromJSON(needs.plan.outputs.plan).matrix.include[0] != null }}
@@ -94,8 +85,7 @@ jobs:
       force: ${{ github.event_name == 'workflow_dispatch' && inputs.rebuild_env }}
       date: ${{ inputs.env_date || '' }}
 
-  # plan and collect need python3 and gh, both on the runner image; only the bump workers
-  # need portage, and a container start costs a 3.5 GB pull.
+  # only the workers need portage, and a container start costs a 3.5 GB pull
   plan:
     needs: wait
     runs-on: ubuntu-latest
@@ -140,8 +130,7 @@ jobs:
 
   bump:
     needs: [env, plan]
-    # listed in full because a job-level block replaces the workflow defaults; packages:read
-    # is what pulls the environment image
+    # a job-level block replaces the workflow defaults, so all four are listed
     permissions:
       contents: write
       pull-requests: write
@@ -149,10 +138,8 @@ jobs:
       packages: read
     if: ${{ fromJSON(needs.plan.outputs.plan).matrix.include[0] != null }}
     runs-on: ubuntu-latest
-    # Eight shards run at once: a worker's fixed cost is the image pull plus a 37s webrsync,
-    # and it is paid in parallel, so it costs runner minutes rather than wall clock. What the
-    # queue actually waits on is one slow package holding its shard, and that only gets
-    # shorter with more shards.
+    # a worker's fixed cost is paid in parallel, so more shards only shorten the tail one
+    # slow package leaves behind
     strategy:
       fail-fast: false
       max-parallel: 8
@@ -173,18 +160,15 @@ jobs:
     - name: sync gentoo main tree
       run: emerge-webrsync --no-pgp-verify
 
-    # MAKEOPTS and CPU_FLAGS_X86 are the only config the image cannot carry: they describe
-    # the runner. Without the flags, REQUIRED_USE=cpu_flags_x86_avx2 never resolves and the
-    # bump reports a build failure. Derive them from the runner, do not pin a list.
+    # both describe the runner, so the image cannot carry them; without the flags a
+    # cpu_flags_x86 REQUIRED_USE reads as a build failure
     - name: tune portage for this runner
       run: |
         echo "MAKEOPTS=\"\${MAKEOPTS} -j$(nproc)\"" >> /etc/portage/make.conf
         echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/autobump-cpuflags
 
-    # binpkgs the engine's build tests produced (FEATURES=buildpkg), so a heavy dep is built
-    # once and unpacked afterwards. Every shard restores; only one saves, because a cache
-    # entry holds the whole directory and eight near-copies a day would evict everything
-    # else in the 10 GB the repo gets.
+    # every shard restores, one saves: an entry holds the whole directory, and eight
+    # near-copies a day would evict the rest of the repo's 10 GB
     - name: restore dependency binpkgs
       uses: actions/cache/restore@v6
       with:
