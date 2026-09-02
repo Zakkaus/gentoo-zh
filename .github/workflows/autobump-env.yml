@@ -1,0 +1,56 @@
+# Build the bump workers' environment image (see .github/autobump-env/Dockerfile).
+#
+# autobump.yml calls this every run, so the tooling matches the tree the workers sync.
+# Tagged per ref, so a branch test does not overwrite the image scheduled runs pull.
+
+name: autobump-env
+
+on:
+  workflow_call:
+    outputs:
+      image:
+        description: the image the bump workers run in
+        value: ${{ jobs.build.outputs.image }}
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    outputs:
+      image: ${{ steps.image.outputs.ref }}
+
+    steps:
+    - name: checkout
+      uses: actions/checkout@v7
+
+    # ghcr takes neither an uppercase name nor the characters a git ref may carry
+    - name: image name
+      id: image
+      env:
+        OWNER: ${{ github.repository_owner }}
+        REF: ${{ github.ref_name }}
+      run: |
+        owner=$(printf '%s' "$OWNER" | tr 'A-Z' 'a-z')
+        tag=$(printf '%s' "$REF" | tr 'A-Z' 'a-z' | tr -c 'a-z0-9._-' '-')
+        echo "ref=ghcr.io/$owner/autobump-env:$tag" >> "$GITHUB_OUTPUT"
+
+    - name: log in to ghcr
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    # no build cache: the point of rebuilding is to pick up today's tree and binpkgs
+    - name: build and push
+      uses: docker/build-push-action@v6
+      with:
+        context: .github/autobump-env
+        push: true
+        no-cache: true
+        tags: ${{ steps.image.outputs.ref }}

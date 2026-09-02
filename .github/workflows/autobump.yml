@@ -51,6 +51,16 @@ permissions:
   issues: write
 
 jobs:
+  # After plan, so a run with an empty queue builds nothing; the 13 minutes this adds
+  # ahead of the workers are nothing against a run that bumps for hours.
+  env:
+    needs: plan
+    if: ${{ fromJSON(needs.plan.outputs.plan).matrix.include[0] != null }}
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/autobump-env.yml
+
   # plan and collect need python3 and gh, both on the runner image; only the bump workers
   # need portage, and a container start costs a 3.5 GB pull.
   plan:
@@ -96,13 +106,20 @@ jobs:
         echo "plan=$plan" >> "$GITHUB_OUTPUT"
 
   bump:
-    needs: plan
+    needs: [env, plan]
+    # listed in full because a job-level block replaces the workflow defaults; packages:read
+    # is what pulls the environment image
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      packages: read
     if: ${{ fromJSON(needs.plan.outputs.plan).matrix.include[0] != null }}
     runs-on: ubuntu-latest
-    # Eight shards run at once because the fixed cost of a worker is ~11.5 min (measured:
-    # 58s container, 37s webrsync, 9m38s tooling) and it is paid in parallel, so it costs
-    # runner minutes rather than wall clock. What the queue actually waits on is one slow
-    # package holding its shard, and that only gets shorter with more shards.
+    # Eight shards run at once: a worker's fixed cost is the image pull plus a 37s webrsync,
+    # and it is paid in parallel, so it costs runner minutes rather than wall clock. What the
+    # queue actually waits on is one slow package holding its shard, and that only gets
+    # shorter with more shards.
     strategy:
       fail-fast: false
       max-parallel: 8
@@ -112,75 +129,35 @@ jobs:
     # build plus a tail of light packages, so a heavy build finishes instead of being cut off mid-run.
     timeout-minutes: 360
     container:
-      image: gentoo/stage3:amd64-desktop-openrc
+      image: ${{ needs.env.outputs.image }}
+      # the image is private until someone makes it public; do not depend on which it is
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
       options: --privileged
 
     steps:
     - name: sync gentoo main tree
       run: emerge-webrsync --no-pgp-verify
 
-    - name: setup portage
+    # MAKEOPTS and CPU_FLAGS_X86 are the only config the image cannot carry: they describe
+    # the runner. Without the flags, REQUIRED_USE=cpu_flags_x86_avx2 never resolves and the
+    # bump reports a build failure. Derive them from the runner, do not pin a list.
+    - name: tune portage for this runner
       run: |
-        # expand $(nproc) HERE, not in make.conf: a literal $(...) there trips portage's
-        # config parser ("$: bad substitution") and breaks the whole config. FEATURES/
-        # MAKEOPTS keep their ${...} so portage appends to the stage3 defaults.
-        {
-          # buildpkg so the tooling emerge fills /var/cache/binpkgs, which the cache above
-          # restores on the next run; without it the cache would always be empty.
-          echo 'FEATURES="${FEATURES} getbinpkg buildpkg"'
-          echo "MAKEOPTS=\"\${MAKEOPTS} -j$(nproc)\""
-          echo 'PORTAGE_ELOG_CLASSES="qa warn error"'
-          echo 'PORTAGE_ELOG_SYSTEM="save"'
-          # accept all licenses: several opted-in packages are non-free (-bin blobs,
-          # CC-BY-NC, vendor EULAs). Without this emerge masks them and the bump churns
-          # its retries then defers with a misleading "build failure" comment, forever.
-          echo 'ACCEPT_LICENSE="*"'
-        } >> /etc/portage/make.conf
-        # Align heavy-dep USE to the official binhost's binpkgs so getbinpkg actually USES them,
-        # instead of rejecting a USE mismatch and rebuilding from source (which would blow the
-        # op-timeout): the binhost builds webkit-gtk +keyring and qtwebengine +bindist, but the
-        # desktop profile defaults them off. Keep this list in sync with emerge-on-pr's; extend
-        # it if a heavy dep still shows [ebuild] in a real bump.
-        mkdir -p /etc/portage/package.use
-        cat > /etc/portage/package.use/ci-binhost << 'EOF'
-        dev-qt/qtwebengine bindist
-        net-libs/webkit-gtk keyring
-        EOF
-        getuto
-        install -dm775 -o root -g portage /var/cache/distfiles
+        echo "MAKEOPTS=\"\${MAKEOPTS} -j$(nproc)\"" >> /etc/portage/make.conf
+        echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/autobump-cpuflags
 
-    # the tooling emerge is the worker's whole fixed cost; cached binpkgs turn the second
-    # and later runs into unpacking. Keyed on the package list so a changed list rebuilds.
-    - name: restore tooling binpkgs
-      uses: actions/cache@v6
+    # binpkgs the engine's build tests produced (FEATURES=buildpkg), so a heavy dep is built
+    # once and unpacked afterwards. Every shard restores; only one saves, because a cache
+    # entry holds the whole directory and eight near-copies a day would evict everything
+    # else in the 10 GB the repo gets.
+    - name: restore dependency binpkgs
+      uses: actions/cache/restore@v6
       with:
         path: /var/cache/binpkgs
-        key: autobump-binpkgs-${{ hashFiles('.github/workflows/autobump.yml') }}
+        key: autobump-binpkgs-${{ github.run_id }}
         restore-keys: autobump-binpkgs-
-
-    - name: install tooling
-      run: |
-        # Xvfb (minimal xorg-server) powers the advisory GUI launch probe: a GUI
-        # bump is launched headless to see it does not crash on start. Remove the
-        # xorg-server line + package.use if the build cost is not worth it - the
-        # probe then just skips and the PR still flags GUI apps for a manual check.
-        mkdir -p /etc/portage/package.use
-        echo "x11-base/xorg-server xvfb minimal -xorg" > /etc/portage/package.use/autobump-xvfb
-        # pkgdev/pkgcheck are dev-util/ now (pkgcore tools moved category); dev-lang/ruby
-        # runs the engine. --getbinpkg keeps the tool install fast.
-        emerge --quiet --getbinpkg --autounmask=y --autounmask-write=y --autounmask-continue=y \
-          dev-lang/ruby dev-vcs/git dev-util/pkgdev dev-util/pkgcheck app-portage/portage-utils \
-          app-portage/iwdevtools dev-util/github-cli app-misc/jq net-misc/curl \
-          app-portage/cpuid2cpuflags x11-base/xorg-server
-        # curl: the engine's finalize stage re-checks pkgcheck DeadUrl hits with curl;
-        # stage3 ships only wget, so without it that probe crashes and defers the bump.
-        # qlist (portage-utils) drives the --version smoke; qa-vdb (iwdevtools)
-        # checks RDEPEND vs linked libs on source packages; Xvfb the GUI probe
-
-    # stage3 sets no CPU_FLAGS_X86, so REQUIRED_USE=cpu_flags_x86_avx2 never resolves
-    # and the bump reports a build failure. Derive from the runner, do not pin a list.
-    - name: set CPU flags from the runner
-      run: echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/autobump-cpuflags
 
     - name: checkout
       uses: actions/checkout@v7
@@ -253,6 +230,13 @@ jobs:
         SHARD_ID: ${{ matrix.shard }}
         LIMIT: ${{ github.event.inputs.limit || 30 }}
       run: python3 scripts/autobump-sweep.py --worker "$SHARD" --delta "autobump-delta-$SHARD_ID.json" --limit "$LIMIT" --pr --comment
+
+    - name: save dependency binpkgs
+      if: always() && matrix.shard == 0
+      uses: actions/cache/save@v6
+      with:
+        path: /var/cache/binpkgs
+        key: autobump-binpkgs-${{ github.run_id }}
 
     - name: upload shard delta
       if: always()
