@@ -426,7 +426,7 @@ class AutobumpSweepTest(unittest.TestCase):
         self.assertIn("#7  skip (per-run attempt limit 2 reached)", collected.stdout)
 
     def test_single_job_invocation_keeps_existing_output(self):
-        result = self.run_sweep("3")
+        result = self.run_sweep("3", "--limit", "5")
 
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(
@@ -435,6 +435,16 @@ class AutobumpSweepTest(unittest.TestCase):
             "stage one\nhttps://github.com/test/overlay/pull/123\n\n"
             "==== sweep summary ====\n#3  bumped\n",
         )
+
+    def test_no_limit_runs_the_whole_queue(self):
+        result = self.run_sweep("3", "6")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        # the header drops the "of N" when nothing caps the run
+        self.assertIn("==== #3 cat/bump -> 2.0 (1) ====", result.stdout)
+        self.assertIn("#3  bumped", result.stdout)
+        self.assertIn("#6  bumped", result.stdout)
+        self.assertNotIn("attempt limit", result.stdout)
 
 if __name__ == "__main__":
     unittest.main()

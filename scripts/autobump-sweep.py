@@ -139,7 +139,7 @@ def parse_args(argv):
     parsed = {
         "pr": "",
         "comment": False,
-        "limit": "5",
+        "limit": "0",
         "issues": [],
         "plan_shards": None,
         "worker": None,
@@ -222,6 +222,13 @@ def package_and_version(title):
         if version:
             versions.append(version.group(1))
     return "\n".join(packages), "\n".join(versions)
+
+
+def run_limit(settings):
+    # 0 is no cap: with the queue sharded across workers there is usually no reason to
+    # leave part of a day's issues for tomorrow.
+    limit = int(settings.limit)
+    return limit if limit > 0 else None
 
 
 def run_link(upstream_repo, label="run"):
@@ -506,7 +513,7 @@ def select_issues(settings):
             "--state",
             "open",
             "--limit",
-            str(int(settings.limit) * 10),
+            str((run_limit(settings) or 20) * 10),
             "--json",
             "number",
             "--jq",
@@ -580,8 +587,9 @@ def plan_issues(settings, issues):
             results[issue] = result
             continue
 
-        if attempts >= int(settings.limit):
-            results[issue] = f"skip (per-run attempt limit {settings.limit} reached)"
+        cap = run_limit(settings)
+        if cap is not None and attempts >= cap:
+            results[issue] = f"skip (per-run attempt limit {cap} reached)"
             continue
 
         attempts += 1
@@ -796,7 +804,9 @@ def defer_transient(settings, issue, package, version, engine_output, footer, st
 
 
 def run_package(settings, tools, engine, issue, package, version, args, footer, attempt, status_comment_failed):
-    print(f"==== #{issue} {package} -> {version} ({attempt}/{settings.limit}) ====")
+    cap = run_limit(settings)
+    counter = f"{attempt}/{cap}" if cap else str(attempt)
+    print(f"==== #{issue} {package} -> {version} ({counter}) ====")
     status_comment(
         issue,
         f"**autobump** is bumping `{package}` → `{version}`…{run_link(settings.upstream_repo)}",
@@ -822,8 +832,9 @@ def run_issues(settings, issues, apply_run_limit, tools, engine):
     status_comment_failed = set()
     attempts = 0
     for issue in issues:
-        if apply_run_limit and attempts >= int(settings.limit):
-            results[issue] = f"skip (per-run attempt limit {settings.limit} reached)"
+        cap = run_limit(settings)
+        if apply_run_limit and cap is not None and attempts >= cap:
+            results[issue] = f"skip (per-run attempt limit {cap} reached)"
             continue
 
         package, version, result = issue_bump_target(settings, issue)

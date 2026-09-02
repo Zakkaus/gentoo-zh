@@ -117,10 +117,11 @@ gh workflow run autobump.yml --repo gentoo-zh/overlay -f limit=20
 
 Both take the same inputs; `issues` accepts digits and spaces only.
 
-`limit` defaults to 30 and caps engine attempts across the whole run. The planner resolves the
-queue against the cached state and assigns those attempts to disjoint shards; skips are free.
+`limit` caps engine attempts across the whole run; it defaults to 0, which runs the whole
+queue. The planner resolves the queue against the cached state and assigns those attempts to
+disjoint shards; skips are free.
 
-A run has three phases: plan, at most three bump workers in parallel, and collect. Each worker
+A run has three phases: plan, at most eight bump workers in parallel, and collect. Each worker
 lasts at most 360 minutes and GitHub cancels it there. Each package has a separate two-hour
 ceiling: `ebuild install`, `emerge` and `ebuild unpack` are deferred on timeout and retried next
 run.
