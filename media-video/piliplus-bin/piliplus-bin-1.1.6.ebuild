@@ -1,4 +1,4 @@
-# Copyright 1999-2026 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -7,24 +7,20 @@ inherit xdg desktop wrapper
 
 DESCRIPTION="BiliBili third-party client developed using Flutter"
 HOMEPAGE="https://github.com/bggRGjQaUbCoE/PiliPlus"
-MY_PV="2.1.2+5281"
-SRC_URI="https://github.com/bggRGjQaUbCoE/PiliPlus/releases/download/${PV}/PiliPlus_linux_${MY_PV}_amd64.tar.gz"
+PVER="1.1.6+4626"
+SRC_URI="https://github.com/bggRGjQaUbCoE/PiliPlus/releases/download/${PV}/PiliPlus_linux_${PVER}_amd64.tar.gz"
 S="${WORKDIR}"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
 QA_PREBUILT="*"
-QA_DT_NEEDED="opt/${PN}/lib/libdartjni.so"
 DEPEND="
 	net-libs/webkit-gtk:4.1
 	dev-libs/libayatana-appindicator
 	media-video/mpv
 	x11-misc/xdg-user-dirs
 "
-RDEPEND="
-	${DEPEND}
-	dev-java/openjdk-jre-bin:*
-"
+RDEPEND="${DEPEND}"
 
 src_install() {
 	local instdir="/opt/${PN}"
