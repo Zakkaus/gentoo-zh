@@ -95,7 +95,8 @@ bumped.
 
 ## Running it
 
-It runs daily at 11:00 UTC, two hours after nvchecker's cron, once the issues are filed.
+It runs 30 minutes after each nvchecker run finishes, once the issues are filed, and daily
+at 11:00 UTC as a backstop.
 
 ### Web
 

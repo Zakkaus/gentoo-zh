@@ -1,7 +1,7 @@
 # autobump: try the mechanical version bumps that nvchecker filed as issues.
 #
 # Design:
-# - Runs 2h after nvchecker's daily cron, so bumpbot has filed the issues.
+# - Runs 30 minutes after each nvchecker run, so bumpbot has filed the issues.
 # - The plan job reads cached state once, resolves the queue and passes disjoint shards
 #   to workers. Workers never claim or share state; collect merges their deltas afterward.
 # - v1 uses NO model anywhere (AUTOBUMP_JUDGE is unset): whatever is not
@@ -26,8 +26,13 @@
 name: autobump
 
 on:
-  # daily run, 2h after nvchecker's cron so bumpbot has filed the issues. A human still merges
-  # every PR; not-opted-in packages are skipped and non-mechanical bumps only comment.
+  # Chained to nvchecker rather than a clock: scheduled runs here start hours after their
+  # cron, so a fixed offset cannot keep autobump behind the issues it reads. A human still
+  # merges every PR; not-opted-in packages are skipped and non-mechanical bumps only comment.
+  workflow_run:
+    workflows: [nvchecker]
+    types: [completed]
+  # backstop: if nvchecker stops running, the queue would go quiet with nothing saying so
   schedule:
     - cron: '0 11 * * *'
   workflow_dispatch:
@@ -51,6 +56,20 @@ permissions:
   issues: write
 
 jobs:
+  wait:
+    if: github.repository == 'gentoo-zh/overlay' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+    - name: stop if nvchecker failed
+      if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion != 'success'
+      run: |
+        echo "nvchecker concluded ${{ github.event.workflow_run.conclusion }}; nothing to bump" >&2
+        exit 1
+
+    - name: wait for the issues to settle
+      if: github.event_name == 'workflow_run'
+      run: sleep 1800
+
   # After plan, so a run with an empty queue builds nothing; the 13 minutes this adds
   # ahead of the workers are nothing against a run that bumps for hours.
   env:
@@ -64,7 +83,7 @@ jobs:
   # plan and collect need python3 and gh, both on the runner image; only the bump workers
   # need portage, and a container start costs a 3.5 GB pull.
   plan:
-    if: github.repository == 'gentoo-zh/overlay' || github.event_name == 'workflow_dispatch'
+    needs: wait
     runs-on: ubuntu-latest
     outputs:
       plan: ${{ steps.plan.outputs.plan }}

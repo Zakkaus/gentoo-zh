@@ -74,7 +74,7 @@ autobump_my_build_url = "https://example.org/releases/${PV}"
 
 ## 运行
 
-每天 11:00 UTC 自动执行一次，比 nvchecker 的 cron 晚两小时。
+每次 nvchecker 跑完 30 分钟后执行；另有每天 11:00 UTC 一次作为兜底。
 
 ### 网页
 
