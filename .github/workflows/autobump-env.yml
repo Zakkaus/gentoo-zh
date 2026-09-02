@@ -76,3 +76,13 @@ jobs:
         push: true
         no-cache: true
         tags: ${{ steps.image.outputs.ref }}
+
+    # a day's image supersedes the one before it and nothing removes the old one; keep a
+    # few so a worker still pulling one is unaffected
+    - name: drop superseded images
+      uses: actions/delete-package-versions@v5
+      with:
+        owner: ${{ github.repository_owner }}
+        package-name: autobump-env
+        package-type: container
+        min-versions-to-keep: 3
