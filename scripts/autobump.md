@@ -117,6 +117,9 @@ gh workflow run autobump.yml --repo gentoo-zh/overlay -f limit=20
 
 Both take the same inputs; `issues` accepts digits and spaces only.
 
+The workers run in an image built once a day (`autobump-env`). `rebuild_env` forces a fresh
+one; `env_date` runs on an earlier day's image, of which the last three are kept.
+
 `limit` caps engine attempts across the whole run; it defaults to 0, which runs the whole
 queue. The planner resolves the queue against the cached state and assigns those attempts to
 disjoint shards; skips are free.

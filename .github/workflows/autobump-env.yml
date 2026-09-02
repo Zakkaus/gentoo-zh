@@ -14,6 +14,10 @@ on:
         description: rebuild even if today's image exists
         type: boolean
         default: false
+      date:
+        description: use the image of an earlier day (YYYYMMDD); it must still be kept
+        type: string
+        default: ''
     outputs:
       image:
         description: the image the bump workers run in
@@ -24,6 +28,10 @@ on:
         description: rebuild even if today's image exists
         type: boolean
         default: true
+      date:
+        description: use the image of an earlier day (YYYYMMDD); it must still be kept
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -46,10 +54,13 @@ jobs:
       env:
         OWNER: ${{ github.repository_owner }}
         REF: ${{ github.ref_name }}
+        DAY: ${{ inputs.date }}
       run: |
+        case "$DAY" in ''|[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]) ;;
+          *) echo "date must be YYYYMMDD: $DAY" >&2; exit 1;; esac
         owner=$(printf '%s' "$OWNER" | tr 'A-Z' 'a-z')
         tag=$(printf '%s' "$REF" | tr 'A-Z' 'a-z' | tr -c 'a-z0-9._-' '-')
-        echo "ref=ghcr.io/$owner/autobump-env:$tag-$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
+        echo "ref=ghcr.io/$owner/autobump-env:$tag-${DAY:-$(date -u +%Y%m%d)}" >> "$GITHUB_OUTPUT"
 
     - name: log in to ghcr
       uses: docker/login-action@v3
@@ -58,18 +69,25 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: look for today's image
+    - name: look for the image
       id: existing
       env:
         REF: ${{ steps.image.outputs.ref }}
+        DAY: ${{ inputs.date }}
       run: |
         if docker manifest inspect "$REF" > /dev/null 2>&1; then
           echo "exists=true" >> "$GITHUB_OUTPUT"
+        elif [ -n "$DAY" ]; then
+          # an earlier day cannot be rebuilt: the tree and binpkgs it was built from are
+          # gone, and building today's under its tag would be a lie. Only three are kept.
+          echo "no image for $DAY: $REF" >&2
+          exit 1
         fi
 
     # no build cache: the point of rebuilding is to pick up today's tree and binpkgs
     - name: build and push
-      if: ${{ inputs.force || steps.existing.outputs.exists != 'true' }}
+      id: build
+      if: ${{ inputs.date == '' && (inputs.force || steps.existing.outputs.exists != 'true') }}
       uses: docker/build-push-action@v6
       with:
         context: .github/autobump-env
@@ -80,6 +98,7 @@ jobs:
     # a day's image supersedes the one before it and nothing removes the old one; keep a
     # few so a worker still pulling one is unaffected
     - name: drop superseded images
+      if: steps.build.outcome == 'success'
       uses: actions/delete-package-versions@v5
       with:
         owner: ${{ github.repository_owner }}

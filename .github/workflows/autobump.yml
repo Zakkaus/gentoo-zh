@@ -49,6 +49,10 @@ on:
         description: 'rebuild the worker environment image'
         type: boolean
         default: false
+      env_date:
+        description: 'run on an earlier environment image (YYYYMMDD, empty = today)'
+        required: false
+        default: ''
 
 concurrency:
   group: autobump
@@ -85,6 +89,7 @@ jobs:
     uses: ./.github/workflows/autobump-env.yml
     with:
       force: ${{ github.event_name == 'workflow_dispatch' && inputs.rebuild_env }}
+      date: ${{ inputs.env_date || '' }}
 
   # plan and collect need python3 and gh, both on the runner image; only the bump workers
   # need portage, and a container start costs a 3.5 GB pull.
