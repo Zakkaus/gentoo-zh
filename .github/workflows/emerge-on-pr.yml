@@ -84,11 +84,21 @@ jobs:
             metadata
             profiles
             scripts
-            test
         )
         for i in "${ignore_list[@]}"; do
             packages=($(printf '%s\n' "${packages[@]}" | grep -v "^$i" || true))
         done
+
+        # the ebuild gives "=cat/pn-ver" and its Manifest the bare "cat/pn": one build, two
+        # atoms. A package with no versioned atom (files/-only, treeclean) keeps its bare one.
+        declare -a deduped=()
+        for atom in "${packages[@]}"; do
+            if [[ "$atom" != =* ]] && printf '%s\n' "${packages[@]}" | grep -q "^=${atom}-"; then
+                continue
+            fi
+            deduped+=("$atom")
+        done
+        packages=("${deduped[@]}")
 
         echo "scan all files: $(printf '%s\n' "${packages[@]}" | sort -u | jq -R . | jq -s .)"
 

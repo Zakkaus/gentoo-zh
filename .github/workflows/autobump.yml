@@ -26,6 +26,8 @@ on:
   workflow_run:
     workflows: [nvchecker]
     types: [completed]
+    # a manual nvchecker run from a topic branch is not the daily queue
+    branches: [master]
   # backstop: if nvchecker stops running, the queue would go quiet with nothing saying so
   schedule:
     - cron: '0 11 * * *'
