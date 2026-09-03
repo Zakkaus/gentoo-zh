@@ -23,7 +23,8 @@ def die(reason):
 
 def keep_old_flag(pkg, value):
     """`autobump` carries the retention: true replaces, N keeps N, "all" keeps every one."""
-    if value in (None, True, False, 0):
+    # `1` compares equal to True here and still means the number: keep one old version
+    if value is None or isinstance(value, bool) or value == 0:
         return []
     if value == "all":
         return ["--keep-old"]
