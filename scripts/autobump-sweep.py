@@ -62,10 +62,14 @@ class Settings:
     evidence_dir: Path | None
 
 
+# A build log carries whatever bytes upstream wrote; strict decoding loses the bump over one.
+TEXT_OUTPUT = {"encoding": "utf-8", "errors": "replace"}
+
+
 def command_output(command, *, stderr=None):
     """Run a command and return its status and command-substitution-style stdout."""
     try:
-        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=stderr, text=True)
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=stderr, **TEXT_OUTPUT)
     except FileNotFoundError:
         return 127, ""
     return result.returncode, result.stdout.rstrip("\n")
@@ -74,7 +78,7 @@ def command_output(command, *, stderr=None):
 def command_output_with_stderr(command):
     """Run a command and return its status and command-substitution-style combined output."""
     try:
-        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, **TEXT_OUTPUT)
     except FileNotFoundError:
         return 127, f"{command[0]}: command not found"
     return result.returncode, result.stdout.rstrip("\n")
@@ -86,8 +90,13 @@ def today():
 
 # A new target version has a distinct ledger key, so terminal results never retry.
 def ledger_line(package, version, result=None):
-    fields = (package, version, result, today()) if result else (package, version, today())
+    fields = (package, version, result, today()) if result else (package, version, today(), run_token())
     return " ".join(fields)
+
+
+def run_token():
+    """What tells one attempt from another: two runs on one day, one delivered twice."""
+    return os.environ.get("GITHUB_RUN_ID") or f"p{os.getpid()}"
 
 
 def record_ledger(settings, ledger_name, package, version, result=None):
@@ -183,7 +192,8 @@ def validated_number(arg):
 # A table header may carry a trailing comment; strip it before comparing or an opted-in
 # package with an annotated header is silently skipped.
 def autobump_enabled(path, package):
-    wanted_header = f'["{package}"]'
+    # TOML quotes a key either way, and the file is read line by line rather than parsed
+    wanted_headers = {f'["{package}"]', f"['{package}']"}
     in_package = False
     enabled = False
 
@@ -192,7 +202,7 @@ def autobump_enabled(path, package):
             for original in f:
                 original = original.rstrip("\n")
                 header = re.sub(r"[ \t\r\v\f]*#.*", "", original).rstrip(SPACE)
-                if header == wanted_header:
+                if header in wanted_headers:
                     in_package = True
                     continue
                 if original.startswith("["):
@@ -252,6 +262,10 @@ def short_status_reason(reason):
     return reason
 
 
+# Seconds between status-lookup retries; the tests drive the failure path and do not wait.
+STATUS_LOOKUP_BACKOFF = float(os.environ.get("AUTOBUMP_STATUS_BACKOFF", "3"))
+
+
 def find_status_comment_id(issue, upstream_repo):
     # A failed FIND must not fall through to CREATE: a transient API error would duplicate the status comment.
     status_comment_id_filter = (
@@ -271,7 +285,7 @@ def find_status_comment_id(issue, upstream_repo):
         )
         if status == 0:
             return comment_id
-        time.sleep(3)
+        time.sleep(STATUS_LOOKUP_BACKOFF)
     return None
 
 
@@ -326,6 +340,9 @@ def status_comment(issue, body, *, comment, footer, upstream_repo, status_commen
 
 
 def keep_evidence(settings, evidence, package, version):
+    # an engine that died early printed no evidence path, and Path("") is the checkout
+    if str(evidence) in ("", "."):
+        return
     # The engine's evidence dir is a tmpdir inside the worker: without a copy under
     # AUTOBUMP_EVIDENCE_DIR (uploaded as a run artifact) every log and diff behind an
     # escalation dies with the container.
@@ -337,6 +354,15 @@ def keep_evidence(settings, evidence, package, version):
         shutil.copytree(evidence, kept)
     except OSError as error:
         print(f"could not keep evidence for {package}: {error}")
+
+
+def engine_abort_reason(text):
+    # The reason can sit anywhere: it arrives on stderr, which is merged into the buffered
+    # stdout. Exactly two bangs - portage writes "!!!" into the same stream, and that is a log.
+    lines = [line for line in text.split("\n") if line.strip()]
+    aborts = [line for line in lines if re.match(r"[ \t]*!![^!]", line)]
+    reason = aborts[-1] if aborts else (lines[-1] if lines else "")
+    return re.sub(r"^[ \t\r\v\f]*!!?[ \t\r\v\f]*", "", reason)
 
 
 # Parsed from the engine's own line, never hard-coded: its mkdtemp follows TMPDIR, which
@@ -545,10 +571,13 @@ def engine_command(settings):
 
 
 def issue_bump_target(settings, issue):
-    _, title = command_output(
+    status, title = command_output(
         ["gh", "issue", "view", issue, "--repo", settings.upstream_repo, "--json", "title", "--jq", ".title"],
         stderr=subprocess.DEVNULL,
     )
+    # a failed call reads as an empty title, which is not a verdict about the issue
+    if status != 0:
+        return None, None, "gh issue view failed (auth/rate-limit/network?)"
     package, version = package_and_version(title)
     if not package or not version:
         return None, None, "unparseable title"
@@ -567,9 +596,10 @@ def engine_arguments(tools, package):
     return args, f"— `autobump` enabled{footer}", None
 
 
-def plan_issues(settings, issues):
+def plan_issues(settings, issues, apply_run_limit):
     results = {}
     items = []
+    planned = {}
     attempts = 0
     for issue in issues:
         package, version, result = issue_bump_target(settings, issue)
@@ -587,11 +617,18 @@ def plan_issues(settings, issues):
             results[issue] = result
             continue
 
+        # two issues can name one package - the same bump twice, or two versions of it - and
+        # planning both runs two engines against one package dir, each pushing its own branch
+        if package in planned:
+            results[issue] = f"skip (#{planned[package]} already bumps {package} this run)"
+            continue
+
         cap = run_limit(settings)
-        if cap is not None and attempts >= cap:
+        if apply_run_limit and cap is not None and attempts >= cap:
             results[issue] = f"skip (per-run attempt limit {cap} reached)"
             continue
 
+        planned[package] = issue
         attempts += 1
         items.append(
             {
@@ -691,6 +728,7 @@ def retry_accepted_escalation(
         return f"judge-retry deferred transiently (try {tries + 1})"
 
     record_ledger(settings, "done", package, version, "deferred-transient")
+    keep_evidence(settings, Path(evidence_directory_from_output(retry_output)), package, version)
     status_comment(
         issue,
         (
@@ -773,7 +811,7 @@ def defer_transient(settings, issue, package, version, engine_output, footer, st
     # Dirty trees, fetch flakes, timeouts, and dependency gaps retry until ATTEMPTS hands persistent failures to a maintainer.
     tries = attempt_count(settings, package, version)
     record_ledger(settings, "attempts", package, version)
-    reason = re.sub(r"^[ \t\r\v\f]*!+[ \t\r\v\f]*", "", engine_output.split("\n")[-1])
+    reason = engine_abort_reason(engine_output)
     if tries < 2:
         status_comment(
             issue,
@@ -789,6 +827,8 @@ def defer_transient(settings, issue, package, version, engine_output, footer, st
         return f"not attempted (transient, try {tries + 1}): {reason}"
 
     record_ledger(settings, "done", package, version, "deferred-transient")
+    # the run that hands the package to a maintainer is the one whose logs they need
+    keep_evidence(settings, Path(evidence_directory_from_output(engine_output)), package, version)
     status_comment(
         issue,
         (
@@ -822,7 +862,9 @@ def run_package(settings, tools, engine, issue, package, version, args, footer, 
         return handle_escalation(
             settings, tools, engine, issue, package, version, args, footer, engine_output, status_comment_failed
         )
-    if re.search(r"already at|already exists|would downgrade|newer than target", engine_output):
+    # the abort reason only: a build log line ("destination path ... already exists") would
+    # otherwise record a transient failure as a permanent precondition
+    if re.search(r"already at|already exists|would downgrade|newer than target", engine_abort_reason(engine_output)):
         return record_precondition(settings, issue, package, version, footer, status_comment_failed)
     return defer_transient(settings, issue, package, version, engine_output, footer, status_comment_failed)
 
@@ -925,6 +967,8 @@ def collect(settings):
     for path in settings.delta_files:
         delta = json.loads(path.read_text())
         merge_lines(settings.done_ledger, delta["done"])
+        # merged, like done: an attempt line carries the run it came from, so two attempts on one
+        # day are two lines while the same delta delivered twice is still one
         merge_lines(settings.attempts_ledger, delta["attempts"])
         results.update(delta["results"])
         status_comment_failed.update(delta["status_comment_failed"])
@@ -967,7 +1011,7 @@ def main(argv):
     if issues is None:
         return 2
     if settings.plan_shards is not None:
-        print(json.dumps(plan_issues(settings, issues), separators=(",", ":")))
+        print(json.dumps(plan_issues(settings, issues, apply_run_limit), separators=(",", ":")))
         return 0
     if not issues:
         print("no open nvchecker issues")
