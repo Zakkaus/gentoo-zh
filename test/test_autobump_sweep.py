@@ -314,6 +314,13 @@ class AutobumpSweepTest(unittest.TestCase):
             ["build.log", "escalations.txt", "tree-added.txt"],
         )
 
+    def test_named_issues_are_not_capped_by_the_run_limit(self):
+        result = self.run_sweep("3", "6", "7", "--limit", "1", "--plan", "4")
+
+        plan = json.loads(result.stdout)
+        planned = [item["issue"] for shard in plan["shards"] for item in shard["items"]]
+        self.assertEqual(planned, ["3", "6", "7"])
+
     def test_two_issues_naming_one_bump_are_planned_once(self):
         result = self.run_sweep("3", "11", "--plan", "4")
 

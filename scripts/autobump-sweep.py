@@ -585,7 +585,7 @@ def engine_arguments(tools, package):
     return args, f"— `autobump` enabled{footer}", None
 
 
-def plan_issues(settings, issues):
+def plan_issues(settings, issues, apply_run_limit):
     results = {}
     items = []
     planned = {}
@@ -613,7 +613,7 @@ def plan_issues(settings, issues):
             continue
 
         cap = run_limit(settings)
-        if cap is not None and attempts >= cap:
+        if apply_run_limit and cap is not None and attempts >= cap:
             results[issue] = f"skip (per-run attempt limit {cap} reached)"
             continue
 
@@ -1006,7 +1006,7 @@ def main(argv):
     if issues is None:
         return 2
     if settings.plan_shards is not None:
-        print(json.dumps(plan_issues(settings, issues), separators=(",", ":")))
+        print(json.dumps(plan_issues(settings, issues, apply_run_limit), separators=(",", ":")))
         return 0
     if not issues:
         print("no open nvchecker issues")
