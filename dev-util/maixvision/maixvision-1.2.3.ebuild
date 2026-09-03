@@ -29,14 +29,14 @@ RDEPEND="
 "
 
 src_install() {
-	rm -r opt/MaixVision/resources/app.asar.unpacked/node_modules/@img/sharp-libvips-linuxmusl-x64 || die
-	rm -r opt/MaixVision/resources/app.asar.unpacked/node_modules/@img/sharp-linuxmusl-x64 || die
-
 	insinto /opt
 	doins -r opt/MaixVision/
 
-	fperms 755 /opt/MaixVision/maixvision
-	fperms 755 /opt/MaixVision/resources/app.asar.unpacked/node_modules/node/bin/node
+	# doins -r drops the executable bit, restore it on what upstream ships executable
+	fperms 755 /opt/MaixVision/maixvision \
+		/opt/MaixVision/chrome_crashpad_handler \
+		/opt/MaixVision/resources/app.asar.unpacked/node_modules/@esbuild/linux-x64/bin/esbuild \
+		/opt/MaixVision/resources/app.asar.unpacked/node_modules/monaco-editor-wrapper/node_modules/@esbuild/linux-x64/bin/esbuild
 
 	domenu usr/share/applications/maixvision.desktop
 	doicon -s 512 usr/share/icons/hicolor/512x512/apps/maixvision.png
