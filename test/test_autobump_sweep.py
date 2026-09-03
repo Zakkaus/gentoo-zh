@@ -84,6 +84,7 @@ elif issue == "4":
     print(f"== evidence: {os.environ['EVIDENCE_DIR']} ==")
     raise SystemExit(3)
 elif issue == "5":
+    print(f"== evidence: {os.environ['EVIDENCE_DIR']} ==")
     print("! build host timed out")
     raise SystemExit(2)
 elif issue == "8":
@@ -309,6 +310,18 @@ class AutobumpSweepTest(unittest.TestCase):
             sorted(path.name for path in kept.iterdir()),
             ["build.log", "escalations.txt", "tree-added.txt"],
         )
+
+    def test_a_terminal_transient_defer_keeps_its_evidence(self):
+        for run in range(3):
+            delta = Path(self.tempdir.name) / f"delta-{run}.json"
+            self.run_worker(
+                [{"issue": "5", "package": "cat/transient", "version": "4.0", "args": [],
+                  "footer": "", "attempt": 1, "attempts": len(self.attempt_lines())}],
+                delta,
+            )
+            self.run_collect({"matrix": {"include": []}, "issues": ["5"], "results": {}}, delta)
+
+        self.assertTrue((self.kept / "cat_transient-4.0" / "escalations.txt").exists())
 
     def test_the_attempts_cap_advances_within_one_day(self):
         summaries = []

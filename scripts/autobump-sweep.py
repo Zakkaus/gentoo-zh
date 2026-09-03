@@ -705,6 +705,7 @@ def retry_accepted_escalation(
         return f"judge-retry deferred transiently (try {tries + 1})"
 
     record_ledger(settings, "done", package, version, "deferred-transient")
+    keep_evidence(settings, Path(evidence_directory_from_output(retry_output)), package, version)
     status_comment(
         issue,
         (
@@ -803,6 +804,8 @@ def defer_transient(settings, issue, package, version, engine_output, footer, st
         return f"not attempted (transient, try {tries + 1}): {reason}"
 
     record_ledger(settings, "done", package, version, "deferred-transient")
+    # the run that hands the package to a maintainer is the one whose logs they need
+    keep_evidence(settings, Path(evidence_directory_from_output(engine_output)), package, version)
     status_comment(
         issue,
         (
