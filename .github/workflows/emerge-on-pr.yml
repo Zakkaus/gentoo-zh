@@ -90,6 +90,19 @@ jobs:
             packages=($(printf '%s\n' "${packages[@]}" | grep -v "^$i" || true))
         done
 
+        # a bump PR touches the ebuild and its Manifest, and the Manifest contributes the bare
+        # atom while the ebuild contributes "=cat/pn-ver". Both resolve to the same build, so
+        # drop the bare one when a versioned atom for that package is already here. A package
+        # that contributed no versioned atom (files/-only, treeclean) keeps its bare atom.
+        declare -a deduped=()
+        for atom in "${packages[@]}"; do
+            if [[ "$atom" != =* ]] && printf '%s\n' "${packages[@]}" | grep -q "^=${atom}-"; then
+                continue
+            fi
+            deduped+=("$atom")
+        done
+        packages=("${deduped[@]}")
+
         echo "scan all files: $(printf '%s\n' "${packages[@]}" | sort -u | jq -R . | jq -s .)"
 
         # arm64 subset: keep only atoms whose ebuild keywords arm64 (stable or ~).
