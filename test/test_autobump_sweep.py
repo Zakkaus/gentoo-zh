@@ -47,13 +47,15 @@ elif args[:2] == ["issue", "view"]:
         "7": "[nvchecker] cat/regex can be bump to 6.0",
         "8": "[nvchecker] cat/noisy can be bump to 7.0",
         "11": "[nvchecker] cat/bump can be bump to 2.0",
+        "12": "[nvchecker] cat/ahead can be bump to 9.0",
         "9": "[nvchecker] cat/binary can be bump to 8.0",
     }
     if args[2] == "10":
         raise SystemExit(1)
     print(titles[args[2]])
 elif args[0] == "api":
-    pass
+    if os.environ.get("GH_API_FAIL"):
+        raise SystemExit(1)
 elif args[:2] == ["issue", "comment"]:
     issue = args[2]
     state = Path(os.environ["GH_STATE"])
@@ -92,6 +94,9 @@ elif issue == "4":
 elif issue == "5":
     print(f"== evidence: {os.environ['EVIDENCE_DIR']} ==")
     print("! build host timed out")
+    raise SystemExit(2)
+elif issue == "12":
+    print("!! already at 9.0 on synced master")
     raise SystemExit(2)
 elif issue == "8":
     # the abort reason reaches the driver first, then the buffered build log
@@ -152,6 +157,9 @@ class AutobumpSweepTest(unittest.TestCase):
                 ["cat/comment-fail"]
                 autobump = true
 
+                ["cat/ahead"]
+                autobump = true
+
                 ["cat/noisy"]
                 autobump = true
 
@@ -177,8 +185,8 @@ class AutobumpSweepTest(unittest.TestCase):
         self.gh_log = Path(self.tempdir.name) / "gh.log"
         self.gh_state = Path(self.tempdir.name) / "gh.state"
 
-    def run_sweep(self, *args, judge=""):
-        environment = os.environ | {
+    def run_sweep(self, *args, judge="", environment_extra=None):
+        environment = os.environ | (environment_extra or {}) | {
             "AUTOBUMP_ENGINE": str(self.bin / "engine"),
             "AUTOBUMP_REPO": str(self.repo),
             "AUTOBUMP_UPSTREAM_REPO": "test/overlay",
@@ -189,6 +197,7 @@ class AutobumpSweepTest(unittest.TestCase):
             "ENGINE_LOG": str(self.engine_log),
             "GH_LOG": str(self.gh_log),
             "GH_STATE": str(self.gh_state),
+            "AUTOBUMP_STATUS_BACKOFF": "0",
             "PATH": f"{self.bin}:{os.environ['PATH']}",
         }
         environment.pop("AUTOBUMP_JUDGE", None)
@@ -373,6 +382,21 @@ class AutobumpSweepTest(unittest.TestCase):
     def run_sweep_with_judge(self, *args, verdict='{"verdict":"proceed","reasons":[],"use_flags_needed":[],"deps_changed":[],"issue_comment":"ok"}'):
         self.write_executable(self.repo / "scripts" / "autobump-judge.sh", f'#!/bin/sh\nprintf \'%s\' \'{verdict}\'\n')
         return self.run_sweep(*args, judge="stub")
+
+    def test_a_failed_comment_lookup_posts_nothing_and_says_so(self):
+        result = self.run_sweep("3", "--comment", environment_extra={"GH_API_FAIL": "1"})
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        # never fall through to a create: the sweep would add a second status comment per run
+        self.assertEqual([call for call in self.gh_calls() if call[:2] == ["issue", "comment"]], [])
+        self.assertIn("(status comment not posted)", result.stdout)
+
+    def test_a_precondition_is_recorded_once_and_not_retried(self):
+        result = self.run_sweep("12")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("#12  done (precondition: overlay already at/ahead of 9.0)", result.stdout)
+        self.assertIn("cat/ahead 9.0 done-precondition", self.done.read_text())
 
     def test_a_judge_that_accepts_gets_the_bump_retried(self):
         result = self.run_sweep_with_judge("4")

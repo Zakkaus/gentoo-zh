@@ -257,6 +257,10 @@ def short_status_reason(reason):
     return reason
 
 
+# Seconds between status-lookup retries; the tests drive the failure path and do not wait.
+STATUS_LOOKUP_BACKOFF = float(os.environ.get("AUTOBUMP_STATUS_BACKOFF", "3"))
+
+
 def find_status_comment_id(issue, upstream_repo):
     # A failed FIND must not fall through to CREATE: a transient API error would duplicate the status comment.
     status_comment_id_filter = (
@@ -276,7 +280,7 @@ def find_status_comment_id(issue, upstream_repo):
         )
         if status == 0:
             return comment_id
-        time.sleep(3)
+        time.sleep(STATUS_LOOKUP_BACKOFF)
     return None
 
 
