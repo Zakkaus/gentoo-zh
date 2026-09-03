@@ -310,6 +310,25 @@ class AutobumpSweepTest(unittest.TestCase):
             ["build.log", "escalations.txt", "tree-added.txt"],
         )
 
+    def test_the_attempts_cap_advances_within_one_day(self):
+        summaries = []
+        for run in range(3):
+            delta = Path(self.tempdir.name) / f"delta-{run}.json"
+            worker = self.run_worker(
+                [{"issue": "5", "package": "cat/transient", "version": "4.0", "args": [],
+                  "footer": "", "attempt": 1, "attempts": len(self.attempt_lines())}],
+                delta,
+            )
+            self.assertEqual(worker.returncode, 0, worker.stderr)
+            collected = self.run_collect({"matrix": {"include": []}, "issues": ["5"], "results": {}}, delta)
+            self.assertEqual(collected.returncode, 0, collected.stderr)
+            summaries.append(collected.stdout)
+
+        self.assertIn("try 1", summaries[0])
+        self.assertIn("try 2", summaries[1])
+        self.assertIn("#5  deferred after 3 transient attempts", summaries[2])
+        self.assertIn("cat/transient 4.0 deferred-transient", self.done.read_text())
+
     def test_a_build_log_saying_already_exists_still_defers(self):
         result = self.run_sweep("8")
 

@@ -923,6 +923,12 @@ def run_worker(settings):
     return 0
 
 
+def append_lines(path, lines):
+    if lines:
+        with path.open("a") as f:
+            f.write("\n".join(lines) + "\n")
+
+
 def merge_lines(path, lines):
     seen = set(path.read_text().splitlines())
     additions = []
@@ -941,7 +947,9 @@ def collect(settings):
     for path in settings.delta_files:
         delta = json.loads(path.read_text())
         merge_lines(settings.done_ledger, delta["done"])
-        merge_lines(settings.attempts_ledger, delta["attempts"])
+        # appended, not merged: the attempts ledger counts tries, and two tries in one day write
+        # the same line, so de-duplicating them freezes the retry cap
+        append_lines(settings.attempts_ledger, delta["attempts"])
         results.update(delta["results"])
         status_comment_failed.update(delta["status_comment_failed"])
     print_summary(settings.collect_plan["issues"], results, status_comment_failed)
