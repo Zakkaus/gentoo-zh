@@ -500,6 +500,7 @@ github = "SaladDay/cc-switch-cli"
 use_latest_release = true
 prefix = "v"
 github_account = "liangyongxiang"
+autobump = true
 
 ["app-misc/chatgpt-desktop"]
 source = "apt"
@@ -547,6 +548,7 @@ source = "github"
 github = "charmbracelet/crush"
 use_latest_release = true
 prefix = "v"
+autobump = true
 
 ["app-misc/go-yq-bin"]
 source = "github"

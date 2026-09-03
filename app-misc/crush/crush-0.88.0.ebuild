@@ -1,4 +1,4 @@
-# Copyright 2025-2026 Gentoo Authors
+# Copyright 2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -18,7 +18,7 @@ LICENSE="FSL-1.1-MIT"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 
-BDEPEND=">=dev-lang/go-1.26.6"
+BDEPEND=">=dev-lang/go-1.26.5"
 
 src_compile() {
 	local ldflags="\
