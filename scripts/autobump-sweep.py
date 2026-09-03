@@ -559,10 +559,14 @@ def engine_command(settings):
 
 
 def issue_bump_target(settings, issue):
-    _, title = command_output(
+    status, title = command_output(
         ["gh", "issue", "view", issue, "--repo", settings.upstream_repo, "--json", "title", "--jq", ".title"],
         stderr=subprocess.DEVNULL,
     )
+    # an auth, rate-limit or network failure reads as an empty title; retry it next run rather
+    # than reporting a title the issue does not have
+    if status != 0:
+        return None, None, "gh issue view failed (auth/rate-limit/network?)"
     package, version = package_and_version(title)
     if not package or not version:
         return None, None, "unparseable title"

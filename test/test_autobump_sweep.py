@@ -48,6 +48,8 @@ elif args[:2] == ["issue", "view"]:
         "8": "[nvchecker] cat/noisy can be bump to 7.0",
         "9": "[nvchecker] cat/binary can be bump to 8.0",
     }
+    if args[2] == "10":
+        raise SystemExit(1)
     print(titles[args[2]])
 elif args[0] == "api":
     pass
@@ -310,6 +312,12 @@ class AutobumpSweepTest(unittest.TestCase):
             sorted(path.name for path in kept.iterdir()),
             ["build.log", "escalations.txt", "tree-added.txt"],
         )
+
+    def test_a_failed_gh_lookup_is_not_an_unparseable_title(self):
+        result = self.run_sweep("10")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("#10  gh issue view failed", result.stdout)
 
     def test_a_terminal_transient_defer_keeps_its_evidence(self):
         for run in range(3):
