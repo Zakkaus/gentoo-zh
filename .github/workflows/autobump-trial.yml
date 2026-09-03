@@ -25,7 +25,8 @@ concurrency:
 
 permissions:
   contents: read
-  issues: read
+  # the trial upserts a status comment per issue; a read token loses it silently
+  issues: write
 
 jobs:
   trial:
@@ -71,7 +72,21 @@ jobs:
         emerge --quiet --getbinpkg --autounmask=y --autounmask-write=y --autounmask-continue=y \
           dev-lang/ruby dev-vcs/git dev-util/pkgdev dev-util/pkgcheck app-portage/portage-utils \
           app-portage/iwdevtools dev-util/github-cli app-misc/jq net-misc/curl \
-          x11-base/xorg-server
+          app-portage/cpuid2cpuflags x11-base/xorg-server
+
+    # the same two settings production derives from its runner: without the flags a
+    # cpu_flags_x86 REQUIRED_USE reads as a build failure and the candidate looks unbumpable
+    - name: tune portage for this runner
+      run: |
+        echo "MAKEOPTS=\"\${MAKEOPTS} -j$(nproc)\"" >> /etc/portage/make.conf
+        echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/autobump-cpuflags
+
+    # the engine commits with pkgdev even without --pr, and pkgdev needs an author
+    - name: bot identity
+      run: |
+        git config --global user.name  "gentoo-zh-bot"
+        git config --global user.email "bot@gentoozh.org"
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
     - name: checkout
       uses: actions/checkout@v7

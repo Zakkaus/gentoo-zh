@@ -48,8 +48,9 @@ autobump_disabled() {  # a maintainer explicitly turned it off (`# autobump off:
         .github/workflows/overlay.toml
 }
 
+# gh lists 30 without --limit, and the probe claims to look at the whole open queue
 if ! raw=$(gh issue list --repo "$UPSTREAM_REPO" --search '[nvchecker] in:title' \
-    --state open --json number --jq '.[].number'); then
+    --state open --limit 500 --json number --jq '.[].number'); then
     echo "gh issue list failed (auth/rate-limit/network?)" >&2; exit 2
 fi
 mapfile -t ISSUES < <(printf '%s' "$raw")

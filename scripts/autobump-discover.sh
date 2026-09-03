@@ -4,11 +4,12 @@
 # Scans git history for packages whose recent version bumps were purely MECHANICAL -- either an
 # ebuild renamed with no content change (drop-old), or one new ebuild added byte-identical to the
 # previous version with the old one kept (keep-old / add-only), plus Manifest and nothing else.
-# Those are the packages a human keeps hand-bumping identically; the engine would do them safely
-# (keep-old ones need the engine's per-package `keep_old = N`, which keeps the N most-recent versions).
+# Those are the packages a human keeps hand-bumping identically; the engine would do them safely.
+# A keep-old one must be opted in as `autobump = N`, which keeps the N most-recent versions:
+# plain `autobump = true` would drop the versions its maintainer has been keeping on purpose.
 #
-# Prints a recommendation list only. A maintainer reviews it and adds `autobump = true`
-# in overlay.toml -- nothing here auto-enables a package or opens a PR.
+# Prints a recommendation list only. A maintainer reviews it and adds the entry in overlay.toml
+# -- nothing here auto-enables a package or opens a PR.
 #
 # usage: autobump-discover.sh [N_COMMITS] [MIN_BUMPS] [MIN_PCT]
 #   N_COMMITS  how far back to scan (default 300)
