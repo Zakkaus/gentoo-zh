@@ -62,10 +62,15 @@ class Settings:
     evidence_dir: Path | None
 
 
+# A build log carries whatever bytes upstream wrote; strict decoding would lose a finished bump
+# to one of them.
+TEXT_OUTPUT = {"encoding": "utf-8", "errors": "replace"}
+
+
 def command_output(command, *, stderr=None):
     """Run a command and return its status and command-substitution-style stdout."""
     try:
-        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=stderr, text=True)
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=stderr, **TEXT_OUTPUT)
     except FileNotFoundError:
         return 127, ""
     return result.returncode, result.stdout.rstrip("\n")
@@ -74,7 +79,7 @@ def command_output(command, *, stderr=None):
 def command_output_with_stderr(command):
     """Run a command and return its status and command-substitution-style combined output."""
     try:
-        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, **TEXT_OUTPUT)
     except FileNotFoundError:
         return 127, f"{command[0]}: command not found"
     return result.returncode, result.stdout.rstrip("\n")

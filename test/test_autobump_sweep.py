@@ -45,6 +45,7 @@ elif args[:2] == ["issue", "view"]:
         "5": "[nvchecker] cat/transient can be bump to 4.0",
         "6": "[nvchecker] cat/comment-fail can be bump to 5.0",
         "7": "[nvchecker] cat/regex can be bump to 6.0",
+        "9": "[nvchecker] cat/binary can be bump to 8.0",
     }
     print(titles[args[2]])
 elif args[0] == "api":
@@ -84,6 +85,9 @@ elif issue == "4":
 elif issue == "5":
     print("! build host timed out")
     raise SystemExit(2)
+elif issue == "9":
+    sys.stdout.buffer.write(b"bumped \\xff\\n")
+    sys.stdout.flush()
 elif issue in {"6", "7"}:
     print("bumped")
 else:
@@ -133,6 +137,9 @@ class AutobumpSweepTest(unittest.TestCase):
                 autobump = true
 
                 ["cat/comment-fail"]
+                autobump = true
+
+                ["cat/binary"]
                 autobump = true
 
                 ["cat/regex"]
@@ -293,6 +300,13 @@ class AutobumpSweepTest(unittest.TestCase):
             sorted(path.name for path in kept.iterdir()),
             ["build.log", "escalations.txt", "tree-added.txt"],
         )
+
+    def test_non_utf8_engine_output_does_not_lose_the_bump(self):
+        result = self.run_sweep("9")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("#9  bumped", result.stdout)
+        self.assertIn("cat/binary 8.0 bumped", self.done.read_text())
 
     def test_exit_2_retries(self):
         result = self.run_sweep("5")
