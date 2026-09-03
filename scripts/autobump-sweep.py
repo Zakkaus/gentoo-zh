@@ -588,6 +588,7 @@ def engine_arguments(tools, package):
 def plan_issues(settings, issues):
     results = {}
     items = []
+    planned = {}
     attempts = 0
     for issue in issues:
         package, version, result = issue_bump_target(settings, issue)
@@ -605,11 +606,18 @@ def plan_issues(settings, issues):
             results[issue] = result
             continue
 
+        # two issues can name the same bump (a reopened tracker issue, a repeated dispatch
+        # argument); planning both would run two engines against one package at once
+        if (package, version) in planned:
+            results[issue] = f"skip (same bump as #{planned[(package, version)]})"
+            continue
+
         cap = run_limit(settings)
         if cap is not None and attempts >= cap:
             results[issue] = f"skip (per-run attempt limit {cap} reached)"
             continue
 
+        planned[(package, version)] = issue
         attempts += 1
         items.append(
             {

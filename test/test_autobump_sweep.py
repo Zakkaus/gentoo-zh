@@ -46,6 +46,7 @@ elif args[:2] == ["issue", "view"]:
         "6": "[nvchecker] cat/comment-fail can be bump to 5.0",
         "7": "[nvchecker] cat/regex can be bump to 6.0",
         "8": "[nvchecker] cat/noisy can be bump to 7.0",
+        "11": "[nvchecker] cat/bump can be bump to 2.0",
         "9": "[nvchecker] cat/binary can be bump to 8.0",
     }
     if args[2] == "10":
@@ -312,6 +313,13 @@ class AutobumpSweepTest(unittest.TestCase):
             sorted(path.name for path in kept.iterdir()),
             ["build.log", "escalations.txt", "tree-added.txt"],
         )
+
+    def test_two_issues_naming_one_bump_are_planned_once(self):
+        result = self.run_sweep("3", "11", "--plan", "4")
+
+        plan = json.loads(result.stdout)
+        self.assertEqual([item["issue"] for shard in plan["shards"] for item in shard["items"]], ["3"])
+        self.assertEqual(plan["results"]["11"], "skip (same bump as #3)")
 
     def test_a_failed_gh_lookup_is_not_an_unparseable_title(self):
         result = self.run_sweep("10")
