@@ -346,6 +346,15 @@ def keep_evidence(settings, evidence, package, version):
 
 # Parsed from the engine's own line, never hard-coded: its mkdtemp follows TMPDIR, which
 # is /var/tmp on a Gentoo box.
+def engine_abort_reason(text):
+    # The engine warns "!! reason" on stderr and the driver merges the streams, so buffering can
+    # put the reason anywhere in the output, not on the last line.
+    lines = [line for line in text.split("\n") if line.strip()]
+    aborts = [line for line in lines if re.match(r"[ \t]*!+[ \t]*\S", line)]
+    reason = aborts[-1] if aborts else (lines[-1] if lines else "")
+    return re.sub(r"^[ \t\r\v\f]*!+[ \t\r\v\f]*", "", reason)
+
+
 def evidence_directory_from_output(text):
     evidence_directories = []
     for line in text.split("\n"):
@@ -778,7 +787,7 @@ def defer_transient(settings, issue, package, version, engine_output, footer, st
     # Dirty trees, fetch flakes, timeouts, and dependency gaps retry until ATTEMPTS hands persistent failures to a maintainer.
     tries = attempt_count(settings, package, version)
     record_ledger(settings, "attempts", package, version)
-    reason = re.sub(r"^[ \t\r\v\f]*!+[ \t\r\v\f]*", "", engine_output.split("\n")[-1])
+    reason = engine_abort_reason(engine_output)
     if tries < 2:
         status_comment(
             issue,
@@ -827,7 +836,9 @@ def run_package(settings, tools, engine, issue, package, version, args, footer, 
         return handle_escalation(
             settings, tools, engine, issue, package, version, args, footer, engine_output, status_comment_failed
         )
-    if re.search(r"already at|already exists|would downgrade|newer than target", engine_output):
+    # the abort reason only: a build log line ("destination path ... already exists") would
+    # otherwise record a transient failure as a permanent precondition
+    if re.search(r"already at|already exists|would downgrade|newer than target", engine_abort_reason(engine_output)):
         return record_precondition(settings, issue, package, version, footer, status_comment_failed)
     return defer_transient(settings, issue, package, version, engine_output, footer, status_comment_failed)
 

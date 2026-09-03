@@ -45,6 +45,7 @@ elif args[:2] == ["issue", "view"]:
         "5": "[nvchecker] cat/transient can be bump to 4.0",
         "6": "[nvchecker] cat/comment-fail can be bump to 5.0",
         "7": "[nvchecker] cat/regex can be bump to 6.0",
+        "8": "[nvchecker] cat/noisy can be bump to 7.0",
         "9": "[nvchecker] cat/binary can be bump to 8.0",
     }
     print(titles[args[2]])
@@ -84,6 +85,11 @@ elif issue == "4":
     raise SystemExit(3)
 elif issue == "5":
     print("! build host timed out")
+    raise SystemExit(2)
+elif issue == "8":
+    # the abort reason reaches the driver first, then the buffered build log
+    print("!! vendor bundle unavailable")
+    print("fatal: destination path 'vendor' already exists and is not an empty directory")
     raise SystemExit(2)
 elif issue == "9":
     sys.stdout.buffer.write(b"bumped \\xff\\n")
@@ -137,6 +143,9 @@ class AutobumpSweepTest(unittest.TestCase):
                 autobump = true
 
                 ["cat/comment-fail"]
+                autobump = true
+
+                ["cat/noisy"]
                 autobump = true
 
                 ["cat/binary"]
@@ -300,6 +309,14 @@ class AutobumpSweepTest(unittest.TestCase):
             sorted(path.name for path in kept.iterdir()),
             ["build.log", "escalations.txt", "tree-added.txt"],
         )
+
+    def test_a_build_log_saying_already_exists_still_defers(self):
+        result = self.run_sweep("8")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        # the reason comes off the engine's abort line, not off whatever it printed last
+        self.assertIn("#8  not attempted (transient, try 1): vendor bundle unavailable", result.stdout)
+        self.assertNotIn("cat/noisy", self.done.read_text())
 
     def test_non_utf8_engine_output_does_not_lose_the_bump(self):
         result = self.run_sweep("9")
