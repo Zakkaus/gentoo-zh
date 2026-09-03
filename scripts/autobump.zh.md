@@ -31,7 +31,7 @@
 * 带 `files/` patch 的包，因为 patch 每次都要重新验证。
 * 每个版本都要单独生成 vendor bundle 的包。
 
-不确定就先做 build-test：Actions → autobump-trial → Run workflow，`targets` 填 nvchecker issue 号，空格分隔。每个目标会在 CI 容器里跑一遍真实的 bump、emerge、install 和 pkgcheck，汇报 PASS 或 FAIL，不创建 PR。
+不确定就先做 build-test：Actions → autobump-trial → Run workflow，`targets` 填 nvchecker issue 号，空格分隔。每个目标会在 CI 容器里跑一遍真实的 bump、emerge、install 和 pkgcheck，汇报 PASS、DEFER（暂时性问题，值得重试）或 FAIL，不创建 PR。
 
 `autobump-recommend` workflow 会把看起来可机械 bump 但尚未开启的包汇总到同一个 issue 里，可以从那里挑。它只是推荐，不会自动开启。
 
@@ -97,9 +97,9 @@ gh workflow run autobump.yml --repo gentoo-zh/overlay -f limit=20
 
 worker 跑在每天构建一次的镜像里（`autobump-env`）。`rebuild_env` 强制重建，`env_date` 指定用更早一天的镜像，保留最近三个。
 
-`limit` 限制整次运行的引擎尝试总数，默认 0 表示整个队列都跑。规划阶段按缓存状态解析队列，把这些尝试分到互不重叠的 shard，跳过不占额度。
+`limit` 限制这次运行自己挑出来的引擎尝试数，默认 0 表示整个队列都跑；手动指定的 issue 号不受它限制，全部都会尝试。规划阶段按缓存状态解析队列，把这些尝试分到互不重叠的 shard，跳过不占额度。
 
-一次运行分三段：规划、最多八个并行的 bump worker、合并。每个 worker 最多 360 分钟，到时由 GitHub 取消。单个包另有两小时上限，`ebuild install`、`emerge` 和 `ebuild unpack` 超时后标记暂缓，下次重试。
+一次运行分三段：规划、最多八个并行的 bump worker、合并。每个 worker 最多 360 分钟，到时由 GitHub 取消。每个计时操作各有两小时上限，`ebuild install`、`emerge` 和 `ebuild unpack` 超时后标记暂缓、下次重试，所以一个包可能在 worker 的六小时里用掉好几个两小时。
 
 本地运行先把引擎 clone 到 overlay 根目录、安装 `dev-lang/ruby`：
 

@@ -41,7 +41,8 @@ Not suitable:
 
 When in doubt, build-test first: Actions → autobump-trial → Run workflow, with `targets`
 set to nvchecker issue numbers separated by spaces. Each target gets a real bump, emerge,
-install and pkgcheck in the CI container and reports PASS or FAIL, without opening a PR.
+install and pkgcheck in the CI container and reports PASS, DEFER (transient, worth retrying) or
+FAIL, without opening a PR.
 
 The `autobump-recommend` workflow collects packages that look mechanically bumpable but
 are not opted in into one issue, which is a good place to pick from. It only recommends;
@@ -120,14 +121,14 @@ Both take the same inputs; `issues` accepts digits and spaces only.
 The workers run in an image built once a day (`autobump-env`). `rebuild_env` forces a fresh
 one; `env_date` runs on an earlier day's image, of which the last three are kept.
 
-`limit` caps engine attempts across the whole run; it defaults to 0, which runs the whole
-queue. The planner resolves the queue against the cached state and assigns those attempts to
+`limit` caps engine attempts on work the run picks itself; it defaults to 0, which runs the
+whole queue, and issue numbers given by hand are always all attempted. The planner resolves the queue against the cached state and assigns those attempts to
 disjoint shards; skips are free.
 
 A run has three phases: plan, at most eight bump workers in parallel, and collect. Each worker
-lasts at most 360 minutes and GitHub cancels it there. Each package has a separate two-hour
-ceiling: `ebuild install`, `emerge` and `ebuild unpack` are deferred on timeout and retried next
-run.
+lasts at most 360 minutes and GitHub cancels it there. Each timed operation - `ebuild install`, `emerge`,
+`ebuild unpack` - has a two-hour ceiling of its own and is deferred on timeout, so one package
+can spend several of them inside the worker's six hours.
 
 Locally, clone the engine into the overlay root, install `dev-lang/ruby`, then run:
 
