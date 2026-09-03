@@ -83,6 +83,9 @@ if issue == "3":
     print("stage one")
     print("https://github.com/test/overlay/pull/123")
 elif issue == "4":
+    if "--accept-surface" in args and "--accept-payload" in args:
+        print("retried with the judge's acceptance")
+        raise SystemExit(0)
     print(">> current: 2.0 -> target: 3.0")
     print(f"== evidence: {os.environ['EVIDENCE_DIR']} ==")
     raise SystemExit(3)
@@ -174,7 +177,7 @@ class AutobumpSweepTest(unittest.TestCase):
         self.gh_log = Path(self.tempdir.name) / "gh.log"
         self.gh_state = Path(self.tempdir.name) / "gh.state"
 
-    def run_sweep(self, *args):
+    def run_sweep(self, *args, judge=""):
         environment = os.environ | {
             "AUTOBUMP_ENGINE": str(self.bin / "engine"),
             "AUTOBUMP_REPO": str(self.repo),
@@ -189,6 +192,8 @@ class AutobumpSweepTest(unittest.TestCase):
             "PATH": f"{self.bin}:{os.environ['PATH']}",
         }
         environment.pop("AUTOBUMP_JUDGE", None)
+        if judge:
+            environment["AUTOBUMP_JUDGE"] = judge
         return subprocess.run(
             [sys.executable, str(SWEEP), *args],
             cwd=self.repo,
@@ -364,6 +369,30 @@ class AutobumpSweepTest(unittest.TestCase):
         self.assertIn("try 2", summaries[1])
         self.assertIn("#5  deferred after 3 transient attempts", summaries[2])
         self.assertIn("cat/transient 4.0 deferred-transient", self.done.read_text())
+
+    def run_sweep_with_judge(self, *args, verdict='{"verdict":"proceed","reasons":[],"use_flags_needed":[],"deps_changed":[],"issue_comment":"ok"}'):
+        self.write_executable(self.repo / "scripts" / "autobump-judge.sh", f'#!/bin/sh\nprintf \'%s\' \'{verdict}\'\n')
+        return self.run_sweep(*args, judge="stub")
+
+    def test_a_judge_that_accepts_gets_the_bump_retried(self):
+        result = self.run_sweep_with_judge("4")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("#4  bumped (judge accepted surface delta)", result.stdout)
+        self.assertIn("cat/escalate 3.0 bumped-after-judge", self.done.read_text())
+        retry = self.engine_calls()[-1]
+        # the retry must carry the acceptance, or it just re-runs the escalation it came from
+        self.assertIn("--accept-surface", retry)
+        self.assertIn("--accept-payload", retry)
+
+    def test_a_judge_that_declines_leaves_the_escalation(self):
+        result = self.run_sweep_with_judge(
+            "4", verdict='{"verdict":"human","reasons":["needs a person"],"use_flags_needed":[],"deps_changed":[],"issue_comment":"x"}'
+        )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("#4  escalated", result.stdout)
+        self.assertEqual([call for call in self.engine_calls() if "--accept-surface" in call], [])
 
     def test_a_build_log_saying_already_exists_still_defers(self):
         result = self.run_sweep("8")
