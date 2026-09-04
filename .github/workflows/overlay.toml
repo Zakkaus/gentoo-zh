@@ -1184,15 +1184,12 @@ github_account = "gouwazi"
 autobump = true
 
 ["dev-util/deepseek-harness"]
-source = "github"
-github = "deepseek-ai/deepseek-harness"
-use_latest_tag = true
-prefix = "dsh-v"
+source = "npm"
+npm = "@deepseek-ai/dsh"
 from_pattern = '^(.+)-(alpha|beta|rc)\.(\d+)$'
 to_pattern = '\1_\2\3'
 github_account = "vowstar"
-# autobump off: node_modules bundle regenerated per version (gentoo-zh-drafts/deepseek-harness)
-# and MY_PV changes each bump -- not a mechanical bump.
+autobump = true
 
 # shipped inside the prelink tarball, upstream dead
 #["dev-util/execstack"]
