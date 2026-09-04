@@ -853,6 +853,7 @@ prefix = "v"
 source = "github"
 github = "dominikh/go-tools"
 use_latest_release = true
+autobump = true
 
 ["dev-java/google-java-format"]
 source = "github"
@@ -1777,6 +1778,7 @@ github = "go-musicfox/go-musicfox"
 use_latest_release = true
 prefix = "v"
 github_account = ["st0nie", "gouwazi"]
+autobump = true
 
 ["media-sound/harmonoid"]
 source = "github"

@@ -117,8 +117,9 @@ jobs:
     - name: plan
       id: plan
       env:
-        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         XDG_STATE_HOME: ${{ github.workspace }}/.autobump-state
+        AUTOBUMP_UPSTREAM_REPO: Zakkaus/gentoo-zh
         ISSUES: ${{ github.event.inputs.issues }}
         LIMIT: ${{ github.event.inputs.limit || 0 }}
         SHARDS: '8'
@@ -231,12 +232,13 @@ jobs:
 
     - name: bump shard
       env:
-        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         # sync master from origin: after deploy, origin IS gentoo-zh/overlay, so this pulls
         # the latest master to bump against. LIVE_OVERLAY is left at its default -- the CI
         # overlay checkout is itself the registered repo, so separate_overlay is false and
         # the emerge runs against the workspace directly (no host-path ${{ github.workspace }}).
         AUTOBUMP_SYNC_REMOTE: origin
+        AUTOBUMP_UPSTREAM_REPO: Zakkaus/gentoo-zh
         # relative path on purpose: in a CONTAINER job ${{ github.workspace }} expands to
         # the HOST path (/home/runner/work/...), but the container mounts the workspace at
         # /__w/..., so an absolute host path does not exist inside the container. The sweep
