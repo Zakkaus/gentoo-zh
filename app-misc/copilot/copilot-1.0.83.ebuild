@@ -18,11 +18,6 @@ RESTRICT="bindist mirror strip"
 QA_PREBUILT="opt/${PN}/*"
 
 src_install() {
-	# The bundled webview native addon links libxdo.so.3 (Gentoo ships libxdo.so.4)
-	# and a webkit2gtk/gtk3 stack; it only drives the optional canvas UI, from which
-	# the CLI falls back cleanly. Drop it rather than pull in that desktop stack.
-	rm -r "${S}"/webview/node_modules/@webviewjs/webview-linux-x64-gnu || die
-
 	dodoc README.md
 	rm -f README.md LICENSE.md || die
 
