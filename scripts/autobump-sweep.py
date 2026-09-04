@@ -339,6 +339,16 @@ def status_comment(issue, body, *, comment, footer, upstream_repo, status_commen
     status_comment_failed.add(issue)
 
 
+# GitHub refuses these in an artifact path, and portage names an elog
+# "<cat>:<pn>-<ver>:<timestamp>.log".
+UPLOADABLE_NAME = re.compile(r'["<>|*?:\r\n]')
+
+
+def copy_named_for_upload(src, dst, **kwargs):
+    dst = Path(dst)
+    shutil.copy2(src, dst.with_name(UPLOADABLE_NAME.sub("-", dst.name)), **kwargs)
+
+
 def keep_evidence(settings, evidence, package, version):
     # an engine that died early printed no evidence path, and Path("") is the checkout
     if str(evidence) in ("", "."):
@@ -351,7 +361,7 @@ def keep_evidence(settings, evidence, package, version):
     kept = settings.evidence_dir / f"{package.replace('/', '_')}-{version}"
     shutil.rmtree(kept, ignore_errors=True)
     try:
-        shutil.copytree(evidence, kept)
+        shutil.copytree(evidence, kept, copy_function=copy_named_for_upload)
     except OSError as error:
         print(f"could not keep evidence for {package}: {error}")
 
