@@ -3,8 +3,8 @@
 
 EAPI=8
 
-# Upstream/npm version string; Gentoo PV normalizes -rc.1 to _rc1.
-MY_PV="0.1.2-rc.1"
+# npm publishes 0.1.2-rc.1, which Gentoo spells 0.1.2_rc1.
+MY_PV="$(ver_rs 3 - 4 .)"
 
 DESCRIPTION="DeepSeek Harness: an agent harness by DeepSeek AI (dsh CLI)"
 HOMEPAGE="https://github.com/deepseek-ai/deepseek-harness"
@@ -52,7 +52,7 @@ src_install() {
 
 	fperms +x "${install_dir}/lib/bin.js"
 
-	dosym "../$(get_libdir)/node_modules/@deepseek-ai/dsh/lib/bin.js" "/usr/bin/dsh"
+	dosym -r "${install_dir}/lib/bin.js" /usr/bin/dsh
 }
 
 pkg_postinst() {
