@@ -26,6 +26,7 @@ BDEPEND="
 "
 RDEPEND="
 	app-accessibility/at-spi2-core
+	app-arch/bzip2
 	app-crypt/mit-krb5
 	dev-libs/nss
 	media-libs/libpulse
@@ -55,9 +56,7 @@ src_prepare() {
 	# add any QA scanelf alert files here.
 	local so_files=(
 		"RadiumWMPF/runtime/libilink2.so"
-		"RadiumWMPF/runtime/libilink_network.so"
 		"libilink2.so"
-		"libilink_network.so"
 		"libconfService.so"
 		"libvoipChannel.so"
 		"libvoipCodec.so"
@@ -66,6 +65,9 @@ src_prepare() {
 	for file in "${so_files[@]}"; do
 		patchelf --set-rpath '$ORIGIN' "opt/wechat/${file}" || die
 	done
+
+	# app-arch/bzip2 provides libbz2.so.1; the 1.0 name is only a symlink
+	patchelf --replace-needed libbz2.so.1.0 libbz2.so.1 opt/wechat/libwxtrans.so || die
 }
 
 src_install() {
