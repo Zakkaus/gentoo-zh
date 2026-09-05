@@ -1,0 +1,56 @@
+#!/sbin/openrc-run
+# Copyright 2026 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+: "${HONK_CONFIG:=/etc/honk/config.dae}"
+: "${HONK_ARGS:=--config ${HONK_CONFIG}}"
+
+description="honk transparent proxy engine"
+pidfile="/run/${RC_SVCNAME}.pid"
+command="/usr/bin/honk-core"
+command_args="${HONK_ARGS}"
+command_background="yes"
+extra_started_commands="reload"
+
+output_log="/var/log/honk.log"
+error_log="/var/log/honk.log"
+
+depend() {
+	after docker net net-online sysctl local
+	use net
+}
+
+start_pre() {
+	if [ -d /sys/fs/bpf ]; then
+		if ! mountinfo -q /sys/fs/bpf; then
+			mount -t bpf bpffs /sys/fs/bpf
+		fi
+	else
+		eerror "bpf filesystem not mounted, exiting..."
+		return 1
+	fi
+
+	if [ -d /sys/fs/cgroup ] && ! mountinfo -q /sys/fs/cgroup/; then
+		eerror "cgroup filesystem not mounted, exiting..."
+		return 1
+	fi
+
+	# the engine holds this flock and owns fixed kernel-side names, so refuse
+	# early rather than race a second instance for them
+	if [ -e /run/honk-core.lock ] && ! flock -n /run/honk-core.lock true; then
+		eerror "another honk-core instance holds /run/honk-core.lock, exiting..."
+		return 1
+	fi
+
+	if [ ! -f "${HONK_CONFIG}" ]; then
+		ewarn "${HONK_CONFIG} does not exist."
+	fi
+
+	checkpath -f -m 0644 "$output_log"
+}
+
+reload() {
+	ebegin "Reloading ${RC_SVCNAME}"
+	start-stop-daemon --signal HUP --pidfile "${pidfile}"
+	eend $?
+}

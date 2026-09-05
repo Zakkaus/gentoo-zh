@@ -2294,6 +2294,9 @@ prefix = "v"
 github_account = ["yangmame", "peeweep"]
 autobump = true
 
+# live package only
+#["net-proxy/honk"]
+
 ["net-proxy/hysteria"]
 source = "github"
 github = "HyNetworks/hysteria"

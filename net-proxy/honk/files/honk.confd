@@ -1,0 +1,11 @@
+# Copyright 2026 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+# Config file used by honk.
+HONK_CONFIG="/etc/honk/config.dae"
+
+# Command args used by honk.
+HONK_ARGS="--config ${HONK_CONFIG}"
+
+# One file descriptor per tracked connection.
+rc_ulimit="-u 512 -n 1048576"

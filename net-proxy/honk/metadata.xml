@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>zakk@gentoozh.org</email>
+		<name>Zakk</name>
+	</maintainer>
+	<longdescription lang="en">
+		honk is a Linux transparent proxy engine written in Rust. Its kernel path follows
+		dae's TC and match_set model with a dae0/daens pair, while its userspace outbound
+		groups, multi-protocol dialers and Clash-compatible API follow sing-box-oriented
+		designs. It is not a port of either project. Upstream describes the current state
+		as experimental and advises against production use.
+	</longdescription>
+	<upstream>
+		<remote-id type="github">daeuniverse/honk</remote-id>
+		<bugs-to>https://github.com/daeuniverse/honk/issues</bugs-to>
+	</upstream>
+</pkgmetadata>

@@ -1,0 +1,17 @@
+[Unit]
+Description=honk transparent proxy engine
+Documentation=https://github.com/daeuniverse/honk
+After=network-online.target systemd-sysctl.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/bin/honk-core --config /etc/honk/config.dae
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-abnormal
+LimitNPROC=512
+LimitNOFILE=1048576
+
+[Install]
+WantedBy=multi-user.target
