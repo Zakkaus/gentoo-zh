@@ -22,11 +22,3 @@ media-gfx/open-wallpaper-engine
 # and gentoo-cjk-kernel-bin use it.
 # Manually unmask it if you need any of them.
 virtual/dist-kernel
-
-# Huang Rui <vowstar@gmail.com> (2026-07-29)
-# Upstream is winding down and directs users to Kimi Code CLI
-# (dev-util/kimi-code-bin), which migrates existing configuration and
-# sessions on first run.
-# Masked for removal in 2026-08-28
-dev-util/kimi-cli-bin
-
