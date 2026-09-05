@@ -80,7 +80,9 @@ DEPEND="
 	dev-libs/openssl:=
 	sys-apps/dbus
 "
-RDEPEND="${DEPEND}"
+RDEPEND="${DEPEND}
+	!dev-util/codex-bin
+"
 BDEPEND="virtual/pkgconfig"
 
 # rust does not use *FLAGS from make.conf, silence portage warning
