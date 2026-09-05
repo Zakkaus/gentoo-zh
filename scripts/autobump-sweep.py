@@ -33,6 +33,7 @@ class Arguments:
     comment: bool
     limit: str
     issues: list[str]
+    retry: bool
     plan_shards: int | None
     worker: str | None
     delta: str | None
@@ -51,6 +52,7 @@ class Settings:
     comment: bool
     limit: str
     issues: list[str]
+    retry: bool
     engine: str | None
     plan_shards: int | None
     worker_items: list[dict] | None
@@ -150,6 +152,7 @@ def parse_args(argv):
         "comment": False,
         "limit": "0",
         "issues": [],
+        "retry": False,
         "plan_shards": None,
         "worker": None,
         "delta": None,
@@ -163,6 +166,8 @@ def parse_args(argv):
             parsed["pr"] = "--pr"
         elif arg == "--comment":
             parsed["comment"] = True
+        elif arg == "--retry":
+            parsed["retry"] = True
         elif arg in VALUE_FLAGS:
             option = VALUE_FLAGS[arg]
             if remaining:
@@ -519,6 +524,7 @@ def read_settings(argv):
         comment=arguments.comment,
         limit=arguments.limit,
         issues=arguments.issues,
+        retry=arguments.retry,
         engine=os.environ.get("AUTOBUMP_ENGINE"),
         plan_shards=arguments.plan_shards,
         worker_items=worker_items,
@@ -606,6 +612,15 @@ def engine_arguments(tools, package):
     return args, f"— `autobump` enabled{footer}", None
 
 
+# An engine fix does not reach a package the ledger already recorded, and DONE is keyed by
+# version, so a deferred bump would wait for the next release. --retry runs the named issues
+# again; it needs their numbers, so a re-run cannot sweep the whole queue by accident.
+def ledger_skip(settings, package, version):
+    if settings.retry and settings.issues:
+        return None
+    return matching_ledger_line(settings.done_ledger, package, version)
+
+
 def plan_issues(settings, issues, apply_run_limit):
     results = {}
     items = []
@@ -617,7 +632,7 @@ def plan_issues(settings, issues, apply_run_limit):
             results[issue] = result
             continue
 
-        prior = matching_ledger_line(settings.done_ledger, package, version)
+        prior = ledger_skip(settings, package, version)
         if prior is not None:
             results[issue] = f"skip ({prior})"
             continue
@@ -897,7 +912,7 @@ def run_issues(settings, issues, apply_run_limit, tools, engine):
         if result:
             results[issue] = result
             continue
-        prior = matching_ledger_line(settings.done_ledger, package, version)
+        prior = ledger_skip(settings, package, version)
         if prior is not None:
             results[issue] = f"skip ({prior})"
             continue
