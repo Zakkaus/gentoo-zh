@@ -9,7 +9,7 @@ DESCRIPTION="Yet Another Clash Dashboard"
 HOMEPAGE="https://github.com/MetaCubeX/Yacd-meta"
 SRC_URI="
 	https://github.com/MetaCubeX/Yacd-meta/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
-	https://github.com/Gentoo-zh/gentoo-deps/releases/download/${P}/${P}-node_modules.tar.xz
+	https://github.com/gentoo-zh-drafts/${PN}/releases/download/v${PV}/${P}-node_modules.tar.xz
 "
 
 S="${WORKDIR}/${_MY_PN}-${PV}"
