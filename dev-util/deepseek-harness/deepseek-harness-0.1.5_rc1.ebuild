@@ -36,11 +36,14 @@ src_prepare() {
 	rm -rf "${S}"/node_modules/node-pty/prebuilds/win32-* \
 		"${S}"/node_modules/node-pty/prebuilds/darwin-* \
 		"${S}"/node_modules/node-pty/prebuilds/linux-arm64 || die
-	# koffi-linux-x64 ships glibc and musl builds; keep the active libc.
+	# koffi-linux-x64 and node-addon-system-linux-x64 ship glibc and musl
+	# builds; keep the active libc.
 	if use elibc_musl; then
-		rm -rf "${S}"/node_modules/@koromix/koffi-linux-x64/linux_x64 || die
+		rm -rf "${S}"/node_modules/@koromix/koffi-linux-x64/linux_x64 \
+			"${S}"/node_modules/@deepseek-ai/node-addon-system-linux-x64/bin/glibc || die
 	else
-		rm -rf "${S}"/node_modules/@koromix/koffi-linux-x64/musl_x64 || die
+		rm -rf "${S}"/node_modules/@koromix/koffi-linux-x64/musl_x64 \
+			"${S}"/node_modules/@deepseek-ai/node-addon-system-linux-x64/bin/musl || die
 	fi
 }
 
