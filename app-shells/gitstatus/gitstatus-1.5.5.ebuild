@@ -95,8 +95,10 @@ src_install() {
 }
 
 pkg_postinst() {
-	elog "The easiest way to take advantage of gitstatus from Zsh is to use a theme"
-	elog "that's already integrated with it. For example: app-shells/zsh-theme-powerlevel10k"
+	if use zsh-completion; then
+		elog "The easiest way to take advantage of gitstatus from Zsh is to use a theme"
+		elog "that's already integrated with it. For example: app-shells/zsh-theme-powerlevel10k"
+	fi
 	elog "The easiest way to take advantage of gitstatus from Bash is via gitstatus.prompt.sh."
 	elog "Follow this guide: https://github.com/romkatv/gitstatus#using-from-bash"
 }
