@@ -10,7 +10,7 @@ CRATES="
 
 RUST_MIN_VER="1.85.0"
 
-inherit cargo desktop xdg
+inherit cargo desktop optfeature xdg
 
 DESCRIPTION="Play website videos and songs with mpv & yt-dlp"
 HOMEPAGE="https://github.com/akiirui/mpv-handler"
@@ -40,6 +40,6 @@ src_install() {
 
 pkg_postinst() {
 	xdg_pkg_postinst
-	elog "install net-misc/youtube-dl (recommended) or net-misc/yt-dlp"
-	elog "to enable mpv to play video and music from the websites."
+
+	optfeature "playing video and music from websites" net-misc/yt-dlp
 }
