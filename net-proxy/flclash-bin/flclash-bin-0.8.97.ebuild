@@ -21,7 +21,7 @@ BDEPEND="dev-util/patchelf"
 
 RDEPEND="
 	dev-libs/libayatana-appindicator
-	dev-libs/keybinder
+	sys-auth/polkit
 	x11-apps/xmessage
 	x11-libs/libX11
 	x11-libs/libXmu
@@ -40,9 +40,7 @@ src_prepare() {
 
 	# upstream builds libdartjni.so against a Debian JVM path
 	patchelf --set-rpath "${EPREFIX}/etc/java-config-2/current-system-vm/lib/server" \
-		usr/share/FlClash/lib/libdartjni.so || die
-
-	sed -i '/^Version=/d' usr/share/applications/FlClash.desktop || die
+		opt/FlClash/lib/libdartjni.so || die
 }
 
 src_install() {
@@ -51,13 +49,26 @@ src_install() {
 	doicon -s 256 usr/share/icons/hicolor/256x256/apps/FlClash.png
 
 	insinto /opt/FlClash
-	doins usr/share/FlClash/FlClashCore
-	doins usr/share/FlClash/FlClash
-	doins -r usr/share/FlClash/lib
-	doins -r usr/share/FlClash/data
+	doins opt/FlClash/FlClashCore
+	doins opt/FlClash/FlClash
+	doins opt/FlClash/FlClashHelperService
+	doins opt/FlClash/manifest.json
+	doins -r opt/FlClash/lib
+	doins -r opt/FlClash/data
 
 	fperms +x /opt/FlClash/FlClashCore
 	fperms +x /opt/FlClash/FlClash
+	fperms +x /opt/FlClash/FlClashHelperService
+
+	# the helper verifies FlClashCore against the sha256 in manifest.json
+	dostrip -x /opt/FlClash/FlClashCore
 
 	dosym ../../opt/FlClash/FlClash /usr/bin/FlClash
+}
+
+pkg_postinst() {
+	xdg_pkg_postinst
+
+	elog "FlClashHelperService installs a root systemd unit on first use."
+	elog "Run 'systemctl disable --now flclash-helper.service' before unmerging."
 }
