@@ -8,7 +8,7 @@ EAPI=8
 CRATES="
 "
 
-inherit cargo
+inherit cargo optfeature
 
 DESCRIPTION="Terminal file manager inspired by ranger"
 HOMEPAGE="https://github.com/kamiyaa/joshuto"
@@ -51,10 +51,6 @@ src_compile() {
 }
 
 pkg_postinst() {
-	elog ""
-	elog "For proper devicons support, correct patched font is needed"
-	elog "For example:"
-	elog "https://github.com/ryanoasis/nerd-fonts"
-	elog "or media-fonts/nerd-fonts"
-	elog ""
+	optfeature "devicons support, which needs a patched font" \
+		media-fonts/nerd-fonts
 }
