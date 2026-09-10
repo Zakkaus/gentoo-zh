@@ -56,14 +56,27 @@ QA_PRESTRIPPED="
 QA_PREBUILT="*"
 
 src_install() {
-	local f
+	# 0.14.2 links against libmpv ABI 1; ::gentoo only ships ABI 2, and all
+	# seven mpv_* symbols this build uses are exported by libmpv.so.2.
+	local f old new
 	while IFS= read -r -d '' f; do
 		[[ -L ${f} ]] && continue
-		patchelf --print-needed "${f}" 2>/dev/null | grep -qxF 'libbz2.so.1.0' || continue
-		patchelf --replace-needed libbz2.so.1.0 libbz2.so.1 "${f}" || die
+		for old in libbz2.so.1.0 libmpv.so.1; do
+			case ${old} in
+				libbz2.so.1.0) new=libbz2.so.1 ;;
+				libmpv.so.1) new=libmpv.so.2 ;;
+			esac
+			patchelf --print-needed "${f}" 2>/dev/null | grep -qxF "${old}" || continue
+			patchelf --replace-needed "${old}" "${new}" "${f}" || die
+		done
 	done < <(find "${S}" -type f -print0)
 
-	rm lib/libmpv.so.{1,2} || die
+	rm lib/libmpv.so* || die
+
+	# the bundled ffmpeg device/SDL/pulse stack was reachable only through the
+	# bundled libmpv removed above; libpulsecommon needs libsystemd.so.0, which
+	# a non-systemd profile does not provide.
+	rm lib/libavdevice.so* lib/libSDL2* lib/libpulse* || die
 
 	insinto "/opt/${PN}"
 	doins -r data/ lib/ AppFlowy
