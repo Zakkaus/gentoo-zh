@@ -71,7 +71,7 @@ src_install() {
 	done
 	rm -rf resources/icons || die
 
-	domenu resources/1password.desktop
+	domenu resources/com.onepassword.OnePassword.desktop
 
 	exeinto /opt/1Password/
 	doexe 1password 1Password-{BrowserSupport,Crash-Handler,LastPass-Exporter} op-ssh-sign
