@@ -1,0 +1,87 @@
+# Copyright 1999-2026 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=8
+
+inherit unpacker desktop xdg
+
+DESCRIPTION="Weixin for Linux"
+HOMEPAGE="https://linux.weixin.qq.com/"
+SRC_URI="
+	amd64? ( https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.deb -> ${P}_x86_64.deb )
+	arm64? ( https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_arm64.deb -> ${P}_arm64.deb )
+	loong? ( https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_LoongArch.deb -> ${P}_loongarch64.deb )
+"
+
+S="${WORKDIR}"
+
+LICENSE="all-rights-reserved"
+SLOT="0"
+KEYWORDS="-* ~amd64 ~arm64 ~loong"
+
+IUSE="bwrap"
+RESTRICT="bindist mirror strip"
+
+RDEPEND="
+	app-accessibility/at-spi2-core
+	app-arch/bzip2
+	app-crypt/mit-krb5
+	dev-libs/nss
+	dev-libs/wayland
+	media-libs/libpulse
+	media-libs/mesa
+	net-print/cups
+	x11-libs/libXcomposite
+	x11-libs/libXdamage
+	x11-libs/libxkbcommon[X]
+	x11-libs/libXrandr
+	x11-libs/pango
+	x11-libs/xcb-util-image
+	x11-libs/xcb-util-keysyms
+	x11-libs/xcb-util-renderutil
+	x11-libs/xcb-util-wm
+	bwrap? (
+		sys-apps/bubblewrap
+		x11-misc/xdg-utils
+	)
+	loong? ( virtual/loong-ow-compat )
+"
+
+QA_PREBUILT="opt/wechat/*"
+
+src_install() {
+	dodir /opt/wechat
+	cp -r opt/wechat/* "${D}/opt/wechat" || die
+
+	exeinto /opt/bin
+	if use bwrap; then
+		newexe "${FILESDIR}/bwrap.sh" wechat
+	else
+		newexe "${FILESDIR}/wechat.sh" wechat
+	fi
+
+	sed \
+		-e "s|^Icon=.*|Icon=wechat|" \
+		-e "s|^Categories=.*|Categories=Network;InstantMessaging;Chat;|" \
+		-e "s|^Exec=.*|Exec=/opt/bin/wechat %U|" \
+		usr/share/applications/wechat.desktop > wechat.desktop || die
+	domenu wechat.desktop
+
+	for size in 16 32 48 64 128 256; do
+		doicon -s "${size}" usr/share/icons/hicolor/"${size}"x"${size}"/apps/wechat.png
+	done
+}
+
+pkg_postinst() {
+	xdg_pkg_postinst
+
+	if use bwrap; then
+		elog "Enabled Bubblewrap support."
+		elog "WeChat can only access its own data directory and XDG Downloads directory by default."
+		elog "To send files, put them under your XDG Downloads directory first, then drag"
+		elog "them into WeChat or select them from WeChat's file chooser."
+		elog "启用 Bubblewrap 支持后，微信默认只能访问自己的数据目录和 XDG 下载目录。"
+		elog "发送文件前请先把文件放到 XDG 下载目录下，然后拖入微信或从微信文件选择器中选择。"
+		elog "Advanced users can extend the sandbox using ~/.config/wechat-bwrap-flags.conf."
+	fi
+}
