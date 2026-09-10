@@ -16,7 +16,7 @@ SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 RESTRICT="strip"
 
-BDEPEND=">=dev-lang/go-1.26"
+BDEPEND=">=dev-lang/go-1.26.0"
 
 src_compile() {
 	ego build -trimpath \
