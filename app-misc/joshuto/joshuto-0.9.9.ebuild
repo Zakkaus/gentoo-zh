@@ -51,6 +51,8 @@ src_compile() {
 }
 
 pkg_postinst() {
-	optfeature "devicons support, which needs a patched font" \
-		media-fonts/nerd-fonts
+	optfeature_header "Install one of these for Nerd Font glyphs, or provide a patched font yourself:"
+	optfeature "devicons support" \
+		media-fonts/nerd-fonts media-fonts/sarasa-term-sc-nerd \
+		media-fonts/symbols-nerd-font
 }
