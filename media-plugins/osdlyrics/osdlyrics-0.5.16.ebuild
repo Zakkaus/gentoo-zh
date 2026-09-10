@@ -73,6 +73,6 @@ src_install() {
 pkg_postinst() {
 	xdg_pkg_postinst
 	if has_version media-sound/mpd; then
-		optfeature "to interface with MPD" dev-python/python-mpd2
+		optfeature "MPD backend support" dev-python/python-mpd2
 	fi
 }
