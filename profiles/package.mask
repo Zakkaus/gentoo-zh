@@ -1,6 +1,11 @@
 # Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Zakk <zakk@gentoozh.org> (2026-09-11)
+# Superseded by net-im/wechat[bwrap].
+# Removal on 2026-10-11.
+net-im/wechat-universal-bwrap
+
 # Puqns67 <me@puqns67.icu> (2026-08-27)
 # Waywallen undergoes frequent changes upstream, and building it
 # on Gentoo is very difficult, so I am no longer maintaining it.
