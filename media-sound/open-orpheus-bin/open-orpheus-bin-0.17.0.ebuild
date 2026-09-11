@@ -9,11 +9,11 @@ DESCRIPTION="An open-source implementation of Netease Cloud Music's Orpheus brow
 HOMEPAGE="https://github.com/YUCLing/open-orpheus"
 SRC_URI="
 	amd64? (
-		https://github.com/YUCLing/open-orpheus/releases/download/v${PV}/open-orpheus_${PV}_amd64.deb
+		https://github.com/YUCLing/open-orpheus/releases/download/v${PV}/open-orpheus_${PV}-1_amd64.deb
 			-> open-orpheus-${PV}-amd64.deb
 	)
 	arm64? (
-		https://github.com/YUCLing/open-orpheus/releases/download/v${PV}/open-orpheus_${PV}_arm64.deb
+		https://github.com/YUCLing/open-orpheus/releases/download/v${PV}/open-orpheus_${PV}-1_arm64.deb
 			-> open-orpheus-${PV}-arm64.deb
 	)
 "
@@ -51,5 +51,9 @@ src_install() {
 	fperms +x /opt/open-orpheus/{open-orpheus,chrome-sandbox,chrome_crashpad_handler}
 	fperms u+s /opt/open-orpheus/chrome-sandbox
 	domenu usr/share/applications/open-orpheus.desktop
-	doicon usr/share/pixmaps/open-orpheus.png
+	local size
+	for size in 256 512; do
+		doicon -s "${size}" "usr/share/icons/hicolor/${size}x${size}/apps/open-orpheus.png"
+	done
+	doicon -s scalable usr/share/icons/hicolor/scalable/apps/open-orpheus.svg
 }
