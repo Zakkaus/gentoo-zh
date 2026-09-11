@@ -52,24 +52,19 @@ src_prepare() {
 
 	# The bundled Copilot language server ships native prebuilts for every
 	# platform. Keep only linux-x64 (glibc); the rest never load on amd64 and
-	# trip the unresolved-soname QA check. Also drop the computer-use module,
-	# which needs libjpeg.so.8 (Gentoo provides libjpeg.so.62).
+	# trip the unresolved-soname QA check.
 	local cop="usr/lib/rstudio/resources/app/bin/copilot-language-server-js"
 	if [[ -d ${cop} ]]; then
-		rm -rf "${cop}"/compiled/darwin "${cop}"/compiled/win32 \
+		rm -r "${cop}"/compiled/darwin "${cop}"/compiled/win32 \
 			"${cop}"/compiled/linux/arm64 \
 			"${cop}"/bin/darwin "${cop}"/bin/win32 "${cop}"/bin/linux/arm64 \
-			"${cop}"/policy-templates/darwin "${cop}"/policy-templates/win32 \
-			"${cop}"/node_modules/@github/copilot/mxc-bin/arm64 || die
-		local d
-		for d in "${cop}"/node_modules/@github/copilot/sdk/prebuilds/*; do
-			[[ ${d##*/} == linux-x64 ]] && continue
-			rm -rf "${d}" || die
-		done
-		rm -f "${cop}"/node_modules/@github/copilot/mxc-bin/x64/*.dll \
-			"${cop}"/node_modules/@github/copilot/mxc-bin/x64/*.exe || die
+			"${cop}"/policy-templates/darwin "${cop}"/policy-templates/win32 || die
+		rm -r "${cop}"/node_modules/@github/copilot-darwin-{arm64,x64} \
+			"${cop}"/node_modules/@github/copilot-linux-arm64 \
+			"${cop}"/node_modules/@github/copilot-win32-{arm64,x64} || die
+		rm -r "${cop}"/node_modules/@microsoft/mxc-sdk/bin/arm64 || die
+		rm "${cop}"/node_modules/@microsoft/mxc-sdk/bin/x64/*.exe || die
 		rm -f "${cop}"/crypt32*.node || die
-		find "${cop}" -name computer.node -delete || die
 	fi
 }
 
