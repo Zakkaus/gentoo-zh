@@ -17,6 +17,8 @@ LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
 
+QA_PRESTRIPPED="usr/bin/pack"
+
 RDEPEND="
 	|| (
 		app-containers/docker-cli
