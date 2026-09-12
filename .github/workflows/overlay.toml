@@ -261,11 +261,19 @@ use_latest_release = true
 prefix = "v"
 github_account = "xen0n"
 
-# same source as app-emulation/liblol
-#["app-emulation/liblol-glibc"]
+["app-emulation/liblol-glibc"]
+source = "github"
+github = "AOSC-Dev/liblol"
+use_latest_release = true
+prefix = "v"
+github_account = "xen0n"
 
-# same source as app-emulation/liblol
-#["app-emulation/liblol-libxcrypt"]
+["app-emulation/liblol-libxcrypt"]
+source = "github"
+github = "AOSC-Dev/liblol"
+use_latest_release = true
+prefix = "v"
+github_account = "xen0n"
 
 # TODO: PV mismatching tags
 #["app-emulation/looking-glass"]
@@ -1352,8 +1360,12 @@ use_latest_release = true
 prefix = "v"
 github_account = "tsln1998"
 
-# same source as dev-util/pack-cli
-#["dev-util/pack-cli-bin"]
+["dev-util/pack-cli-bin"]
+source = "github"
+github = "buildpacks/pack"
+use_latest_release = true
+prefix = "v"
+github_account = "tsln1998"
 
 ["dev-util/pacstrap"]
 source = "gitlab"
@@ -1426,13 +1438,12 @@ use_latest_tag = true
 prefix = "v"
 github_account = "gouwazi"
 
-# FIXME: github graphql api seems to be some confusion between vfox and
-# vfox-bin, so we disable one of them
-# ["dev-util/vfox-bin"]
-# source = "github"
-# github = "version-fox/vfox"
-# use_latest_release = true
-# prefix = "v"
+["dev-util/vfox-bin"]
+source = "github"
+github = "version-fox/vfox"
+use_latest_tag = true
+prefix = "v"
+github_account = "gouwazi"
 
 ["dev-util/vimls-go-bin"]
 source = "github"
@@ -2315,8 +2326,12 @@ use_latest_release = true
 prefix = "v"
 github_account = "liuyujielol"
 
-# same source as net-proxy/clash-verge-rev-bin
-#["net-proxy/clash-verge-rev"]
+["net-proxy/clash-verge-rev"]
+source = "github"
+github = "clash-verge-rev/clash-verge-rev"
+use_latest_release = true
+prefix = "v"
+github_account = "gouwazi"
 
 ["net-proxy/clash-verge-rev-bin"]
 source = "github"
@@ -2445,13 +2460,11 @@ github = "v2fly/v2ray-core"
 use_latest_release = true
 prefix = "v"
 
-# Disable net-proxy/v2ray-bin because of it
-# conflict with v2ray in github v4 search api
-# ["net-proxy/v2ray-bin"]
-# source = "github"
-# github = "v2fly/v2ray-core"
-# use_latest_release = true
-# prefix = "v"
+["net-proxy/v2ray-bin"]
+source = "github"
+github = "v2fly/v2ray-core"
+use_latest_release = true
+prefix = "v"
 
 ["net-proxy/v2rayA"]
 source = "github"
@@ -2645,17 +2658,23 @@ from_pattern = '_major=([\d.]+)\s+_minor=(\d+)'
 to_pattern = '\1.\2'
 github_account = ["Zakkaus", "xz-dev"]
 
-# Follows sys-kernel/gentoo-kernel and its dist-kernel release schedule rather
-# than an upstream tag of its own.
-# ["sys-kernel/gentoo-cjk-kernel"]
+# several branches at once; this tracks the newest one in ::gentoo
+["sys-kernel/gentoo-cjk-kernel"]
+source = "regex"
+url = "https://packages.gentoo.org/packages/sys-kernel/gentoo-kernel"
+regex = 'gentoo-kernel-(\d+\.\d+\.\d+)'
 
-# Follows the source package: the archive publishes a gpkg for every version the
-# overlay carries.
-# ["sys-kernel/gentoo-cjk-kernel-bin"]
+# several branches at once; this tracks the newest one in ::gentoo
+["sys-kernel/gentoo-cjk-kernel-bin"]
+source = "regex"
+url = "https://packages.gentoo.org/packages/sys-kernel/gentoo-kernel"
+regex = 'gentoo-kernel-(\d+\.\d+\.\d+)'
 
-# Follows sys-kernel/gentoo-sources, which carries several branches at once, so
-# one tracked version cannot describe it.
-# ["sys-kernel/gentoo-cjk-sources"]
+# several branches at once; this tracks the newest one in ::gentoo
+["sys-kernel/gentoo-cjk-sources"]
+source = "regex"
+url = "https://packages.gentoo.org/packages/sys-kernel/gentoo-sources"
+regex = 'gentoo-sources-(\d+\.\d+\.\d+)'
 
 ["sys-kernel/liquorix-sources"]
 source = "github"
@@ -2671,14 +2690,10 @@ source = "archpkg"
 archpkg = "mkinitcpio"
 strip_release = true
 
-# xanmod-kernel and xanmod-sources track the same repo (xanmod/linux) and are
-# always bumped together, so track only the source xanmod-sources.
-# ["sys-kernel/xanmod-kernel"]
-# source = "gitlab"
-# gitlab = "xanmod/linux"
-# use_max_tag = true
-# from_pattern = "(.*)-xanmod(.*)"
-# to_pattern = "\\1"
+["sys-kernel/xanmod-kernel"]
+source = "regex"
+url = "https://sourceforge.net/projects/xanmod/rss?path=/releases/main"
+regex = 'patch-([\d.]+)-xanmod\d+\.xz'
 
 ["sys-kernel/xanmod-sources"]
 source = "regex"
