@@ -1,5 +1,7 @@
 ## Eclass Discovery
 
+Read with: `AGENTS.md` § Ebuild Policy for how to find precedent; `version-bumps.md` when an EAPI bump rides on a version bump.
+
 - Prefer the local main tree at `/var/db/repos/gentoo` when present.
 - Before inheriting, read each eclass's supported EAPIs, deprecation status, pre-inherit and call-time variables, exports, phases, and defaults.
 - On an EAPI bump, re-audit the whole ebuild, including disabled USE branches, generated dependencies, dead helpers, and changed eclass defaults.

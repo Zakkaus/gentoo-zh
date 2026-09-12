@@ -1,5 +1,7 @@
 ## Commit and PR Text
 
+Read with: `AGENTS.md` § Git Workflow for branch, rebase, and push; `version-bumps.md` § Keeping Old Versions for the `drop OLD` decision the subject states.
+
 ### Subject
 
 - Take `pkgdev`'s final English subject verbatim as the PR title. Never translate or reword it.

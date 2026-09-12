@@ -1,5 +1,7 @@
 ## Bundled and Prebuilt Binaries
 
+Read with: `version-bumps.md` or `new-packages.md` for the change itself; `desktop-integration.md` for a desktop application; `openrc-systemd.md` for a service; `kernels.md` for a `-kernel-bin`.
+
 - For each upstream binary artifact, whitelist only shipped arches (for example `KEYWORDS="-* ~amd64 ~arm64"`) and use per-arch `SRC_URI`. Do not keyword or reference unpublished artifacts.
 - Set `RESTRICT` from verified stripping and redistribution needs; `strip` and `splitdebug` are distinct.
 - `QA_PREBUILT` suppresses broad checks, including DT_NEEDED, executable-stack, textrel/W+X, flags, pre-stripped files, and SONAME.
