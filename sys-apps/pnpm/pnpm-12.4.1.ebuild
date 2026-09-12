@@ -6,6 +6,11 @@ EAPI=8
 CRATES="
 "
 
+NODE_SEMVER_COMMIT="1ae976a0023b4dec80b1a5411ccee8343f91320e"
+declare -A GIT_CRATES=(
+	[node-semver]="https://github.com/pnpm/node-semver-rs;${NODE_SEMVER_COMMIT};node-semver-rs-%commit%"
+)
+
 RUST_MIN_VER="1.97.0"
 
 inherit cargo wrapper
@@ -30,6 +35,13 @@ KEYWORDS="~amd64 ~arm64"
 RESTRICT="test"
 
 RDEPEND="net-libs/nodejs"
+
+src_prepare() {
+	default
+	# upstream overrides crates-io node-semver with its git fork; use the fetched tree
+	sed -i "s|^node-semver = { git = .*|node-semver = { path = \"${WORKDIR}/node-semver-rs-${NODE_SEMVER_COMMIT}\" }|" \
+		Cargo.toml || die
+}
 
 src_compile() {
 	cargo_src_compile -p pnpm-cli
