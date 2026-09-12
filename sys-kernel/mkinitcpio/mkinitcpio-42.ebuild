@@ -8,7 +8,7 @@ inherit meson tmpfiles
 DESCRIPTION="Modular initramfs image creation utility"
 HOMEPAGE="https://github.com/archlinux/mkinitcpio"
 
-SRC_URI="https://sources.archlinux.org/other/${PN}/${P}.tar.xz"
+SRC_URI="https://github.com/archlinux/${PN}/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="GPL-2"
 
@@ -46,12 +46,11 @@ BDEPEND="
 
 QA_PREBUILT="/usr/lib/initcpio/busybox"
 
-PATCHES=(
-	"${FILESDIR}"/${P}-optional-hwdb.patch
-)
-
 src_prepare() {
 	default
+	# tools/dist.sh reads the version from git describe, which the tarball lacks
+	sed -i "s|run_command('tools/dist.sh', 'get-version', check: true).stdout().strip()|'${PV}'|" \
+		meson.build || die
 	sed -i "s:/usr/lib/libkmod.so.2:/usr/$(get_libdir)/libkmod.so.2:" install/udev || die
 }
 
