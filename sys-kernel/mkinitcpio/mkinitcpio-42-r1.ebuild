@@ -46,6 +46,10 @@ BDEPEND="
 
 QA_PREBUILT="/usr/lib/initcpio/busybox"
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-42-encrypt-gentoo-paths.patch
+)
+
 src_prepare() {
 	default
 	# tools/dist.sh reads the version from git describe, which the tarball lacks
@@ -73,7 +77,6 @@ src_install(){
 			"${FILESDIR}"/initcpio-install-systemd > "${T}"/initcpio-install-systemd || die
 		newins "${T}"/initcpio-install-systemd systemd
 	fi
-	newins "${FILESDIR}"/initcpio-install-base base
 	insinto /usr/lib/initcpio/hooks
 	newins "${FILESDIR}"/initcpio-hook-udev udev
 	insinto /etc/mkinitcpio.d

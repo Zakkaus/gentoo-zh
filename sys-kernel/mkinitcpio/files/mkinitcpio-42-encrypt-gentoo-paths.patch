@@ -1,0 +1,22 @@
+install/encrypt: resolve libgcc_s and the OpenSSL modules dir at build time
+
+Gentoo keeps libgcc_s.so.1 under the active gcc's libdir and the OpenSSL
+providers under /usr/$(get_libdir)/ossl-modules, so the /usr/lib paths
+hardcoded here are never found. Ask the dynamic loader cache and openssl
+itself instead, which also follows toolchain and libdir changes.
+
+--- a/install/encrypt
++++ b/install/encrypt
+@@ -20,10 +20,10 @@ build() {
+         '95-dm-notify.rules'
+ 
+     # cryptsetup calls pthread_create(), which dlopen()s libgcc_s.so.1
+-    add_binary '/usr/lib/libgcc_s.so.1'
++    add_binary "$(ldconfig -p | awk '/[[:space:]]libgcc_s\.so\.1 \(/ { print $NF; exit }')" /usr/lib/libgcc_s.so.1
+ 
+     # cryptsetup loads the legacy provider which is required for whirlpool
+-    add_binary '/usr/lib/ossl-modules/legacy.so'
++    add_binary "$(openssl version -m | sed 's/.*"\(.*\)"/\1/')/legacy.so"
+ 
+     add_runscript
+ }
