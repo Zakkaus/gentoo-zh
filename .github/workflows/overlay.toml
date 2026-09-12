@@ -283,6 +283,13 @@ source = "github"
 github = "hillwoodroc/winetricks-zh"
 use_latest_release = true
 
+["app-i18n/akaza"]
+source = "github"
+github = "akaza-im/akaza"
+use_latest_release = true
+prefix = "v"
+github_account = "zakkaus"
+
 ["app-i18n/cskk"]
 source = "github"
 github = "naokiri/cskk"
