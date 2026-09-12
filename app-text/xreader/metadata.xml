@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>zakk@gentoozh.org</email>
+		<name>Zakk</name>
+	</maintainer>
+	<use>
+		<flag name="dvi">Enable the DVI backend</flag>
+		<flag name="t1lib">Enable Type 1 font support in the DVI backend via <pkg>media-libs/t1lib</pkg></flag>
+		<flag name="xps">Enable the XPS backend via <pkg>app-text/libgxps</pkg></flag>
+	</use>
+	<upstream>
+		<remote-id type="github">linuxmint/xreader</remote-id>
+	</upstream>
+</pkgmetadata>
