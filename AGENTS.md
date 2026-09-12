@@ -20,14 +20,14 @@ Repository metadata is under `metadata/` and `profiles/`. CI is under `.github/`
 
 ## Task routing
 
-Read a rule file before touching the surface it names. These files carry repository policy that used to sit in this one.
+Reading order: this file; then `version-bumps.md` or `new-packages.md` for the change itself; then every surface file the change touches; then `pr-text.md` before committing. Each rule file opens with a `Read with` line naming what to read next from there. These files carry repository policy that used to sit in this one.
 
 - Version bumps and keeping old versions: `.agents/rules/version-bumps.md`.
 - New packages, `virtual/`, `overlay.toml` entries: `.agents/rules/new-packages.md`.
 - Prebuilt or bundled binaries: `.agents/rules/prebuilt-binaries.md`.
 - Desktop files, icons, Wayland flags: `.agents/rules/desktop-integration.md`.
 - Units, init scripts, service or `systemd` dependencies: `.agents/rules/openrc-systemd.md`.
-- `sys-kernel/gentoo-cjk-*` and `virtual/dist-kernel-*`: `.agents/rules/dist-kernels.md`.
+- Kernel packages (`sys-kernel/*-sources`, `*-kernel`, `*-kernel-bin`, `virtual/dist-kernel-*`): `.agents/rules/kernels.md`.
 - Choosing or reading an eclass: `.agents/rules/eclass-discovery.md`.
 - Commit subject and body, PR title and body: `.agents/rules/pr-text.md`.
 

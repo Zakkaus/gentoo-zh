@@ -1,5 +1,7 @@
 ## Version Bumps
 
+Read with: `pr-text.md` before committing; `prebuilt-binaries.md` when the package installs a prebuilt payload; `kernels.md` for a kernel package; `openrc-systemd.md` when a unit or init script changes; `desktop-integration.md` when a desktop file or launcher changes; `eclass-discovery.md` when the bump changes EAPI or an eclass.
+
 - Compare existing ebuilds and history with upstream notes and build metadata for dependency, toolchain, option, license, layout, and installed-file changes.
 - The `go.mod` `go` directive and `Cargo.toml` `rust-version` are real minimum versions, and no eclass reads them for you.
 - When one exceeds what the profile toolchain guarantees, raise the matching `>=dev-lang/go` `BDEPEND` or `RUST_MIN_VER`.
@@ -36,3 +38,4 @@ A bump replaces the version it supersedes—`add NEW, drop OLD`. Retention is th
 - Follow the package's own history where it shows an explicit pattern; otherwise apply the rules above and state the choice. Never keep a version merely because the previous commit did.
 - Stop for direction when an old version loses its immutable source bytes, or when a replacement in place is unexplained.
 - `autobump = N` in `.github/workflows/overlay.toml` applies the same policy to autobump: set a number only for a package meeting a reason above, and return it to `true` when the reason lapses.
+- A kernel `-kernel-bin` one point release behind its source package is expected retention; `kernels.md` says why and how it catches up.
