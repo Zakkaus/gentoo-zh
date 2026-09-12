@@ -46,18 +46,16 @@ BDEPEND="
 
 QA_PREBUILT="/usr/lib/initcpio/busybox"
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-42-encrypt-gentoo-paths.patch
+)
+
 src_prepare() {
 	default
 	# tools/dist.sh reads the version from git describe, which the tarball lacks
 	sed -i "s|run_command('tools/dist.sh', 'get-version', check: true).stdout().strip()|'${PV}'|" \
 		meson.build || die
 	sed -i "s:/usr/lib/libkmod.so.2:/usr/$(get_libdir)/libkmod.so.2:" install/udev || die
-	# libgcc_s lives under the active gcc's libdir, resolve it when the image is built
-	local libgcc='add_binary "$(gcc-config -L | cut -d: -f1)/libgcc_s.so.1" /usr/lib/libgcc_s.so.1'
-	sed -i \
-		-e "/add_binary.*libgcc_s\.so\.1/s#.*#    ${libgcc}#" \
-		-e "s:/usr/lib/ossl-modules/legacy.so:/usr/$(get_libdir)/ossl-modules/legacy.so:" \
-		install/encrypt || die
 }
 
 src_configure() {
