@@ -18,7 +18,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE="qt6"
 
 RDEPEND="
-	>=app-i18n/fcitx-5.1.13:5
+	>=app-i18n/fcitx-5.1.22:5
 	>=app-i18n/libskk-1.1.0
 	dev-libs/glib:2
 	app-i18n/skk-jisyo
