@@ -224,7 +224,7 @@ github_account = ["Schroedingersdoraemon", "gouwazi"]
 ["app-editors/typora"]
 source = "regex"
 url = "https://typora.io/#linu://typora.io/releases/stable.html"
-regex = "typora_([\\d.]+)_amd64.deb"
+regex = 'typora_([\d.]+)_amd64.deb'
 github_account = ["CHN-beta", "gouwazi"]
 
 ["app-editors/void-editor"]
@@ -335,13 +335,13 @@ use_latest_release = true
 prefix = "v"
 github_account = ["yamader", "gouwazi"]
 
-# upstream has no release, 9999 only
+# live package only
 #["app-i18n/fcitx-fbterm"]
 
 # live package only
 #["app-i18n/fcitx-gtk"]
 
-# upstream has no release, 9999 only
+# live package only
 #["app-i18n/fcitx-hallelujah"]
 
 # live package only
@@ -388,7 +388,7 @@ github_account = "zakkaus"
 # develop-branch snapshot; the tagged releases still ship only the Qt5 GUI
 #["app-i18n/fcitx-qt"]
 
-# upstream has no release, 9999 only
+# live package only
 #["app-i18n/fcitx-quwei"]
 
 # live package only
@@ -486,7 +486,7 @@ to_pattern = '\1_p\2'
 ["app-misc/bcompare"]
 source = "regex"
 url = "https://www.scootersoftware.com/kb/linux_install"
-regex = "bcompare-([\\d.]+).x86_64.tar.gz"
+regex = 'bcompare-([\d.]+).x86_64.tar.gz'
 github_account = "gouwazi"
 
 # live package only
@@ -591,9 +591,6 @@ github_account = "oatiz"
 
 # live package only
 #["app-misc/jshon"]
-#source = "github"
-#github = "keenerd/jshon"
-#use_latest_tag = true
 
 ["app-misc/keyd"]
 source = "github"
@@ -673,7 +670,7 @@ github_account = "gouwazi"
 ["app-office/freeoffice"]
 source = "regex"
 url = "https://www.freeoffice.com/de/support/installation/linux"
-regex = "softmaker-freeoffice-[\\d.]{4}-([\\d.]+)-amd64.tgz"
+regex = 'softmaker-freeoffice-[\d.]{4}-([\d.]+)-amd64.tgz'
 github_account = ["zozx", "gouwazi"]
 
 ["app-office/notesnook-bin"]
@@ -759,11 +756,7 @@ github_account = ["OriPoin", "gouwazi"]
 
 # cajviewer.cnki.net only work on China mainland
 # Got 418 status code under GitHub's network
-# ["app-text/cajviewer"]
-# source = "regex"
-# url = "https://cajviewer.cnki.net/"
-# regex = "cajviewer_([\\d.]+)_amd64.deb"
-# github_account = "123485k"
+#["app-text/cajviewer"]
 
 ["app-text/goldendict"]
 source = "github"
@@ -1212,7 +1205,7 @@ prefix = "v"
 github_account = "gouwazi"
 
 # The snapshot we carry is above upstream 2.0.1, the last release.
-# ["dev-util/cmakerc"]
+#["dev-util/cmakerc"]
 
 ["dev-util/codex"]
 source = "github"
@@ -1327,7 +1320,7 @@ github_account = "semes1"
 source = "github"
 github = "openSUSE/obs-build"
 use_latest_tag = true
-github_account = ["peeweep"]
+github_account = "peeweep"
 autobump = true
 
 ["dev-util/oh-my-pi-bin"]
@@ -1343,7 +1336,7 @@ source = "github"
 github = "anomalyco/opencode"
 use_latest_release = true
 prefix = "v"
-github_account = ["xz-dev", "gouwazi", "peeweep" ]
+github_account = ["xz-dev", "gouwazi", "peeweep"]
 autobump = true
 
 ["dev-util/osc"]
@@ -1384,7 +1377,7 @@ use_latest_release = true
 prefix = "v"
 autobump = true
 
-# live-only: tracks the xz-dev/pi main branch; not autobumpable
+# live package only
 #["dev-util/pi-coding-agent-xz"]
 
 ["dev-util/reasonix-bin"]
@@ -1502,7 +1495,7 @@ autobump = true
 ["games-action/vintagestory"]
 source = "regex"
 url = "https://api.vintagestory.at/lateststable.txt"
-regex = "([\\d.]+)"
+regex = '([\d.]+)'
 github_account = "liuyujielol"
 # autobump off: the ~590 MB game tarball from cdn.vintagestory.at is slow in CI and the emerge
 # times out; bump it on the build box instead (fast link + a warm distfile cache).
@@ -1535,7 +1528,7 @@ use_latest_tag = true
 ["games-server/vintagestory-server"]
 source = "regex"
 url = "https://api.vintagestory.at/lateststable.txt"
-regex = "([\\d.]+)"
+regex = '([\d.]+)'
 github_account = "liuyujielol"
 
 ["games-util/sgdboop"]
@@ -1572,6 +1565,9 @@ github = "benapetr/TuxManager"
 prefix = "v"
 use_latest_release = true
 github_account = "Puqns67"
+
+# masked, removal on 2026-09-27
+#["gui-apps/waywallen"]
 
 ["kde-misc/plasma-applet-netspeed-widget"]
 source = "github"
@@ -1746,9 +1742,6 @@ autobump = true
 
 # TODO: error: The Google Code Archive requires JavaScript to be enabled in your browser.
 #["media-fonts/wangfonts"]
-#source = "regex"
-#url = "https://code.google.com/archive/p/wangfonts/downloads"
-#regex = "wangfonts-([\\d.]+).zip"
 
 ["media-fonts/yozai-font"]
 source = "github"
@@ -1772,6 +1765,9 @@ github = "bambulab/BambuStudio"
 use_latest_release = true
 prefix = "v"
 github_account = ["vowstar", "gouwazi"]
+
+# masked, removal on 2026-09-27
+#["media-gfx/open-wallpaper-engine"]
 
 # TODO: very old package
 #["media-gfx/scangearmp"]
@@ -1819,6 +1815,9 @@ github = "waylyrics/waylyrics"
 prefix = "v"
 use_latest_release = true
 github_account = "liuyujielol"
+
+# masked, removal on 2026-09-27
+#["media-plugins/waywallen-display"]
 
 # vendor download, no published version index
 #["media-sound/cider"]
@@ -1883,7 +1882,7 @@ github_account = "Puqns67"
 ["media-sound/qqmusic"]
 source = "regex"
 url = "https://y.qq.com/download/download.js"
-regex = "qqmusic_([\\d.]+)_amd64.deb"
+regex = 'qqmusic_([\d.]+)_amd64.deb'
 github_account = "st0nie"
 
 ["media-sound/splayer"]
@@ -2009,7 +2008,7 @@ github_account = "gouwazi"
 autobump = true
 
 # dead upstream
-# ["net-analyzer/nali"]
+#["net-analyzer/nali"]
 
 # no tracking entry yet
 #["net-analyzer/pwru"]
@@ -2041,7 +2040,7 @@ use_latest_tag = true
 prefix = "v"
 github_account = "peeweep"
 
-# live package
+# live package only
 #["net-dns/dnsmasq-china-list"]
 
 ["net-dns/q"]
@@ -2119,14 +2118,14 @@ github_account = "gouwazi"
 source = "regex"
 url = "https://api.apifox.com/api/v1/configs/client-updates/2/mac/latest-mac.yml"
 regex = 'version: (.*)'
-github_account = ["gouwazi"]
+github_account = "gouwazi"
 # autobump off: Cloudflare blocks the download UA (fetches the CF challenge
 # page instead of the .deb, so the payload looks changed) — needs a manual bump.
 
 ["net-misc/baidunetdisk"]
 source = "regex"
 url = "https://pan.baidu.com/disk/cmsdata?app_id=250528&adCode=1&do=client"
-regex = "baidunetdisk_([\\d.]+)_amd64.deb"
+regex = 'baidunetdisk_([\d.]+)_amd64.deb'
 
 ["net-misc/baidupcs-go"]
 source = "github"
@@ -2394,11 +2393,6 @@ github_account = ["blackteahamburger", "gouwazi"]
 
 # TODO: missing KEYWORDS
 #["net-proxy/proxy-server"]
-#source = "github"
-#github = "jackarain/proxy"
-#use_latest_tag = true
-#prefix = "v"
-#github_account = "Jackarain"
 
 # packaged from a pinned commit, no tag to compare
 #["net-proxy/qv2ray"]
@@ -2452,7 +2446,7 @@ use_latest_tag = true
 prefix = "v"
 
 # high update frequency
-# ["net-proxy/trojan-go-fork"]
+#["net-proxy/trojan-go-fork"]
 
 ["net-proxy/v2ray"]
 source = "github"
@@ -2494,6 +2488,20 @@ use_latest_tag = true
 prefix = "v"
 autobump = true
 
+["net-vpn/easytier"]
+source = "github"
+github = "EasyTier/EasyTier"
+use_latest_release = true
+prefix = "v"
+github_account = "peeweep"
+
+["net-vpn/netbird"]
+source = "github"
+github = "netbirdio/netbird"
+use_latest_release = true
+prefix = "v"
+github_account = "peeweep"
+
 ["net-vpn/rathole"]
 source = "github"
 github = "rathole-org/rathole"
@@ -2512,11 +2520,7 @@ github_account = ["microcai", "gouwazi"]
 #["net-wireless/linux-wifi-hotspot"]
 
 # this website blocked github network
-# ["sci-chemistry/vesta"]
-# source = "regex"
-# url = "https://jp-minerals.org/vesta/en/download.html"
-# regex = "ver. ([\\d.]+), built on"
-# github_account = "CHN-beta"
+#["sci-chemistry/vesta"]
 
 # TODO: upstream no tags
 #["sci-electronics/circuitjs1-bin"]
@@ -2524,19 +2528,19 @@ github_account = ["microcai", "gouwazi"]
 ["sci-electronics/jlc-assistant-bin"]
 source = "regex"
 url = "https://www.jlc.com/portal/appDownloadsWithConfig.html"
-regex = "FJLCPcAssit-linux-x64-([\\d.]+).zip"
+regex = 'FJLCPcAssit-linux-x64-([\d.]+).zip'
 github_account = "123485k"
 
 ["sci-electronics/lceda"]
 source = "regex"
 url = "https://lceda.cn/page/download?src=index"
-regex = "lceda-linux-x64-([\\d.]+).zip"
+regex = 'lceda-linux-x64-([\d.]+).zip'
 github_account = ["123485k", "gouwazi"]
 
 ["sci-electronics/lceda-pro"]
 source = "regex"
 url = "https://lceda.cn/page/download?src=index"
-regex = "lceda-pro-linux-x64-([\\d.]+).zip"
+regex = 'lceda-pro-linux-x64-([\d.]+).zip'
 github_account = ["123485k", "gouwazi"]
 # autobump off: upstream host times out from CI too
 
@@ -2847,8 +2851,8 @@ use_latest_release = true
 prefix = "v"
 github_account = "gouwazi"
 
-# Live-only here; the released versions are in ::gentoo.
-# ["x11-terms/wezterm"]
+# live package only; the released versions are in ::gentoo
+#["x11-terms/wezterm"]
 
 ["x11-terms/wezterm-bin"]
 source = "github"
