@@ -14,9 +14,9 @@ LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~arm64 ~loong ~riscv ~x86"
 RESTRICT="test" # fails with network-sandbox
-BDEPEND=">=dev-lang/go-1.25.5"
+BDEPEND=">=dev-lang/go-1.26.0"
 
-PATCHES="${FILESDIR}/${P}-systemd-service-sbin.patch"
+PATCHES=( "${FILESDIR}"/${P}-systemd-service-sbin.patch )
 
 src_compile() {
 	mkdir build || die
