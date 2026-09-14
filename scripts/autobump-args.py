@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Print a package's autobump engine flags, one per line.
 
-Shared by autobump-sweep, autobump-probe, autobump-trial.yml and autobump-recommend.yml:
-the two workflows call the engine directly, so without this a trial ran with different
-flags than the sweep it is meant to predict.
+Shared by autobump-sweep and autobump-trial.yml: the trial workflow calls the engine
+directly, so without this a trial ran with different flags than the sweep it is meant
+to predict.
 
     mapfile -t args < <(python3 scripts/autobump-args.py <category/package>)
     python3 scripts/autobump-args.py --describe <category/package>   # one phrase for the issue comment

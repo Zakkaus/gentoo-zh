@@ -44,10 +44,6 @@ set to nvchecker issue numbers separated by spaces. Each target gets a real bump
 install and pkgcheck in the CI container and reports PASS, DEFER (transient, worth retrying) or
 FAIL, without opening a PR.
 
-The `autobump-recommend` workflow collects packages that look mechanically bumpable but
-are not opted in into one issue, which is a good place to pick from. It only recommends;
-nothing is enabled automatically.
-
 ## Opting in and out
 
 Add `autobump = true` to the package in

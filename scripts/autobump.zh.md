@@ -33,8 +33,6 @@
 
 不确定就先做 build-test：Actions → autobump-trial → Run workflow，`targets` 填 nvchecker issue 号，空格分隔。每个目标会在 CI 容器里跑一遍真实的 bump、emerge、install 和 pkgcheck，汇报 PASS、DEFER（暂时性问题，值得重试）或 FAIL，不创建 PR。
 
-`autobump-recommend` workflow 会把看起来可机械 bump 但尚未开启的包汇总到同一个 issue 里，可以从那里挑。它只是推荐，不会自动开启。
-
 ## 开启和关闭
 
 在 [`.github/workflows/overlay.toml`](../.github/workflows/overlay.toml) 中给该包加一行 `autobump = true`：
