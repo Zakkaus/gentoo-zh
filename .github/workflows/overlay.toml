@@ -2205,6 +2205,13 @@ use_latest_release = true
 prefix = "v"
 github_account = "peeweep"
 
+["net-misc/localsend"]
+source = "github"
+github = "localsend/localsend"
+use_latest_release = true
+prefix = "v"
+github_account = "zakkaus"
+
 ["net-misc/localsend-bin"]
 source = "github"
 github = "localsend/localsend"
