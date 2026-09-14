@@ -7,21 +7,22 @@ CRATES="
 "
 
 declare -A GIT_CRATES=(
-	[mpd]='https://github.com/htkhiem/rust-mpd;e9f5ad589e0eaaeb1d9758cc3a6b5762bb67e4b5;rust-mpd-%commit%'
+	[mpd]='https://github.com/htkhiem/rust-mpd;218e1af6c44e08101b3c99f0df0fe1d10c3702b4;rust-mpd-%commit%'
 )
 
-RUST_MIN_VER="1.88.0"
+MY_PV="${PV}-beta-1"
+RUST_MIN_VER="1.92.0"
 
 inherit cargo meson gnome2-utils xdg
 
 DESCRIPTION="An MPD client with delusions of grandeur, made with Rust, GTK and Libadwaita"
 HOMEPAGE="https://github.com/htkhiem/euphonica"
 SRC_URI="
-	https://github.com/htkhiem/euphonica/archive/v${PV}-beta.tar.gz -> ${P}.tar.gz
-	https://github.com/gentoo-zh-drafts/euphonica/releases/download/v${PV}-beta/${P}-beta-crates.tar.xz
+	https://github.com/htkhiem/euphonica/archive/v${MY_PV}.tar.gz -> ${PN}-${MY_PV}.tar.gz
+	https://github.com/gentoo-zh-drafts/euphonica/releases/download/v${MY_PV}/${PN}-${MY_PV}-crates.tar.xz
 "
 SRC_URI+=" ${CARGO_CRATE_URIS}"
-S="${WORKDIR}/${P}-beta"
+S="${WORKDIR}/${PN}-${MY_PV}"
 
 LICENSE="GPL-3+"
 # Dependent crate licenses
@@ -33,8 +34,9 @@ SLOT="0"
 KEYWORDS="~amd64"
 
 RDEPEND="
-	>=gui-libs/gtk-4.18
-	>=gui-libs/libadwaita-1.7
+	>=app-crypt/libsecret-0.21.2
+	>=gui-libs/gtk-4.20
+	>=gui-libs/libadwaita-1.9
 	>=sys-devel/gettext-0.23
 	>=media-sound/mpd-0.24
 	dev-db/sqlite
