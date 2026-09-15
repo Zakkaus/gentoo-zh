@@ -28,10 +28,12 @@ DEPEND="
 	dev-libs/wayland
 	dev-libs/openssl:0/3
 	dev-libs/keybinder:3
+	dev-libs/libbsd
 	media-video/mpv:0[libmpv]
 	media-libs/gst-plugins-base
 	media-libs/harfbuzz
 	media-libs/libepoxy
+	media-libs/libpng
 	media-libs/libpulse
 	media-libs/libva
 	llvm-libunwind? ( llvm-runtimes/libunwind:= )
@@ -56,7 +58,7 @@ QA_PRESTRIPPED="
 QA_PREBUILT="*"
 
 src_install() {
-	# 0.14.2 links against libmpv ABI 1; ::gentoo only ships ABI 2, and all
+	# 0.14.3 links against libmpv ABI 1; ::gentoo only ships ABI 2, and all
 	# seven mpv_* symbols this build uses are exported by libmpv.so.2.
 	local f old new
 	while IFS= read -r -d '' f; do
