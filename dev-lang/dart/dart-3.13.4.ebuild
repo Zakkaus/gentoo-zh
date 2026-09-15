@@ -28,7 +28,7 @@ IUSE="clang"
 REQUIRED_USE="clang? ( ${LLVM_REQUIRED_USE} )"
 
 BDEPEND="
-	>=dev-lang/dart-bootstrap-3.13.0
+	>=dev-lang/dart-bootstrap-3.13.4
 	dev-build/gn
 	dev-build/ninja
 	dev-vcs/git
@@ -101,6 +101,7 @@ src_install() {
 	doins -r out/Release/dart-sdk/*
 
 	fperms +x /usr/lib/dart/bin/dart
+	fperms +x /usr/lib/dart/bin/dartvm
 	fperms +x /usr/lib/dart/bin/dartaotruntime
 	fperms +x /usr/lib/dart/bin/dartaotruntime_asan
 	fperms +x /usr/lib/dart/bin/dartaotruntime_tsan
