@@ -23,6 +23,7 @@ RESTRICT="bindist mirror strip"
 
 DEPEND="elibc_glibc? ( sys-libs/glibc:2.2 )"
 RDEPEND="
+	app-arch/brotli
 	app-arch/xz-utils
 	dev-libs/glib:2
 	media-libs/fontconfig
