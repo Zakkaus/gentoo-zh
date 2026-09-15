@@ -38,6 +38,12 @@ RDEPEND="net-libs/nodejs"
 
 src_prepare() {
 	default
+
+	# upstream's .cargo/config.toml redirects crates-io to a pnpm-managed
+	# vendor dir that only exists after "pnpm install"; it shadows the
+	# eclass registry in ${ECARGO_HOME}
+	rm .cargo/config.toml || die
+
 	# upstream overrides crates-io node-semver with its git fork; use the fetched tree
 	sed -i "s|^node-semver = { git = .*|node-semver = { path = \"${WORKDIR}/node-semver-rs-${NODE_SEMVER_COMMIT}\" }|" \
 		Cargo.toml || die
