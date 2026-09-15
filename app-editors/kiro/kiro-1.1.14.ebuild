@@ -100,7 +100,7 @@ src_install() {
 	sed -e "/updateUrl/d" -i resources/app/product.json || die
 
 	if ! use kerberos; then
-		rm -r resources/app/node_modules/kerberos || die
+		rm -r resources/app/node_modules.asar.unpacked/kerberos || die
 	fi
 
 	if ! use webkit; then
