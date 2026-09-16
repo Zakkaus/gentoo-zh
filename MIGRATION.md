@@ -19,6 +19,8 @@ gentoo-zh overlay 已通过 GitHub repository transfer 从个人仓库迁移到�
 git remote set-url origin https://github.com/gentoo-zh/overlay.git
 ```
 
+Portage 用户的更新步骤见 [news](metadata/news/2026-07-05-repo-moved-to-overlay/2026-07-05-repo-moved-to-overlay.zh.txt)。
+
 后续 issue、pull request 和维护讨论请使用当前仓库。
 
 ## English
@@ -39,5 +41,7 @@ To keep local remotes aligned with the current maintenance location, update them
 ```bash
 git remote set-url origin https://github.com/gentoo-zh/overlay.git
 ```
+
+Portage users: see the [news item](metadata/news/2026-07-05-repo-moved-to-overlay/2026-07-05-repo-moved-to-overlay.en.txt).
 
 Please use the current repository for future issues, pull requests, and maintenance discussions.
