@@ -3,7 +3,7 @@
 
 EAPI=8
 
-ZIG_SLOT="0.15"
+ZIG_SLOT="0.16"
 inherit zig
 
 DESCRIPTION="Command-line tool for switching Codex accounts"
