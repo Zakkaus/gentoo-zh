@@ -13,7 +13,7 @@ MY_P="${MY_PN}-${PV}"
 # Prebuilt sherpa-onnx runtime shared libraries bundled by upstream. The
 # project links against these and installs them privately under
 # /usr/lib*/fcitx5-vinput. Keep in sync with scripts/sherpa-onnx-vars.sh.
-SHERPA_PV=1.13.7
+SHERPA_PV=1.13.8
 
 DESCRIPTION="Voice input addon for Fcitx5 with local sherpa-onnx ASR and LLM postprocess"
 HOMEPAGE="https://github.com/xifan2333/fcitx5-vinput"
