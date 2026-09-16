@@ -77,7 +77,7 @@ jobs:
     # the issues exist by now; this waits on the search index the queue is read through
     - name: wait for the issues to settle
       if: github.event_name == 'workflow_run'
-      run: sleep 300
+      run: sleep 60
 
   # after plan, so a run with an empty queue builds nothing
   env:
