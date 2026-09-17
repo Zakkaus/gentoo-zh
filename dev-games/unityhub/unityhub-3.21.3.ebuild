@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit xdg desktop unpacker
+inherit desktop optfeature unpacker xdg
 
 DESCRIPTION="The official unity tool for manager Unity Engines and projects"
 HOMEPAGE="https://docs.unity.com/en-us/hub"
@@ -29,9 +29,7 @@ DEPEND="
 	dev-util/lttng-ust:0/2.12
 	x11-libs/gtk+
 	app-crypt/libsecret
-	dev-libs/openssl-compat
 	media-libs/alsa-lib
-	dev-libs/libxml2-compat
 "
 RDEPEND="${DEPEND}"
 
@@ -46,4 +44,13 @@ src_install(){
 	doins -r usr/share/icons/hicolor
 	domenu usr/share/applications/${PN}.desktop
 	fperms 0755 -R /opt/unityhub
+}
+
+pkg_postinst() {
+	xdg_pkg_postinst
+
+	optfeature_header "Older Unity Editor releases installed through the Hub may need:"
+	optfeature "Editors before Unity's libxml2 fix (6000.0.76f1, 6000.3.13f1, 6000.4.1f1)" \
+		dev-libs/libxml2-compat:2
+	optfeature "Editors that still link OpenSSL 1.1" dev-libs/openssl-compat:1.1.1
 }
