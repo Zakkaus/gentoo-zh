@@ -27,11 +27,9 @@ refs #1555
  src/ui/status.rs                     |   1 +
  6 files changed, 127 insertions(+), 2 deletions(-)
 
-diff --git a/src/client/shell/composition.rs b/src/client/shell/composition.rs
-index 523cec8758..89ffdbc617 100644
 --- a/src/client/shell/composition.rs
 +++ b/src/client/shell/composition.rs
-@@ -503,6 +503,10 @@ impl ClientShellState {
+@@ -549,6 +549,10 @@ impl ClientShellState {
                      &mut composed,
                  );
                  ratatui::widgets::Widget::render(block, geometry.outer, &mut composed);
@@ -42,8 +40,6 @@ index 523cec8758..89ffdbc617 100644
                  frame.replace_from_ratatui_buffer_preserving_effects(&composed, None);
                  blit_pane_surface(&mut frame, &popup.frame, geometry.inner);
                  self.hits.popup = Some(PaneHit {
-diff --git a/src/client/shell/endpoint_notices.rs b/src/client/shell/endpoint_notices.rs
-index e796d2c557..335da7082d 100644
 --- a/src/client/shell/endpoint_notices.rs
 +++ b/src/client/shell/endpoint_notices.rs
 @@ -50,6 +50,7 @@ pub(super) fn render_lifecycle_banner(
@@ -54,8 +50,6 @@ index e796d2c557..335da7082d 100644
      rect
  }
  
-diff --git a/src/client/shell/notifications.rs b/src/client/shell/notifications.rs
-index b8437ea749..ff89bb14c2 100644
 --- a/src/client/shell/notifications.rs
 +++ b/src/client/shell/notifications.rs
 @@ -61,6 +61,7 @@ pub(super) fn render_mobile_notice_banner(
@@ -74,11 +68,9 @@ index b8437ea749..ff89bb14c2 100644
      rect
  }
  
-diff --git a/src/client/shell/overlays.rs b/src/client/shell/overlays.rs
-index 4418c2c32e..2428c4808e 100644
 --- a/src/client/shell/overlays.rs
 +++ b/src/client/shell/overlays.rs
-@@ -251,6 +251,7 @@ fn panel(
+@@ -257,6 +257,7 @@ fn panel(
          b[(a.x, y)].set_symbol("│").set_style(border);
          b[(a.right() - 1, y)].set_symbol("│").set_style(border);
      }
@@ -86,8 +78,6 @@ index 4418c2c32e..2428c4808e 100644
      Some(Rect::new(a.x + 1, a.y + 1, a.width - 2, a.height - 2))
  }
  fn popup(a: Rect, w: u16, h: u16) -> Option<Rect> {
-diff --git a/src/protocol/render_ansi.rs b/src/protocol/render_ansi.rs
-index fe3ab68fa7..34a492c2ed 100644
 --- a/src/protocol/render_ansi.rs
 +++ b/src/protocol/render_ansi.rs
 @@ -31,6 +31,9 @@ use std::io::Write;
@@ -240,8 +230,6 @@ index fe3ab68fa7..34a492c2ed 100644
      #[test]
      fn retained_patch_matches_full_diff_and_updates_the_encoder_baseline() {
          let previous = make_frame(
-diff --git a/src/ui/status.rs b/src/ui/status.rs
-index e47e0f900a..131a2a7bcf 100644
 --- a/src/ui/status.rs
 +++ b/src/ui/status.rs
 @@ -67,6 +67,7 @@ pub(crate) fn render_copy_feedback_buffer(
@@ -251,4 +239,4 @@ index e47e0f900a..131a2a7bcf 100644
 +    crate::protocol::render_ansi::blank_wide_cells_left_of(buffer, feedback_area);
  
      if inner.height == 0 {
-         return;
+         return feedback_area;

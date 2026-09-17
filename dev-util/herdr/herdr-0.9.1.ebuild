@@ -274,12 +274,16 @@ CRATES="
 "
 
 declare -A ZBS_DEPENDENCIES=(
-	[uucode-0.2.0-ZZjBPqZVVABQepOqZHR7vV_NcaN-wats0IB6o-Exj6m9.tar.gz]="https://deps.files.ghostty.org/uucode-0.2.0-ZZjBPqZVVABQepOqZHR7vV_NcaN-wats0IB6o-Exj6m9.tar.gz"
+	[uucode-2826a37a4562284fdacd8fa029d49509cc9bffcd.tar.gz]="https://deps.files.ghostty.org/uucode-2826a37a4562284fdacd8fa029d49509cc9bffcd.tar.gz"
 	[highway-66486a10623fa0d72fe91260f96c892e41aceb06.tar.gz]="https://deps.files.ghostty.org/highway-66486a10623fa0d72fe91260f96c892e41aceb06.tar.gz"
+	[pixels-12207ff340169c7d40c570b4b6a97db614fe47e0d83b5801a932dcd44917424c8806.tar.gz]="https://deps.files.ghostty.org/pixels-12207ff340169c7d40c570b4b6a97db614fe47e0d83b5801a932dcd44917424c8806.tar.gz"
+	[translate-c-4e879eb8aba615de112eabd1231ea6e01920cead.tar.gz]="https://codeberg.org/vancluever/translate-c/archive/4e879eb8aba615de112eabd1231ea6e01920cead.tar.gz"
+	[arocc-f97cdfc3779aec4b242299e2fc9a1c828c3547c6.tar.gz]="https://github.com/vancluever/arocc/archive/f97cdfc3779aec4b242299e2fc9a1c828c3547c6.tar.gz"
+	[wuffs-7411f488fe2e2c205c3d3b3d28638b7356522930.tar.gz]="https://deps.files.ghostty.org/wuffs-7411f488fe2e2c205c3d3b3d28638b7356522930.tar.gz"
 )
 
 RUST_MIN_VER="1.88.0"
-ZIG_SLOT="0.15"
+ZIG_SLOT="0.16"
 ZIG_NEEDS_LLVM=1
 inherit zig cargo
 
@@ -307,8 +311,8 @@ RDEPEND="
 "
 BDEPEND="
 	|| (
-		>=dev-lang/zig-bin-0.15.2:${ZIG_SLOT}
-		>=dev-lang/zig-0.15.2:${ZIG_SLOT}
+		>=dev-lang/zig-bin-0.16.0:${ZIG_SLOT}
+		>=dev-lang/zig-0.16.0:${ZIG_SLOT}
 	)
 	test? ( dev-util/cargo-nextest dev-vcs/git )
 "
@@ -316,7 +320,7 @@ IUSE="test"
 RESTRICT="!test? ( test )"
 
 PATCHES=(
-	"${FILESDIR}/${P}-r1-wide-grapheme-popup-edges.patch"
+	"${FILESDIR}/${P}-wide-grapheme-popup-edges.patch"
 	"${FILESDIR}/${P}-build.patch"
 	"${FILESDIR}/${P}-test-socket-paths.patch"
 )
@@ -328,9 +332,12 @@ pkg_setup() {
 
 src_unpack() {
 	cargo_src_unpack
+	# zig 0.16 "fetch" needs a build.zig in the working directory and
+	# saves into ./zig-pkg, which zig_src_prepare passes as --system
+	touch build.zig || die
 	local dep
 	for dep in "${!ZBS_DEPENDENCIES[@]}"; do
-		ezig fetch --global-cache-dir "${ZBS_ECLASS_DIR}" "${DISTDIR}/${dep}" > /dev/null
+		ezig fetch "${DISTDIR}/${dep}" > /dev/null
 	done
 }
 
