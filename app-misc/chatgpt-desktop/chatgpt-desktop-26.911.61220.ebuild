@@ -27,11 +27,13 @@ RESTRICT="bindist mirror strip"
 
 RDEPEND="
 	>=app-accessibility/at-spi2-core-2.46.0:2
+	app-crypt/tpm2-tss
 	app-misc/ca-certificates
 	dev-libs/expat
 	dev-libs/glib:2
 	dev-libs/nspr
 	dev-libs/nss
+	dev-libs/openssl:0/3
 	media-libs/alsa-lib
 	media-libs/libglvnd
 	media-libs/mesa[gbm(+)]
