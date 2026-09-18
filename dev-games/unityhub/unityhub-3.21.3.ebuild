@@ -16,22 +16,45 @@ KEYWORDS="~amd64"
 IUSE="+appindicator legacy"
 RESTRICT="bindist mirror strip"
 
-DEPEND="
-	appindicator? (
-		dev-libs/libdbusmenu
-		legacy? (
-			dev-libs/libayatana-appindicator
-			x11-misc/appmenu-gtk-module[gtk2]
-		)
-	)
-	app-arch/cpio
+# from the deb's Depends and what the shipped ELF files link
+RDEPEND="
+	app-accessibility/at-spi2-core:2
+	app-arch/unzip
+	app-arch/zip
+	app-crypt/libsecret
+	app-misc/ca-certificates
+	dev-libs/expat
+	dev-libs/glib:2
+	dev-libs/nspr
 	dev-libs/nss
 	dev-util/lttng-ust:0/2.12
-	x11-libs/gtk+
-	app-crypt/libsecret
 	media-libs/alsa-lib
+	media-libs/mesa[gbm(+)]
+	net-print/cups
+	sys-apps/dbus
+	virtual/libudev
+	virtual/zlib
+	x11-libs/cairo
+	x11-libs/gtk+:3
+	x11-libs/libdrm
+	x11-libs/libnotify
+	x11-libs/libX11
+	x11-libs/libxcb
+	x11-libs/libXcomposite
+	x11-libs/libXdamage
+	x11-libs/libXext
+	x11-libs/libXfixes
+	x11-libs/libxkbcommon
+	x11-libs/libXrandr
+	x11-libs/libXScrnSaver
+	x11-libs/libXtst
+	x11-libs/pango
+	x11-misc/xdg-utils
+	appindicator? (
+		dev-libs/libayatana-appindicator
+		legacy? ( x11-misc/appmenu-gtk-module[gtk2] )
+	)
 "
-RDEPEND="${DEPEND}"
 
 src_unpack(){
 	unpack_deb ${PN}-amd64-${PV}.deb
