@@ -53,6 +53,17 @@ src_install() {
 		"${app_dir}/app.asar.unpacked/node_modules/@nut-tree/libnut-win32" \
 		|| die
 
+	# the arm64 deb still ships these helpers as x86-64 binaries
+	if use arm64; then
+		rm -r \
+			"${app_dir}/cursor-tool" \
+			"${app_dir}/app/node_modules/@bilibili/keep-pc-alive/build/Release/keep_pc_alive.node" \
+			"${app_dir}/app/node_modules/@nut-tree/libnut-linux" \
+			"${app_dir}/app/node_modules/clipboardy/fallbacks/linux" \
+			"${app_dir}/app.asar.unpacked/node_modules/clipboardy/fallbacks/linux" \
+			|| die
+	fi
+
 	insinto "/"
 	doins -r "opt"
 	doicon -s "scalable" "usr/share/icons/hicolor/scalable/apps/${FPN}.svg"
