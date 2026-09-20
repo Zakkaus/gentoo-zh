@@ -9,11 +9,11 @@ CRATES="
 "
 
 declare -A GIT_CRATES=(
-	[clash_verge_logger]='https://github.com/clash-verge-rev/clash-verge-logger;e4768e3852c4868ed86e7210df82c1178467820d;clash-verge-logger-%commit%'
-	[clash_verge_service_ipc]='https://github.com/clash-verge-rev/clash-verge-service-ipc;b964ed2992599fadefd589425c1acdabcb875623;clash-verge-service-ipc-%commit%'
-	[dark-light]='https://github.com/rust-dark-light/dark-light;0f18d2fbcaa5d1c175db8aae7d53428988d7e961;dark-light-%commit%'
-	[sysproxy]='https://github.com/clash-verge-rev/sysproxy-rs;d214eba9f61d655d49a35f6ae17c359f7ad68d79;sysproxy-rs-%commit%'
-	[tauri-plugin-mihomo]='https://github.com/clash-verge-rev/tauri-plugin-mihomo;cf97ff99e390a9b437d5cf94c6f454f024fc8f69;tauri-plugin-mihomo-%commit%'
+	[clash_verge_service_ipc]='https://github.com/clash-verge-rev/clash-verge-service-ipc;cad270fe753553cfa2fd26fa5c338eabd210a2d5;clash-verge-service-ipc-%commit%'
+	[sysproxy]='https://github.com/clash-verge-rev/sysproxy-rs;44aaf00ec9c6779e5a461a55d882eddff7841c98;sysproxy-rs-%commit%'
+	[tauri-plugin-mihomo]='https://github.com/clash-verge-rev/tauri-plugin-mihomo;17c7757389ca73d29882753ecf7a160de29aabbe;tauri-plugin-mihomo-%commit%'
+	[tracing-estuary]='https://github.com/Tunglies/tracing-estuary;dbfce033fa4cff8f936f3e7c2282af1277546f3c;tracing-estuary-%commit%'
+	[tray-icon]='https://github.com/Tunglies/tray-icon;5750c67d02d32f2af100e120ad665959d4268cef;tray-icon-%commit%'
 )
 
 RUST_MIN_VER="1.95"
@@ -34,18 +34,23 @@ SRC_URI="
 	${WEB_URI}/${P}/${P}-web.tar.xz
 "
 # Use macthing commit from git crates
-SERVICE_COMMIT="b964ed2992599fadefd589425c1acdabcb875623"
+SERVICE_COMMIT="cad270fe753553cfa2fd26fa5c338eabd210a2d5"
 SERVICE_P="clash-verge-service-ipc-${SERVICE_COMMIT}"
+# the service pins its own sysproxy checkout, on the .git URL the app's
+# GIT_CRATES entry cannot cover
+SERVICE_SYSPROXY_COMMIT="62c952b3a60c39a360f7e6cecde2bef5448659eb"
 SRC_URI+="
 	${DEPS_URI}/${SERVICE_P}/${SERVICE_P}-crates.tar.xz
+	https://github.com/clash-verge-rev/sysproxy-rs/archive/${SERVICE_SYSPROXY_COMMIT}.tar.gz
+		-> sysproxy-rs-${SERVICE_SYSPROXY_COMMIT}.tar.gz
 "
 SRC_URI+=" ${CARGO_CRATE_URIS}"
 LICENSE="GPL-3"
 # Dependent crate licenses
 LICENSE+="
-	0BSD Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD Boost-1.0
-	CC0-1.0 CDLA-Permissive-2.0 GPL-3 ISC MIT MPL-2.0 MPL-2.0
-	Unicode-3.0 WTFPL-2 ZLIB BZIP2
+	Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD Boost-1.0 CC0-1.0
+	CDLA-Permissive-2.0 GPL-3 ISC MIT MPL-2.0 MPL-2.0 Unicode-3.0
+	WTFPL-2 ZLIB BZIP2
 "
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
@@ -80,6 +85,15 @@ src_prepare() {
 	popd >/dev/null || die
 
 	mv -v "${WORKDIR}/dist" "${S}/" || die
+
+	local sysproxy="${WORKDIR}/sysproxy-rs-${SERVICE_SYSPROXY_COMMIT}"
+	sed -i "s|^sysproxy = { git = .*|sysproxy = { path = \"${sysproxy}\", default-features = false }|" \
+		"${WORKDIR}/${SERVICE_P}/Cargo.toml" || die
+
+	# replace upstream's tray-icon crate substitution with ours
+	local dep
+	dep=$(grep "^tray-icon" "${ECARGO_HOME}"/config.toml || die)
+	sed -i -e "/\[patch\.crates-io\]/,\$s;^tray-icon.*$;${dep};" Cargo.toml || die
 }
 
 src_compile() {
@@ -92,7 +106,7 @@ src_compile() {
 
 	# clash-verge-service-ipc
 	pushd "${WORKDIR}/${SERVICE_P}" >/dev/null || die
-	cargo_src_compile --features standalone
+	cargo_src_compile --features standalone,client
 	popd >/dev/null || die
 
 	# FIXME: Can't use $(rust_abi) here, build scripts check for -gnu nonetheless
