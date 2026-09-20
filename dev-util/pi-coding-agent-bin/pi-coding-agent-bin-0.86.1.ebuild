@@ -18,10 +18,14 @@ IUSE="+system-fd"
 RESTRICT="bindist strip"
 
 RDEPEND="
+	x11-libs/libxcb
 	system-fd? ( sys-apps/fd )
 "
 
-QA_PREBUILT="opt/${PN}/pi"
+QA_PREBUILT="
+	opt/${PN}/pi
+	opt/${PN}/native/linux/prebuilds/*/*.node
+"
 
 src_install() {
 	insinto /opt/${PN}
