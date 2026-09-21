@@ -9,7 +9,7 @@ DESCRIPTION="Self-hosted WAN optimization proxy for difficult long-haul links"
 HOMEPAGE="https://github.com/bojieli/queqiao"
 SRC_URI="
 	https://github.com/bojieli/queqiao/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
-	https://github.com/irort/gentoo-deps/releases/download/${P}/${P}-vendor.tar.xz
+	https://github.com/gentoo-zh/gentoo-deps/releases/download/${P}/${P}-vendor.tar.xz
 "
 
 LICENSE="MIT"
