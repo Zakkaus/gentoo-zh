@@ -75,10 +75,14 @@ src_install() {
 
 	rm lib/libmpv.so* || die
 
-	# the bundled ffmpeg device/SDL/pulse stack was reachable only through the
-	# bundled libmpv removed above; libpulsecommon needs libsystemd.so.0, which
-	# a non-systemd profile does not provide.
-	rm lib/libavdevice.so* lib/libSDL2* lib/libpulse* || die
+	# the bundled ffmpeg stack was reachable only through the bundled libmpv
+	# removed above; libpulsecommon needs libsystemd.so.0, which a non-systemd
+	# profile does not provide, and 0.14.5 dropped the bundled librsvg that
+	# libavcodec links, leaving an unresolved soname.
+	rm lib/libSDL2* lib/libpulse* lib/libchromaprint.so* \
+		lib/libavcodec.so* lib/libavdevice.so* lib/libavfilter.so* \
+		lib/libavformat.so* lib/libavutil.so* lib/libpostproc.so* \
+		lib/libswresample.so* lib/libswscale.so* || die
 
 	insinto "/opt/${PN}"
 	doins -r data/ lib/ AppFlowy
