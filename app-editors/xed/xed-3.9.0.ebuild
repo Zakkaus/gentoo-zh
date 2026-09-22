@@ -18,13 +18,16 @@ IUSE="+spell"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 COMMON_DEPEND="
+	app-accessibility/at-spi2-core:2
 	>=dev-libs/glib-2.40:2
 	>=dev-libs/gobject-introspection-1.42
-	>=dev-libs/libpeas-1.12:0[gtk,python,${PYTHON_SINGLE_USEDEP}]
+	>=dev-libs/libpeas-1.12:0=[gtk,python,${PYTHON_SINGLE_USEDEP}]
 	>=dev-libs/libxml2-2.5:2=
 	>=x11-libs/gtk+-3.19:3[introspection]
 	>=x11-libs/gtksourceview-4.0.3:4
 	>=x11-libs/xapp-1.9.0
+	x11-libs/cairo
+	x11-libs/gdk-pixbuf:2
 	x11-libs/libX11
 	x11-libs/pango
 	spell? ( >=app-text/gspell-0.2.5:= )
