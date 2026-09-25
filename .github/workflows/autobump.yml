@@ -159,7 +159,7 @@ jobs:
       image: ${{ needs.env.outputs.image }}
       # the image is private until someone makes it public; do not depend on which it is
       credentials:
-        username: ${{ github.actor }}
+        username: gentoo-zh-bot
         password: ${{ secrets.GITHUB_TOKEN }}
       options: --privileged
 

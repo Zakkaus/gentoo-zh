@@ -62,7 +62,7 @@ jobs:
       uses: docker/login-action@v4
       with:
         registry: ghcr.io
-        username: ${{ github.actor }}
+        username: gentoo-zh-bot
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: look for the image
