@@ -957,8 +957,12 @@ github_account = ["blackteahamburger", "gouwazi"]
 # high update frequency
 #["dev-libs/v2ray-domain-list-community-bin"]
 
-# high update frequency
-#["dev-libs/v2ray-geoip"]
+["dev-libs/v2ray-geoip"]
+source = "github"
+github = "v2fly/geoip"
+use_latest_release = true
+github_account = "blackteahamburger"
+autobump = true
 
 # high update frequency
 #["dev-libs/v2ray-geoip-bin"]
