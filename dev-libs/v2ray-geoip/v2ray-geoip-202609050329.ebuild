@@ -22,7 +22,7 @@ SLOT="0"
 KEYWORDS="~amd64"
 
 RDEPEND="!dev-libs/v2ray-geoip-bin"
-BDEPEND=">=dev-lang/go-1.25.11"
+BDEPEND=">=dev-lang/go-1.26"
 
 src_unpack() {
 	go-module_src_unpack
