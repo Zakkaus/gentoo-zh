@@ -74,6 +74,7 @@ CRATES="
 	futures-task@0.3.32
 	futures-util@0.3.32
 	futures@0.3.32
+	gethostname@1.1.0
 	getrandom@0.4.2
 	hashbrown@0.15.5
 	hashbrown@0.17.1
@@ -121,8 +122,8 @@ CRATES="
 	radium@0.7.0
 	ref-cast-impl@1.0.25
 	ref-cast@1.0.25
-	rmcp-macros@1.7.0
-	rmcp@1.7.0
+	rmcp-macros@2.2.0
+	rmcp@2.1.0
 	rustix@1.1.4
 	rustversion@1.0.22
 	schemars@1.2.1
@@ -194,6 +195,8 @@ CRATES="
 	wit-component@0.244.0
 	wit-parser@0.244.0
 	wyz@0.5.1
+	x11rb-protocol@0.14.0
+	x11rb@0.14.0
 	xkeysym@0.2.1
 	zbus-lockstep-macros@0.5.2
 	zbus-lockstep@0.5.2
