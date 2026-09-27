@@ -14,7 +14,6 @@ dev-qt/qtgrpc
 dev-libs/qml-material
 media-plugins/waywallen-display
 gui-apps/waywallen
-media-gfx/open-wallpaper-engine
 
 # Zakk <zakk@gentoozh.org> (2026-08-12)
 # This legacy release is no longer updated. arm64 and loong users should use
