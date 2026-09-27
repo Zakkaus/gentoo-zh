@@ -69,7 +69,10 @@ SRC_URI="
 
 S="${WORKDIR}/${PN}-rust-v${PV}/codex-rs"
 
-PATCHES=( "${FILESDIR}"/${PN}-0.156.0-recursion-limit.patch )
+PATCHES=(
+	"${FILESDIR}"/${PN}-0.156.0-recursion-limit.patch
+	"${FILESDIR}"/${PN}-0.157.1-daemon-auto-start.patch
+)
 
 LICENSE="Apache-2.0"
 # Dependent crate licenses
