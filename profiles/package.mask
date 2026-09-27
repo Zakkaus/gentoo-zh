@@ -6,12 +6,6 @@
 # Removal on 2026-10-11.
 net-im/wechat-universal-bwrap
 
-# Puqns67 <me@puqns67.icu> (2026-08-27)
-# Waywallen undergoes frequent changes upstream, and building it
-# on Gentoo is very difficult, so I am no longer maintaining it.
-# Removal on 2026-09-27.
-dev-qt/qtgrpc
-
 # Zakk <zakk@gentoozh.org> (2026-08-12)
 # This legacy release is no longer updated. arm64 and loong users should use
 # app-office/wps-office365-edu, which supports offline use.
