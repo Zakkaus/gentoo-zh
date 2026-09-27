@@ -11,7 +11,6 @@ net-im/wechat-universal-bwrap
 # on Gentoo is very difficult, so I am no longer maintaining it.
 # Removal on 2026-09-27.
 dev-qt/qtgrpc
-dev-libs/qml-material
 
 # Zakk <zakk@gentoozh.org> (2026-08-12)
 # This legacy release is no longer updated. arm64 and loong users should use
