@@ -13,7 +13,6 @@ net-im/wechat-universal-bwrap
 dev-qt/qtgrpc
 dev-libs/qml-material
 media-plugins/waywallen-display
-gui-apps/waywallen
 
 # Zakk <zakk@gentoozh.org> (2026-08-12)
 # This legacy release is no longer updated. arm64 and loong users should use
