@@ -1,0 +1,191 @@
+name: tatt
+
+# Arch testing with app-portage/tatt, run on demand by label:
+#   tatt       amd64, arm64 and x86, which the runners execute natively
+#   tatt-qemu  arm, loong, ppc64 and riscv under qemu-user emulation
+# Each changed ebuild is tested on every label-selected arch its KEYWORDS carry as ~arch.
+
+on:
+  pull_request:
+    branches:
+      - master
+    types: [labeled, synchronize]
+    paths-ignore:
+      - '.github/**'
+      - 'metadata/**'
+      - 'profiles/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}-${{ github.event.action == 'labeled' && github.event.label.name || 'synchronize' }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    name: scan changed ebuilds
+    if: >-
+      (github.event.action == 'labeled' && startsWith(github.event.label.name, 'tatt')) ||
+      (github.event.action == 'synchronize' &&
+        (contains(github.event.pull_request.labels.*.name, 'tatt') ||
+         contains(github.event.pull_request.labels.*.name, 'tatt-qemu')))
+    runs-on: ubuntu-latest
+    outputs:
+      targets: ${{ steps.targets.outputs.targets }}
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        repository: ${{ github.event.pull_request.head.repo.full_name }}
+        ref: ${{ github.event.pull_request.head.sha }}
+
+    - name: select arches
+      id: targets
+      env:
+        GH_TOKEN: ${{ github.token }}
+        ACTION: ${{ github.event.action }}
+        LABEL: ${{ github.event.label.name }}
+        LABELS: ${{ join(github.event.pull_request.labels.*.name, ' ') }}
+      run: |
+        if [ "$ACTION" = labeled ]; then
+            labels=" $LABEL "
+        else
+            labels=" $LABELS "
+        fi
+
+        # arch -> runner, image, platform
+        declare -A native=(
+            [amd64]="ubuntu-latest gentoo/stage3:amd64-desktop-systemd linux/amd64"
+            [arm64]="ubuntu-24.04-arm gentoo/stage3:arm64-desktop-systemd linux/arm64"
+            [x86]="ubuntu-latest gentoo/stage3:i686-systemd linux/386"
+        )
+        # loong has no image on Docker Hub; the build job imports the official stage3.
+        declare -A emulated=(
+            [arm]="ubuntu-latest gentoo/stage3:armv7a_hardfp-systemd linux/arm/v7"
+            [loong]="ubuntu-latest stage3-loong-systemd linux/loong64"
+            [ppc64]="ubuntu-latest gentoo/stage3:ppc64le-systemd linux/ppc64le"
+            [riscv]="ubuntu-latest gentoo/stage3:rv64_lp64d-systemd linux/riscv64"
+        )
+        declare -A arches=()
+        if [[ "$labels" == *" tatt "* ]]; then
+            for a in "${!native[@]}"; do arches[$a]=${native[$a]}; done
+        fi
+        if [[ "$labels" == *" tatt-qemu "* ]]; then
+            for a in "${!emulated[@]}"; do arches[$a]=${emulated[$a]}; done
+        fi
+
+        gh pr view ${{ github.event.pull_request.number }} --json files \
+            --jq '.files[] | select(.additions > 0) | .path' | grep -E '^[^/]+/[^/]+/[^/]+\.ebuild$' |
+        while IFS= read -r ebuild; do
+            [ -f "$ebuild" ] || continue
+            IFS=/ read -r cat _ pf <<< "${ebuild%.ebuild}"
+            atom="=$cat/$pf"
+            keywords=$(sed -n 's/^KEYWORDS="\(.*\)"/\1/p' "$ebuild")
+            # a live ebuild has no KEYWORDS; test it once on amd64
+            if [ -z "$keywords" ] && [ -n "${arches[amd64]:-}" ]; then
+                read -r runner image platform <<< "${arches[amd64]}"
+                printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$atom" amd64 '**' "$runner" "$image" "$platform"
+            fi
+            for kw in $keywords; do
+                [[ "$kw" == "~"* ]] || continue
+                arch=${kw#\~}
+                [ -n "${arches[$arch]:-}" ] || continue
+                read -r runner image platform <<< "${arches[$arch]}"
+                printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$atom" "$arch" "$kw" "$runner" "$image" "$platform"
+            done
+        done > targets.tsv
+
+        targets=$(jq -Rc 'split("\t") | {atom:.[0], arch:.[1], keyword:.[2], runner:.[3], image:.[4], platform:.[5]}' targets.tsv | jq -sc .)
+        echo "targets: $targets"
+        echo "targets=${targets}" >> "$GITHUB_OUTPUT"
+
+
+  tatt:
+    name: tatt ${{ matrix.target.atom }} (${{ matrix.target.arch }})
+    needs: scan
+    if: ${{ fromJson(needs.scan.outputs.targets)[0] != null }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(needs.scan.outputs.targets) }}
+
+    runs-on: ${{ matrix.target.runner }}
+
+    steps:
+    - name: fetch repo
+      uses: actions/checkout@v7
+      with:
+        repository: ${{ github.event.pull_request.head.repo.full_name }}
+        ref: ${{ github.event.pull_request.head.sha }}
+        path: overlay
+
+    - name: setup qemu
+      if: ${{ !contains(fromJSON('["amd64","arm64","x86"]'), matrix.target.arch) }}
+      uses: docker/setup-qemu-action@v4
+
+    - name: import loong stage3
+      if: ${{ matrix.target.arch == 'loong' }}
+      run: |
+        base=https://distfiles.gentoo.org/releases/loong/autobuilds
+        stage3=$(curl -fsSL "$base/latest-stage3-loong-systemd.txt" | awk '/\.tar\.xz /{ print $1; exit }')
+        curl -fsSL "$base/$stage3" | docker import --platform linux/loong64 - "${{ matrix.target.image }}"
+
+    - name: run tatt
+      env:
+        ATOM: ${{ matrix.target.atom }}
+        ARCH: ${{ matrix.target.arch }}
+        KEYWORD: ${{ matrix.target.keyword }}
+      run: |
+        mkdir -p report
+        cat > "$RUNNER_TEMP/tatt.sh" << 'EOF'
+        emerge-webrsync --no-pgp-verify
+
+        mkdir -p /etc/portage/repos.conf /etc/portage/package.accept_keywords /etc/portage/package.use
+        printf '[%s]\nlocation = /var/db/repos/ci\npriority = 0\n' \
+            "$(cat /var/db/repos/ci/profiles/repo_name)" > /etc/portage/repos.conf/ci.conf
+        cat >> /etc/portage/make.conf << CONF
+        MAKEOPTS="\${MAKEOPTS} -j$(nproc)"
+        FETCHCOMMAND="\${FETCHCOMMAND} --no-verbose"
+        RESUMECOMMAND="\${RESUMECOMMAND} --no-verbose"
+        CONF
+        printf '%s\n' 'dev-qt/qtwebengine bindist' 'net-libs/webkit-gtk keyring' > /etc/portage/package.use/ci
+        echo "$ATOM $KEYWORD" > /etc/portage/package.accept_keywords/ci
+        getuto
+
+        unmask="--autounmask=y --autounmask-write=y --autounmask-continue=y"
+        FEATURES="getbinpkg" emerge --oneshot --quiet $unmask app-portage/tatt
+        # cpuid2cpuflags is not keyworded on loong and riscv
+        case "$ARCH" in
+            loong|riscv) ;;
+            *)
+                FEATURES="getbinpkg" emerge --oneshot --quiet app-portage/cpuid2cpuflags
+                echo "$ATOM $(cpuid2cpuflags)" > /etc/portage/package.use/cpu-flags
+                ;;
+        esac
+
+        # cpu_flags_* stay at the runner's values: toggling them would test binaries the host cannot run.
+        cat > ~/.tatt << CONF
+        arch=$ARCH
+        emergeopts="$unmask"
+        ignoreprefix="elibc_","video_cards_","linguas_","python_targets_","python_single_target_","kdeenablefinal","test","debug","cpu_flags_"
+        CONF
+
+        FEATURES="getbinpkg" emerge --onlydeps --quiet $unmask "$ATOM"
+
+        cd /report
+        tatt -u "$ATOM"
+        # tatt's emerge writes to /dev/tty, which a container has only under a pseudo-terminal
+        script -qec "bash ./*-useflags.sh" /dev/null
+        EOF
+        docker run --rm --privileged --platform "${{ matrix.target.platform }}" \
+            -e ATOM -e ARCH -e KEYWORD \
+            -v "$PWD/overlay:/var/db/repos/ci:ro" -v "$PWD/report:/report" -v "$RUNNER_TEMP/tatt.sh:/tatt.sh:ro" \
+            "${{ matrix.target.image }}" bash -euo pipefail /tatt.sh
+
+    - name: report
+      if: ${{ always() }}
+      run: |
+        {
+            echo "### tatt ${{ matrix.target.atom }} (${{ matrix.target.arch }})"
+            echo '```'
+            cat report/*.report 2> /dev/null || echo "no report"
+            echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"
