@@ -383,6 +383,7 @@ github_account = "zakkaus"
 source = "github"
 github = "openvanilla/fcitx5-mcbopomofo"
 use_latest_tag = true
+autobump = true
 github_account = "zakkaus"
 
 # virtual package
