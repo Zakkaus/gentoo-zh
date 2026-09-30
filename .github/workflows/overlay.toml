@@ -569,6 +569,7 @@ source = "github"
 github = "charmbracelet/crush"
 use_latest_release = true
 prefix = "v"
+autobump = true
 
 ["app-misc/crush-bin"]
 source = "github"
