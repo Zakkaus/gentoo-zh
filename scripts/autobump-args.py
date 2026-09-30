@@ -23,7 +23,7 @@ def die(reason):
 
 def keep_old_flag(pkg, value):
     """`autobump` carries the retention: true replaces, N keeps N, "all" keeps every one."""
-    # `1` compares equal to True here and still means the number: keep one old version
+    # `1` compares equal to True here and still means the number: keep only the new version
     if value is None or isinstance(value, bool) or value == 0:
         return []
     if value == "all":
@@ -57,7 +57,7 @@ def describe(flags):
         if flag == "--keep-old":
             said.append("keeps every old version")
         elif flag.startswith("--keep-old="):
-            said.append(f"keeps {flag.removeprefix('--keep-old=')} old versions")
+            said.append(f"keeps the {flag.removeprefix('--keep-old=')} newest versions")
         elif flag == "--rewrite-var":
             said.append("rewrites a pinned variable")
     return "".join(f" · {s}" for s in said)

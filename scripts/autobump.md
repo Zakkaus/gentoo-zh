@@ -59,8 +59,10 @@ autobump = true          # add to enable, remove to disable
 Packages without the line are never bumped, so removing it is how you stop one that
 keeps opening bad PRs.
 
-The value of `autobump` also says how many old versions to keep: `true` replaces, `N` keeps the
-N most recent, `"all"` keeps every one.
+The value of `autobump` also sets how many versions remain after a bump: `true` drops only
+the version the new one replaces and leaves older ones alone; `N` keeps the N most recent
+versions, the new one included, and drops everything older, so `1` keeps only the new version;
+`"all"` keeps every version. `0` behaves like `true`.
 
 ## Packages whose SRC_URI depends on an ebuild variable
 
