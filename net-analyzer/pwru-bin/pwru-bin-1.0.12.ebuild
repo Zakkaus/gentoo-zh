@@ -14,6 +14,10 @@ SRC_URI="
 S="${WORKDIR}"
 
 LICENSE="Apache-2.0"
+# eBPF programs
+LICENSE+=" || ( GPL-2 BSD-2 )"
+# From net-libs/libpcap for the statically linked libpcap
+LICENSE+=" BSD BSD-with-attribution BSD-4"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 MINKV="5.18"
