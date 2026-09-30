@@ -15,6 +15,8 @@ SRC_URI="
 S="${WORKDIR}/${MY_PN}"
 
 LICENSE="AGPL-3"
+# Flutter engine
+LICENSE+=" BSD"
 SLOT="0"
 KEYWORDS="-* ~amd64"
 IUSE="llvm-libunwind"
