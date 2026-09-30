@@ -528,7 +528,8 @@ autobump = true
 ["app-misc/cherry-studio-bin"]
 source = "github"
 github = "CherryHQ/cherry-studio"
-use_latest_release = true
+use_max_release = true
+include_regex = "^v\\d+\\.\\d+\\.\\d+$"
 prefix = "v"
 autobump = true
 
