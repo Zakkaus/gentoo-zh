@@ -217,6 +217,12 @@ jobs:
         install -dm775 -o root -g portage /var/cache/distfiles
         install -dm775 -o portage -g portage /var/cache/distfiles/git3-src
 
+    - name: setup cpu flags
+      run: |
+        FEATURES="getbinpkg" emerge --oneshot --quiet app-portage/cpuid2cpuflags
+        echo "${{ matrix.target.package }} $(cpuid2cpuflags)" > /etc/portage/package.use/cpu-flags
+        cat /etc/portage/package.use/cpu-flags
+
     - name: emerge --onlydeps packages
       run: |
         FEATURES="getbinpkg" emerge --onlydeps --jobs 2 --quiet --verbose --autounmask=y --autounmask-write=y --autounmask-continue=y ${{ matrix.target.package }}
