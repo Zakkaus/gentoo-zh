@@ -11,6 +11,11 @@ MY_PV="2.1.5+5410"
 SRC_URI="https://github.com/bggRGjQaUbCoE/PiliPlus/releases/download/${PV}/PiliPlus_linux_${MY_PV}_amd64.tar.gz"
 S="${WORKDIR}"
 LICENSE="GPL-3"
+# Flutter engine and Dart packages listed in data/flutter_assets/NOTICES.Z
+LICENSE+=" Apache-2.0 Apache-2.0-with-LLVM-exceptions Boost-1.0 BSD BSD-2 FTL IJG ISC MIT"
+LICENSE+=" MPL-2.0 public-domain Unicode-3.0 Unicode-DFS-2016 ZLIB"
+# Bundled Font Awesome fonts
+LICENSE+=" OFL-1.1"
 SLOT="0"
 KEYWORDS="~amd64"
 QA_PREBUILT="*"
