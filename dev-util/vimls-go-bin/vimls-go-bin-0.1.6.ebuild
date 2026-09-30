@@ -12,6 +12,8 @@ SRC_URI="
 S="${WORKDIR}"
 
 LICENSE="MIT vim"
+# Embedded Vim and Neovim documentation excerpts
+LICENSE+=" Apache-2.0 OPL"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 RESTRICT="strip"
