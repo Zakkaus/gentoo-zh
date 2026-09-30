@@ -8,6 +8,7 @@ on:
   pull_request:
     branches:
       - master
+      - tatt-base
     types: [opened, reopened, synchronize, labeled]
     paths-ignore:
       - '.github/**'
