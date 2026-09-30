@@ -11,7 +11,7 @@ S="${WORKDIR}"
 LICENSE="Apache-2.0 LGPL-2.1+ MIT Nokia-HEIF-1.0"
 SLOT="0"
 KEYWORDS="~amd64"
-RESTRICT="bindist mirror"
+RESTRICT="bindist mirror strip"
 
 src_install(){
 	dobin ${PN%-bin}
