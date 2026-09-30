@@ -11,6 +11,9 @@ CRATES="
 	allocator-api2@0.2.21
 	anstyle@1.0.14
 	anyhow@1.0.102
+	async-broadcast@0.7.2
+	async-recursion@1.1.1
+	async-trait@0.1.92
 	atomic@0.6.1
 	autocfg@1.5.0
 	base64@0.22.1
@@ -56,10 +59,16 @@ CRATES="
 	downcast-rs@1.2.1
 	dyn-clone@1.0.20
 	either@1.15.0
+	endi@1.1.1
+	enumflags2@0.7.12
+	enumflags2_derive@0.7.12
 	equivalent@1.0.2
 	errno@0.3.14
 	euclid@0.22.14
+	event-listener-strategy@0.5.4
+	event-listener@5.4.2
 	fancy-regex@0.11.0
+	fastrand@2.5.0
 	fdeflate@0.3.7
 	filedescriptor@0.8.3
 	finl_unicode@1.4.0
@@ -72,6 +81,7 @@ CRATES="
 	futures-core@0.3.33
 	futures-executor@0.3.33
 	futures-io@0.3.33
+	futures-lite@2.6.1
 	futures-macro@0.3.33
 	futures-sink@0.3.33
 	futures-task@0.3.33
@@ -126,6 +136,8 @@ CRATES="
 	objc2@0.6.4
 	once_cell@1.21.4
 	ordered-float@4.6.0
+	ordered-stream@0.2.0
+	parking@2.2.1
 	parking_lot@0.12.5
 	parking_lot_core@0.9.12
 	pest@2.8.6
@@ -142,6 +154,7 @@ CRATES="
 	portable-atomic@1.13.1
 	powerfmt@0.2.0
 	prettyplease@0.2.37
+	proc-macro-crate@3.5.0
 	proc-macro2@1.0.106
 	quote@1.0.45
 	r-efi@5.3.0
@@ -175,6 +188,7 @@ CRATES="
 	serde_derive_internals@0.29.1
 	serde_ignored@0.1.14
 	serde_json@1.0.149
+	serde_repr@0.1.21
 	serde_spanned@0.6.9
 	serial2@0.2.34
 	sha2@0.10.9
@@ -187,12 +201,15 @@ CRATES="
 	siphasher@1.0.2
 	slab@0.4.12
 	smallvec@1.15.1
+	socket2@0.6.5
 	static_assertions@1.1.0
 	strsim@0.11.1
 	strum@0.27.2
 	strum_macros@0.27.2
 	syn@1.0.109
 	syn@2.0.117
+	syn@3.0.6
+	tempfile@3.27.0
 	terminfo@0.9.0
 	termios@0.3.3
 	termwiz@0.23.3
@@ -208,7 +225,10 @@ CRATES="
 	tokio@1.50.0
 	toml@0.8.23
 	toml_datetime@0.6.11
+	toml_datetime@1.1.1+spec-1.1.0
 	toml_edit@0.22.27
+	toml_edit@0.25.15+spec-1.1.0
+	toml_parser@1.1.3+spec-1.1.0
 	toml_write@0.1.2
 	tracing-attributes@0.1.31
 	tracing-core@0.1.36
@@ -217,6 +237,7 @@ CRATES="
 	tracing@0.1.44
 	typenum@1.19.0
 	ucd-trie@0.1.7
+	uds_windows@1.2.1
 	unicode-ident@1.0.24
 	unicode-segmentation@1.13.1
 	unicode-truncate@2.0.1
@@ -262,6 +283,7 @@ CRATES="
 	windows-threading@0.2.1
 	windows@0.62.2
 	winnow@0.7.15
+	winnow@1.0.4
 	winreg@0.10.1
 	wit-bindgen-core@0.51.0
 	wit-bindgen-rust-macro@0.51.0
@@ -270,7 +292,14 @@ CRATES="
 	wit-component@0.244.0
 	wit-parser@0.244.0
 	wmi@0.18.4
+	zbus@5.19.0
+	zbus_macros@5.19.0
+	zbus_names@4.3.4
+	zcheapstr@1.1.0
 	zmij@1.0.21
+	zvariant@5.15.0
+	zvariant_derive@5.15.0
+	zvariant_utils@4.2.0
 "
 
 declare -A ZBS_DEPENDENCIES=(

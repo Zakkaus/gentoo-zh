@@ -29,7 +29,7 @@ refs #1555
 
 --- a/src/client/shell/composition.rs
 +++ b/src/client/shell/composition.rs
-@@ -549,6 +549,10 @@ impl ClientShellState {
+@@ -578,6 +578,10 @@ impl ClientShellState {
                      &mut composed,
                  );
                  ratatui::widgets::Widget::render(block, geometry.outer, &mut composed);
@@ -70,7 +70,7 @@ refs #1555
  
 --- a/src/client/shell/overlays.rs
 +++ b/src/client/shell/overlays.rs
-@@ -257,6 +257,7 @@ fn panel(
+@@ -259,6 +259,7 @@ fn panel(
          b[(a.x, y)].set_symbol("│").set_style(border);
          b[(a.right() - 1, y)].set_symbol("│").set_style(border);
      }
@@ -90,7 +90,7 @@ refs #1555
  use crate::protocol::{
      underline_style_from_modifier, CellData, CursorState, FrameData, PaneSurfacePatchRow,
  };
-@@ -726,10 +729,15 @@ fn repeat_ime_anchor_after_sync() -> bool {
+@@ -742,10 +745,15 @@ fn repeat_ime_anchor_after_sync() -> bool {
  
  /// Writes all cells in the frame (full redraw).
  fn cell_width(cell: &CellData) -> usize {
@@ -108,7 +108,7 @@ refs #1555
  }
  
  fn is_halfwidth_katakana_voiced_grapheme(symbol: &str) -> bool {
-@@ -745,6 +753,38 @@ fn is_halfwidth_katakana_voiced_grapheme(symbol: &str) -> bool {
+@@ -761,6 +769,38 @@ fn is_halfwidth_katakana_voiced_grapheme(symbol: &str) -> bool {
          && matches!(mark, '\u{ff9e}' | '\u{ff9f}')
  }
  
@@ -147,7 +147,7 @@ refs #1555
  #[derive(Clone, Copy)]
  struct HostCursorState {
      position: (u16, u16),
-@@ -1748,6 +1788,82 @@ mod tests {
+@@ -1793,6 +1833,82 @@ mod tests {
          assert!(output.bytes().filter(|byte| *byte == b'A').count() >= 6);
      }
  

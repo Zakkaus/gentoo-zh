@@ -1,10 +1,10 @@
 Build libghostty-vt separately so Gentoo Zig flags and offline inputs apply.
 Avoid initializing unused Ghostty GUI build steps in lib-vt mode.
-Applies to Herdr 0.9.1.
+Applies to Herdr 0.9.3.
 
---- a/build.rs
-+++ b/build.rs
-@@ -30,6 +30,12 @@ fn env_bool(name: &str) -> Option<bool> {
+--- a/crates/ghostty-vt/build.rs
++++ b/crates/ghostty-vt/build.rs
+@@ -32,6 +32,12 @@ fn env_bool(name: &str) -> Option<bool> {
  }
  
  fn main() {
@@ -14,15 +14,15 @@ Applies to Herdr 0.9.1.
 +        println!("cargo:rustc-link-lib=static=ghostty-vt");
 +        return;
 +    }
-     println!("cargo:rerun-if-changed=build.rs");
-     println!("cargo:rerun-if-changed=vendor/libghostty-vt.vendor.json");
-     println!("cargo:rerun-if-changed=vendor/libghostty-vt/build.zig");
+     // The vendored source stays at the repository root, shared with its maintenance scripts.
+     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR"));
+     let vendor_dir = manifest_dir.join("../../vendor");
 --- a/vendor/libghostty-vt/build.zig
 +++ b/vendor/libghostty-vt/build.zig
 @@ -57,6 +57,15 @@ pub fn build(b: *std.Build) !void {
          &deps,
      );
-
+ 
 +    if (config.emit_lib_vt) {
 +        const lib = try buildpkg.GhosttyLibVt.initStatic(b, &mod);
 +        b.getInstallStep().dependOn(&b.addInstallLibFile(

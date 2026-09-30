@@ -1,9 +1,9 @@
 Shorten test socket paths to fit sockaddr_un under PORTAGE_TMPDIR.
-Applies to Herdr 0.9.1.
+Applies to Herdr 0.9.3.
 
 --- a/src/api/server.rs
 +++ b/src/api/server.rs
-@@ -968,12 +968,12 @@ mod tests {
+@@ -1125,12 +1125,12 @@ mod tests {
          LOCK.get_or_init(|| Mutex::new(()))
      }
  
