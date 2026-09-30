@@ -11,6 +11,8 @@ SRC_URI="https://github.com/koka-lang/koka/releases/download/v${PV}/koka-v${PV}-
 
 S="${WORKDIR}"
 LICENSE="Apache-2.0"
+# Statically linked isocline
+LICENSE+=" MIT"
 
 SLOT="0"
 KEYWORDS="~amd64"
