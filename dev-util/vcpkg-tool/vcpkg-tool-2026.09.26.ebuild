@@ -7,15 +7,7 @@ inherit cmake
 
 DESCRIPTION="Library manager for C/C++ (tool only)"
 HOMEPAGE="https://github.com/microsoft/vcpkg-tool https://vcpkg.io/en/index.html"
-# Split with parameter expansion, not `read <<<`: a here-string needs a temp
-# file, which the sandboxed depend phase (metadata) cannot create (bug #978846).
-format-date() {
-	local input="$1"
-	local year="${input%%.*}" rest="${input#*.}"
-	local month="${rest%%.*}" day="${rest##*.}"
-	printf '%04d-%02d-%02d' "$year" "$month" "$day"
-}
-MY_PV="$(format-date "${PV}")"
+MY_PV="${PV//./-}"
 SRC_URI="https://github.com/microsoft/${PN}/archive/refs/tags/${MY_PV}.tar.gz -> ${P}.tar.gz"
 
 S="${WORKDIR}/${PN}-${MY_PV}"
