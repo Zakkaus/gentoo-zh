@@ -28,7 +28,7 @@ SRC_URI="
 "
 S="${WORKDIR}"
 
-LICENSE="Google-TOS"
+LICENSE="Google-TOS Google-Antigravity"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 IUSE="+cli egl +ide wayland"
