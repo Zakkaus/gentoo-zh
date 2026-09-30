@@ -295,6 +295,7 @@ github_account = "gouwazi"
 source = "github"
 github = "hillwoodroc/winetricks-zh"
 use_latest_release = true
+autobump = true
 
 ["app-i18n/akaza"]
 source = "github"
