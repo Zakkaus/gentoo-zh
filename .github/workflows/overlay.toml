@@ -2319,6 +2319,7 @@ source = "github"
 github = "mountain-loop/yaak"
 use_latest_release = true
 prefix = "v"
+autobump = true
 github_account = "gouwazi"
 
 # live package only
