@@ -71,6 +71,7 @@ source = "github"
 github = "twpayne/chezmoi"
 use_latest_release = true
 prefix = "v"
+autobump = true
 github_account = "tsln1998"
 
 ["app-admin/enpass"]
