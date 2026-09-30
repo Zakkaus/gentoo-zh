@@ -14,6 +14,8 @@ SRC_URI="${MY_PN}-linux.zip"
 S="${WORKDIR}"
 
 LICENSE="BlueOak-1.0.0"
+# Godot engine runtime
+LICENSE+=" MIT"
 SLOT="0"
 KEYWORDS="~amd64"
 RESTRICT="fetch"
