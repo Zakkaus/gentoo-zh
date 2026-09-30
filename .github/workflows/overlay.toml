@@ -2303,6 +2303,7 @@ source = "github"
 github = "trzsz/trzsz-ssh"
 use_latest_release = true
 prefix = "v"
+autobump = true
 github_account = "zakkaus"
 
 ["net-misc/tsshd"]
