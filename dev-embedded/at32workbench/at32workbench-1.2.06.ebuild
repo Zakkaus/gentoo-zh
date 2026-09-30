@@ -11,6 +11,8 @@ SRC_URI="https://www.arterytek.com/download/AT32%20Workbench/AT32_Work_Bench_Lin
 S="${WORKDIR}"
 
 LICENSE="all-rights-reserved"
+# Bundled ICU 56 and OpenSSL 1.0
+LICENSE+=" BSD openssl"
 SLOT="0"
 KEYWORDS="-* ~amd64"
 REQUIRED_USE="elibc_glibc"
