@@ -2377,6 +2377,7 @@ source = "github"
 github = "clash-verge-rev/clash-verge-rev"
 use_latest_release = true
 prefix = "v"
+autobump = true
 github_account = "gouwazi"
 
 ["net-proxy/dae"]
