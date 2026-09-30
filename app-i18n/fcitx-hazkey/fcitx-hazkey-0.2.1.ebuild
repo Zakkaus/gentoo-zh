@@ -13,6 +13,8 @@ SRC_URI="amd64? ( https://github.com/7ka-Hiira/hazkey/releases/download/${PV}/${
 S="${WORKDIR}"
 
 LICENSE="MIT"
+# Bundled azooKey dictionary and SwiftProtobuf
+LICENSE+=" Apache-2.0"
 SLOT="5"
 KEYWORDS="-* ~amd64"
 
