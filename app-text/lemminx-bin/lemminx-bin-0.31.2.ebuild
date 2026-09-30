@@ -12,6 +12,8 @@ SRC_URI="https://download.eclipse.org/lemminx/releases/${PV}/org.eclipse.lemminx
 S="${DISTDIR}"
 
 LICENSE="EPL-2.0"
+# Dependencies in the uber jar: Guava, Gson, Xerces, Jing and jsoup
+LICENSE+=" Apache-2.0 BSD MIT"
 SLOT="0"
 KEYWORDS="~amd64"
 
