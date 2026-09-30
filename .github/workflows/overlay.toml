@@ -134,6 +134,7 @@ source = "gitlab"
 host = "gitlab.archlinux.org"
 gitlab = "archlinux/archlinux-keyring"
 use_max_tag = true
+autobump = true
 github_account = "HougeLangley"
 
 ["app-crypt/cotp"]
