@@ -576,6 +576,7 @@ source = "github"
 github = "charmbracelet/crush"
 use_latest_release = true
 prefix = "v"
+autobump = true
 github_account = "gouwazi"
 
 ["app-misc/fast-resume"]
