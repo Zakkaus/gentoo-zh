@@ -21,6 +21,8 @@ SRC_URI="
 S="${WORKDIR}/zen"
 
 LICENSE="MPL-2.0"
+# From www-client/firefox-bin for Gecko
+LICENSE+=" GPL-2 LGPL-2.1"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 IUSE="wayland"
