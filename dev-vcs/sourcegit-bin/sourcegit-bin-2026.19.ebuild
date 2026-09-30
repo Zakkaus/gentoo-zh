@@ -11,6 +11,14 @@ SRC_URI="https://github.com/sourcegit-scm/sourcegit/releases/download/v${PV}/sou
 
 S="${WORKDIR}"
 LICENSE="MIT"
+# Skia in libSkiaSharp.so
+LICENSE+=" BSD"
+# From media-libs/harfbuzz for libHarfBuzzSharp.so
+LICENSE+=" Old-MIT ISC icu"
+# From dev-libs/oniguruma for libonigwrap.so
+LICENSE+=" BSD-2"
+# Embedded Inter font
+LICENSE+=" OFL-1.1"
 SLOT="0"
 KEYWORDS="~amd64"
 RESTRICT="strip"
