@@ -2496,6 +2496,7 @@ source = "github"
 github = "v2fly/v2ray-core"
 use_latest_release = true
 prefix = "v"
+autobump = true
 
 ["net-proxy/v2ray-bin"]
 source = "github"
