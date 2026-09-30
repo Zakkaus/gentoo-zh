@@ -12,6 +12,9 @@ SRC_URI="
 S="${WORKDIR}"/pi
 
 LICENSE="MIT"
+# From dev-lang/bun-bin for the bundled Bun runtime
+LICENSE+=" Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD BSD-2 BSD-4 CC0-1.0 IJG ISC"
+LICENSE+=" LGPL-2+ LGPL-2.1 public-domain ZLIB"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 IUSE="+system-fd"
