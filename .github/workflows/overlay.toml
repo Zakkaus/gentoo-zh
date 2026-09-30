@@ -753,6 +753,7 @@ source = "github"
 github = "douglarek/gentoo-fish-completion"
 use_latest_tag = true
 prefix = "v"
+autobump = true
 
 ["app-shells/gitstatus"]
 source = "github"
