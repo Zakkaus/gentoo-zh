@@ -14,6 +14,8 @@ SRC_URI="
 S="${WORKDIR}"
 
 LICENSE="MIT"
+# From net-libs/nodejs for the bundled Node.js runtime
+LICENSE+=" Apache-1.1 Apache-2.0 BlueOak-1.0.0 BSD BSD-2"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 RESTRICT="mirror strip"
