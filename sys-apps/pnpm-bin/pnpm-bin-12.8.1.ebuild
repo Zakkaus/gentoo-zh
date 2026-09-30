@@ -24,6 +24,8 @@ SRC_URI="
 S="${WORKDIR}/package"
 
 LICENSE="MIT"
+# Yarn node-modules hoisting port, see THIRD-PARTY-NOTICES.md
+LICENSE+=" BSD-2"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 RESTRICT="strip"
