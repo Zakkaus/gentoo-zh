@@ -20,6 +20,8 @@ SRC_URI="
 S="${WORKDIR}/dart-sdk-${PV}"
 
 LICENSE="BSD"
+# From Binaryen for the bundled wasm-opt
+LICENSE+=" Apache-2.0"
 SLOT="0"
 KEYWORDS="-* ~amd64"
 CHECKREQS_DISK_BUILD="15G"
