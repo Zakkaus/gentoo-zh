@@ -1,11 +1,853 @@
-Anthropic Terms of Service
+Anthropic Consumer Terms of Service, https://www.anthropic.com/legal/consumer-terms,
+effective October 8, 2025, with the Usage Policy it incorporates,
+https://www.anthropic.com/legal/aup, effective September 15, 2025.
 
-Claude Desktop is proprietary software from Anthropic PBC. Use of the
-application is governed by Anthropic's terms:
+==============================================================================
 
-- Consumer Terms of Service: https://www.anthropic.com/legal/consumer-terms
-- Usage Policy: https://www.anthropic.com/legal/aup
-- Privacy Policy: https://www.anthropic.com/legal/privacy
+Consumer Terms of Service
 
-The package redistributes the upstream binary unmodified from
-https://claude.com/download
+Welcome to Anthropic! Before you access our services, please read these Terms
+of Service.
+
+These Terms of Service (“Terms”) govern your use of Claude.ai, Claude Pro, and
+other products and services that we may offer for individuals, along with any
+associated apps, software, and websites (together, our “Services”). These
+Terms are a contract between you and Anthropic, PBC ("Anthropic") (and not our
+Providers), and they include our Acceptable Use Policy
+<https://anthropic.com/aup>. By accessing our Services, you agree to these
+Terms.
+
+Please read our Privacy Policy <https://anthropic.com/privacy>, which
+describes how we collect and use personal information.
+
+Please note: Our Commercial Terms of Service
+<https://www.anthropic.com/legal/commercial-terms> govern your use of any
+Anthropic API key, the Anthropic Console <https://console.anthropic.com/>, or
+any other Anthropic offerings that reference the Commercial Terms of Service.
+For clarity, this does not include Claude.ai or Claude Pro use for individuals
+or entities.
+
+1. Who we are.
+
+Anthropic is an AI safety and research company working to build reliable,
+interpretable, and steerable AI systems. We conduct frontier research, develop
+and apply a variety of safety techniques, and deploy the resulting systems via
+a set of partnerships and products.
+
+2. Account creation and access.
+
+Minimum age. You must be at least 18 years old or the minimum age required to
+consent to use the Services in your location, whichever is higher.
+
+Your Anthropic Account. To access our Services, we may ask you to create an
+Account. You agree to provide correct, current, and complete Account
+information and allow us to use it to communicate with you about our Services.
+Our communications to you using your Account information will satisfy any
+requirements for legal notices.
+
+You may not share your Account login information, Anthropic API key, or
+Account credentials with anyone else. You also may not make your Account
+available to anyone else. You are responsible for all activity occurring under
+your Account, and you agree to notify us immediately if you become aware of
+any unauthorized access to your Account by sending an email to
+support@anthropic.com <mailto:support@anthropic.com>.
+
+You may close your Account at any time by contacting us at
+support@anthropic.com <mailto:support@anthropic.com>.
+
+Business Domains. If you use an email address owned by your employer or
+another organization, your Account may be linked to the organization's
+Anthropic enterprise account, and the organization’s administrator may be able
+to monitor and control the Account, including having access to Materials
+(defined below). We will provide notice to you before linking your Account to
+an organization's enterprise account. However, if the organization is
+responsible for notifying you or has already informed you that it may monitor
+and control your Account, we may not provide additional notice.
+
+Evaluation and Additional Services. In some cases, we may permit you to
+evaluate our Services for a limited time or with limited functionality. Use of
+our Services for evaluation purposes are for your personal, non-commercial use
+only.
+
+You may need to accept additional terms to use certain Services. These
+additional terms will supplement our Terms for those Services and may change
+your rights or obligations for those Services, including your obligations to
+pay fees.
+
+3. Use of our Services.
+
+You may access and use our Services only in compliance with our Terms,
+including our Acceptable Use Policy <https://anthropic.com/aup>, the policy
+governing the countries and regions Anthropic currently supports
+<https://www.anthropic.com/supported-countries> ("Supported Regions Policy"),
+and any guidelines or supplemental terms we may post on the Services (the
+“Permitted Use”). You are responsible for all activity under the account
+through which you access the Services.
+
+You may not access or use, or help another person to access or use, our
+Services in the following ways:
+
+1. In any manner that violates any applicable law or regulation—including,
+   without limitation, any laws about exporting data or software to and from
+   the United States or other countries.
+2. To develop any products or services that compete with our Services,
+   including to develop or train any artificial intelligence or machine
+   learning algorithms or models or resell the Services.
+3. To decompile, reverse engineer, disassemble, or otherwise reduce our
+   Services to human-readable form, except when these restrictions are
+   prohibited by applicable law.
+4. To crawl, scrape, or otherwise harvest data or information from our
+   Services other than as permitted under these Terms.
+5. To use our Services, the Materials, or the Actions to obtain unauthorized
+   access to any system or information, or to deceive any person.
+6. To infringe, misappropriate, or violate intellectual property or other
+   legal rights (including the rights of publicity or privacy).
+7. Except when you are accessing our Services via an Anthropic API Key or
+   where we otherwise explicitly permit it, to access the Services through
+   automated or non-human means, whether through a bot, script, or otherwise.
+8. To engage in any other conduct that restricts or inhibits any person from
+   using or enjoying our Services, or that we reasonably believe exposes us—or
+   any of our users, affiliates, or any other third party—to any liability,
+   damages, or detriment of any type, including reputational harms.
+9. To rely upon the Services, the Materials, or the Actions to buy or sell
+   securities or to provide or receive advice about securities, commodities,
+   derivatives, or other financial products or services, as Anthropic is not a
+   broker-dealer or a registered investment adviser under the securities laws
+   of the United States or any other jurisdiction.
+
+You also must not abuse, harm, interfere with, or disrupt our Services,
+including, for example, introducing viruses or malware, spamming or DDoSing
+Services, or bypassing any of our systems or protective measures.
+
+4. Inputs, Outputs, Actions, and Materials.
+
+Generally. You may be allowed to interact with our Services in a variety of
+formats (we call these “Inputs”). Our Services may generate responses (we call
+these “Outputs”), or enable the Services to take actions on your behalf, such
+as software manipulation, data processing, and system interactions (we call
+these "Actions"), based on your Inputs. Inputs and Outputs collectively are
+“Materials.”
+
+Rights and Responsibilities. You are responsible for all Inputs you submit to
+our Services and all Actions. By submitting Inputs to our Services, you
+represent and warrant that you have all rights, licenses, and permissions that
+are necessary for us to process the Inputs under our Terms and to provide the
+Services to you, including for example, to integrate with third-party
+services, to share Materials with others at your direction, and to take
+Actions. You also represent and warrant that your submitting Inputs to us or
+directing Claude to take Actions will not violate our Terms, our Acceptable
+Use Policy <https://anthropic.com/aup>, or any laws or regulations applicable
+to those Inputs or Actions. As between you and Anthropic, and to the extent
+permitted by applicable law, you retain any right, title, and interest that
+you have in the Inputs you submit. Subject to your compliance with our Terms,
+we assign to you all of our right, title, and interest—if any—in Outputs.
+
+Reliance on Outputs and Actions. Artificial intelligence and large language
+models are frontier technologies that are still improving in accuracy,
+reliability and safety. When you use our Services, you acknowledge and agree:
+
+1. Outputs may not always be accurate and may contain material inaccuracies
+   even if they appear accurate because of their level of detail or
+   specificity.
+2. Actions may not be error free or operate as you intended.
+3. You should not rely on any Outputs or Actions without independently
+   confirming their accuracy.
+4. The Services and any Outputs may not reflect correct, current, or complete
+   information.
+5. Outputs may contain content that is inconsistent with Anthropic’s views.
+
+Our use of Materials. We may use Materials to provide, maintain, and improve
+the Services and to develop other products and services, including training
+our models, unless you opt out of training through your account settings. Even
+if you opt out, we will use Materials for model training when: (1) you provide
+Feedback to us regarding any Materials, or (2) your Materials are flagged for
+safety review to improve our ability to detect harmful content, enforce our
+policies, or advance our safety research.
+
+5. Feedback
+
+We appreciate feedback, including ideas and suggestions for improvement or
+rating an Output in response to an Input (“Feedback”). If you rate an Output
+in response to an Input—for example, by using the thumbs up/thumbs down
+icon—we will store the related conversation as part of your Feedback. You have
+no obligation to give us Feedback, but if you do, you agree that we may use
+the Feedback however we choose without any obligation or other payment to you.
+
+6. Subscriptions, fees and payment.
+
+Fees and billing. You may be required to pay us fees to access or use our
+Services or certain features of our Services. You are responsible for paying
+any applicable fees listed for the Services on the Model Pricing Page
+<https://www.anthropic.com/pricing> unless otherwise communicated to you by
+Anthropic in writing.
+
+If you purchase access to our Services or features of our Services, you must
+provide complete and accurate billing information (“Payment Method”). You
+agree that we may charge the Payment Method for any applicable fees listed on
+our Services and any applicable tax. If the fees for these Services or
+features are specified to be recurring or based on usage, you agree that we
+may charge these fees and applicable taxes to the Payment Method on a periodic
+basis.
+
+If you purchase access to our Services through a distributor (e.g. an app
+store) (“App Distributor”), then you will make payment to the App Distributor,
+and the App Distributor’s terms in relation to payment methods, billing, and
+refunds will apply instead of these Terms.
+Except as expressly provided in these Terms or where required by law, all
+payments are non-refundable. Please check your order carefully before
+confirming it, and see below for additional information about recurring
+charges for our subscriptions.
+
+Additional fees. We may increase fees for our Services. If we charge
+additional fees in connection with our Services, we will give you an
+opportunity to review and accept the additional fees before you are charged.
+Also, additional fees may apply for additional Services or features of the
+Services that we may make available. If you do not accept any such additional
+fees, we may discontinue your access to the Services or features.
+
+You agree that we will not be held liable for any errors caused by third-party
+payment processors used to process fees paid by you to us.
+
+Subscriptions. To access Claude Pro and other subscription services we may
+make available to individuals, you must sign up for a subscription with us (a
+“Subscription”), first by creating an Account, and then following the
+subscription procedure on our Services. When you sign up for a Subscription,
+you agree to these Terms.
+
+1. Subscription content, features, and services. The content, features, and
+   other services provided as part of your Subscription, and the duration of
+   your Subscription, will be described in the order process. We may change
+   the content, features, and other services from time to time, and we do not
+   guarantee that any particular piece of content, feature, or other service
+   will always be available through the Services.
+2. Subscription term and automatic renewal. If you sign up for a paid
+   Subscription, we or the App Distributor will automatically charge your
+   Payment Method on each agreed-upon periodic renewal date until you cancel.
+   If your Subscription has a minimum term (the “Initial Term”), we will let
+   you know during the order process. Your Subscription will last for the
+   Initial Term and will automatically renew, and your Payment Method will be
+   charged, at the end of the Initial Term for an additional term equal in
+   duration to the Initial Term and will continue to renew and incur charges
+   for additional terms equal in duration to the Initial Term (each such
+   additional term, a “Renewal Term”) until you cancel.
+3. Subscription cancellation. If you subscribed via our website, you may
+   cancel your Subscription for any reason by using a method we may provide to
+   you through our products—for example, for Claude Pro, in your customer
+   portal—or by notifying us at support@anthropic.com
+   <mailto:support@anthropic.com>. If you subscribed via an app, you’ll need
+   to cancel via the App Distributor according to the App Distributor’s terms.
+   Learn more here
+   <https://support.anthropic.com/en/articles/8325617-how-do-i-cancel-my-claude-pro-subscription>.
+   To avoid renewal and charges for the next Renewal Term, cancel your
+   subscription at least 24 hours before the last day of the Initial Term or
+   any Renewal Term. For example, if you subscribe on January 25th for a
+   Subscription with a one-month Initial Term, you must cancel the
+   Subscription per the instructions by February 23rd (24 hours before
+   February 24th) to avoid renewal and charges for the next Renewal Term. In
+   the event of a cancellation, your fees will not be refunded, but your
+   access to the Services will continue through the end of the Initial Term or
+   any Renewal Term for which you previously paid fees.
+4. Additional cancellation rights. If you are a resident of Brazil, Mexico,
+   South Korea, or Taiwan, you have a legal right to change your mind and
+   cancel the Subscription within 7 days of entering into the Subscription
+   without giving a reason.
+  1. To exercise the right to cancel in the 7-day cancellation period, you
+     must inform us of your decision to cancel the Subscription by making a
+     clear statement to us of such decision before the cancellation period has
+     expired. The easiest way to do this is by cancelling your subscription in
+     the customer portal, or you may contact us at support@anthropic.com. You
+     may also use the model cancellation form in Appendix 1 of these Terms,
+     but it is not obligatory. For further details on how to cancel, please
+     see support.anthropic.com. We will acknowledge your cancellation, e.g.,
+     through our online customer portal or console.
+  2. If you cancel the Subscription under Section 6(4)(a), we will reimburse
+     you all payments received from you for the cancelled Subscription. We
+     will make the reimbursement without undue delay, and not later than 14
+     days after the day on which we are informed about your decision to cancel
+     the Subscription. We will make the reimbursement using the same means of
+     payment as you used for the initial transaction; you will not incur any
+     fees as a result of the reimbursement.
+  3. If you would like to use the Services during the 7-day cancellation
+     period, you may do so. If you have used the Services during the 7-day
+     cancellation period, and wish to cancel the Subscription, you can still
+     do so by following the process in Section (4)(a) above, but we may retain
+     an amount which is in proportion to what has been provided until you have
+     communicated us your withdrawal from these Terms, in comparison with the
+     full coverage of the Subscription.
+  4. The 7-day cancellation period will not reset if you change subscription
+     tiers or cancel and then resubscribe, as you have already had an
+     opportunity to test the Services.
+
+5. Subscription fees. You will pay the fees, either to us or to the App
+   Distributor, for the Initial Term and each subsequent Renewal Term up
+   front, at the start of that Initial Term or Renewal Term, as applicable. We
+   have the right to make changes to the fees applicable to your Subscription
+   from time to time, although we will not make any change to the fees
+   applicable to your Subscription during the current Initial Term or Renewal
+   Term, as applicable. If these changes result in an increase in the fees
+   payable by you, we will inform you at least 30 days in advance of the
+   change. You agree to the increase in fees payable by you unless you cancel
+   the Subscription, as described in the paragraph (Subscription cancellation)
+   immediately above, before the Renewal Term to which the increase in fees
+   will apply.
+
+7. Third-party services and links
+
+Our Services may use or be used in connection with third-party content
+("Third-Party Content"), services, or integrations. We do not control or
+accept responsibility for any loss or damage that may arise from your use of
+any Third-Party Content, services, and integrations, for which we make no
+representations or warranties. Your use of any Third-Party Content, services,
+and integrations is at your own risk and subject to any terms, conditions, or
+policies (including privacy policies) applicable to such third-party content,
+services, and integrations.
+
+8. Content Moderation
+
+Third-Party Content is the responsibility of the person or entity that
+provides it to our Services. Anthropic is under no obligation to host or serve
+Third-Party Content. Third-Party Content may appear in Inputs or Outputs and
+become part of Materials. If you see any Third-Party Content you believe does
+not comply with these Terms, including by violating the Acceptable Use Policy
+or the law, you can report
+<https://docs.google.com/forms/d/e/1FAIpQLSeDGdVzv9XYm0eNaI88Aqm8fXO63UhbvFB9_4t-8CMlfUPewQ/viewform>
+it to us.
+
+If we become aware that any Third-Party Content (1) infringes another’s
+copyright or any other intellectual property or related or neighboring right,
+(2) is in breach of these Terms or our Acceptable Use Policy, or (3) may cause
+harm to Anthropic, our users, or third parties, we reserve the right to remove
+or take down some or all of such Third-Party Content using, where appropriate,
+algorithmic and human review.
+
+You can learn more about our monitoring and enforcement, including how to
+appeal an account suspension or termination, in our T&S Support Center
+<https://support.anthropic.com/en/collections/4078535-trust-safety>.
+
+9. Software
+
+We may offer manual or automatic updates to our software including our apps
+(“Anthropic Software”), without advance notice to you. Anthropic Software may
+include open source software. In the event of any conflict between these Terms
+and any other Anthropic or third-party terms applicable to any portion of
+Anthropic Software, such as open-source license terms, such other terms will
+control as to that portion of the Anthropic Software and to the extent of the
+conflict.
+
+10. Ownership of the Services
+
+The Services are owned, operated, and provided by us and our affiliates,
+licensors, distributors, and service providers (collectively “Providers”). We
+and our Providers retain all of our respective rights, title, and interest,
+including intellectual property rights, in and to the Services. Other than the
+rights of access and use expressly granted in our Terms, our Terms do not
+grant you any right, title, or interest in or to our Services.
+
+11. Disclaimer of warranties, limitations of liability, and indemnity
+
+Our team works hard to provide great services, and we’re continuously working
+on improvements. However, there are certain aspects we can’t guarantee. We are
+using ALL CAPS to explain this, to make sure that you see it.
+
+YOUR USE OF THE SERVICES, MATERIALS, AND ACTIONS IS SOLELY AT YOUR OWN RISK.
+THE SERVICES, OUTPUTS, AND ACTIONS ARE PROVIDED ON AN “AS IS” AND “AS
+AVAILABLE” BASIS AND, TO THE FULLEST EXTENT PERMISSIBLE UNDER APPLICABLE LAW,
+ARE PROVIDED WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS, IMPLIED, OR
+STATUTORY. WE AND OUR PROVIDERS EXPRESSLY DISCLAIM ANY AND ALL WARRANTIES OF
+FITNESS FOR A PARTICULAR PURPOSE, TITLE, MERCHANTABILITY, ACCURACY,
+AVAILABILITY, RELIABILITY, SECURITY, PRIVACY, COMPATIBILITY, NON-INFRINGEMENT,
+AND ANY WARRANTY IMPLIED BY COURSE OF DEALING, COURSE OF PERFORMANCE, OR TRADE
+USAGE.
+
+TO THE FULLEST EXTENT PERMISSIBLE UNDER APPLICABLE LAW, IN NO EVENT WILL WE,
+OUR PROVIDERS, OR OUR OR THEIR RESPECTIVE AFFILIATES, INVESTORS, DIRECTORS,
+OFFICERS, EMPLOYEES, AGENTS, SUCCESSORS OR ASSIGNS (COLLECTIVELY, THE
+“ANTHROPIC PARTIES”), BE LIABLE FOR ANY DIRECT, INDIRECT, PUNITIVE,
+INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR OTHER DAMAGES ARISING OUT OF
+OR IN ANY WAY RELATED TO THE SERVICES, THE MATERIALS, THE ACTIONS, OR THESE
+TERMS, WHETHER BASED IN CONTRACT, TORT (INCLUDING NEGLIGENCE), STRICT
+LIABILITY, OR OTHER THEORY, EVEN IF ANY ANTHROPIC PARTIES HAVE BEEN ADVISED OF
+THE POSSIBILITY OF DAMAGES, AND EVEN IF THE DAMAGES ARE FORESEEABLE.
+
+TO THE FULLEST EXTENT PERMISSIBLE UNDER APPLICABLE LAW, THE ANTHROPIC PARTIES’
+TOTAL AGGREGATE LIABILITY TO YOU FOR ALL DAMAGES, LOSSES AND CAUSES OF ACTION
+ARISING OUT OF OR IN ANY WAY RELATED TO THE SERVICES, THE MATERIALS, THE
+ACTIONS, OR THESE TERMS, WHETHER IN CONTRACT, TORT (INCLUDING NEGLIGENCE) OR
+OTHERWISE, WILL NOT EXCEED THE GREATER OF THE AMOUNT YOU PAID TO US FOR ACCESS
+TO OR USE OF THE SERVICES (IF ANY) IN THE SIX MONTHS PRECEDING THE DATE SUCH
+DAMAGES, LOSSES, AND CAUSES OF ACTION FIRST AROSE, AND $100. THE FOREGOING
+LIMITATIONS ARE ESSENTIAL TO THESE TERMS, AND WE WOULD NOT OFFER THE SERVICES
+TO YOU UNDER THESE TERMS WITHOUT THESE LIMITATIONS.
+
+YOU AGREE TO INDEMNIFY AND HOLD HARMLESS THE ANTHROPIC PARTIES FROM AND
+AGAINST ANY AND ALL LIABILITIES, CLAIMS, DAMAGES, EXPENSES (INCLUDING
+REASONABLE ATTORNEYS’ FEES AND COSTS), AND OTHER LOSSES ARISING OUT OF OR
+RELATED TO YOUR BREACH OR ALLEGED BREACH OF THESE TERMS; YOUR ACCESS TO, USE
+OF, OR ALLEGED USE OF THE SERVICES, THE MATERIALS, OR THE ACTIONS; YOUR
+FEEDBACK; ANY PRODUCTS OR SERVICES THAT YOU DEVELOP, OFFER, OR OTHERWISE MAKE
+AVAILABLE USING OR OTHERWISE IN CONNECTION WITH THE SERVICES; YOUR VIOLATION
+OF APPLICABLE LAW OR ANY THIRD-PARTY RIGHT; AND ANY ACTUAL OR ALLEGED FRAUD,
+INTENTIONAL MISCONDUCT, GROSS NEGLIGENCE, OR CRIMINAL ACTS COMMITTED BY YOU OR
+YOUR EMPLOYEES OR AGENTS. WE RESERVE THE RIGHT TO ENGAGE SEPARATE COUNSEL AND
+PARTICIPATE IN OR ASSUME THE EXCLUSIVE DEFENSE AND CONTROL OF ANY MATTER
+OTHERWISE SUBJECT TO INDEMNIFICATION BY YOU HEREUNDER, IN WHICH CASE YOU AGREE
+TO COOPERATE WITH US AND SUCH SEPARATE COUNSEL AS WE REASONABLY REQUEST.
+
+THE LAWS OF SOME JURISDICTIONS DO NOT ALLOW THE DISCLAIMER OF IMPLIED
+WARRANTIES OR CERTAIN TYPES OF DAMAGES, SO SOME OR ALL OF THE DISCLAIMERS AND
+LIMITATIONS OF LIABILITY IN THESE TERMS MAY NOT APPLY TO YOU.
+
+OUR PROVIDERS ARE INTENDED THIRD PARTY BENEFICIARIES OF THE WARRANTY
+DISCLAIMERS AND LIMITATIONS OF LIABILITY CONTAINED IN THIS SECTION 11.
+
+12. General terms
+
+Changes to the Services. Our Services are novel and will change. We may
+sometimes add or remove features, increase or decrease capacity limits, offer
+new Services, or stop offering certain Services.
+
+Unless we specifically agree otherwise in a separate agreement with you, we
+reserve the right to modify, suspend, or discontinue the Services or your
+access to the Services, in whole or in part, at any time without notice to
+you. Although we will strive to provide you with reasonable advance notice if
+we stop offering a Service, there may be urgent situations—such as preventing
+abuse, responding to legal requirements, or addressing security and
+operability issues—where providing advance notice is not feasible. We will not
+be liable for any change to or any suspension or discontinuation of the
+Services or your access to them.
+
+Changes to these terms. We may revise and update these Terms at our
+discretion. Some examples of times, we may update these Terms include (1) to
+reflect changes in our Services, like when we add or remove features or
+services, or update our pricing, (2) for security or legal reasons, or (3) to
+promote safety or prevent abuse. If you continue to access the Services after
+we post the updated Terms on Anthropic’s website or otherwise give you notice
+of Terms changes, then you agree to the updated Terms. If you do not accept
+the updated Terms, you must stop using our Services.
+
+Supplemental terms. We may offer Services or features that we believe require
+service-specific terms or guidelines. When using our Services, you agree to
+comply with any applicable guidelines, rules, or supplemental terms that may
+be posted on the Services from time to time (“Supplemental Terms”). If these
+Terms conflict with Supplemental Terms, the Supplemental Terms will govern for
+the applicable Service.
+
+Entire agreement. These Terms and any other terms expressly incorporated by
+reference form the entire agreement between you and us regarding the subject
+matter of our Terms.
+
+Termination. You may stop accessing the Services at any time. We may suspend
+or terminate your access to the Services (including any Subscriptions) at any
+time without notice to you if we believe that you have breached these Terms,
+or if we must do so in order to comply with law. If we terminate your access
+to the Services due to a violation of these Terms and you have a Subscription,
+you will not be entitled to any refund. In addition, if you have a
+Subscription, we may terminate the Subscription at any time for any other
+reason. If we exercise this right and you purchased the subscription via our
+website, we will refund you, on a pro rata basis, the fees you paid for the
+remaining portion of your Subscription after termination. Any refunds for
+Subscriptions purchased via an App Distributor are subject to the App
+Distributor’s terms and not these terms.
+
+We may also terminate your Account if you have been inactive for over a year
+and you do not have a paid Account. If we terminate your Account due to
+inactivity, we will provide you with notice before doing so.
+
+Upon termination of these Terms, a Subscription, or your access to the
+Services, we may at our option delete any Materials or other data associated
+with your Account. Sections 6 (with respect to fees outstanding as of such
+expiration or termination) and 9 – 12 will survive any expiration or
+termination of our Terms or a Subscription.
+
+Severability. If a particular Term or portion of these Terms is not valid or
+enforceable, this will have no effect on any other Terms.
+
+No waiver. Any delay or failure on our part to enforce a provision of these
+Terms is not a waiver of our right to enforce them later.
+
+No assignment. These Terms may not be transferred or assigned by you without
+our prior written consent, but may be assigned by us without restriction.
+
+Use of our brand. You may not, without our prior written permission, use our
+name, logos, or other trademarks in connection with products or services other
+than the Services, or in any other way that implies our affiliation,
+endorsement, or sponsorship. To seek permission, please email us at
+marketing@anthropic.com.
+
+Export Controls. You may not export or provide access to the Services into any
+U.S. embargoed countries or to anyone on (i) the U.S. Treasury Department’s
+list of Specially Designated Nationals, (ii) any other restricted party lists
+identified by the Office of Foreign Asset Control, (iii) the U.S. Department
+of Commerce Denied Persons List or Entity List, or (iv) any other restricted
+party lists. You represent and warrant that you and anyone accessing or using
+the Services on your behalf, or using your Account credentials, are not such
+persons or entities and are not located in any such country.
+
+Legal Compliance. We may comply with governmental, court, and law enforcement
+requests or requirements relating to provision or use of the Services, or to
+information provided to or collected under our Terms. We reserve the right, at
+our sole discretion, to report information from or about you, including but
+not limited to Inputs, Outputs, or Actions to law enforcement.
+
+U.S. Government Use. The Services were developed solely at private expense and
+are commercial computer software and commercial computer software
+documentation within the meaning of the applicable Federal Acquisition
+Regulations and their agency supplements. Accordingly, U.S. Government users
+of the Services will have only those rights that are granted to all other end
+users of the Services pursuant to these Terms.
+
+13. In case of disputes
+
+Equitable relief. You agree that (a) no adequate remedy exists at law if you
+breach Section 3 (Use of Our Services); (b) it would be difficult to determine
+the damages resulting from such breach, and any such breach would cause
+irreparable harm; and (c) a grant of injunctive relief provides the best
+remedy for any such breach. You waive any opposition to such injunctive
+relief, as well as any demand that we prove actual damage or post a bond or
+other security in connection with such injunctive relief.
+
+Governing law and exclusive jurisdiction. Our Terms will be governed by, and
+construed and interpreted in accordance with, the laws of the State of
+California without giving effect to conflict of law principles. You and
+Anthropic agree that any disputes arising out of or relating to these Terms
+will be resolved exclusively in the state or federal courts located in San
+Francisco, California, and you and Anthropic submit to the personal and
+exclusive jurisdiction of those courts. By accessing our Services, you waive
+any claims that may arise under the laws of other jurisdictions.
+
+==============================================================================
+
+Usage Policy
+
+Our Usage Policy (also referred to as our “Acceptable Use Policy” or “AUP”)
+applies to anyone who can submit inputs to Anthropic’s products and/or
+services, including via any authorized resellers or passthrough access, all of
+whom we refer to as “users.” The Usage Policy is intended to help our users
+stay safe and promote the responsible use of our products and services.
+
+The Usage Policy is categorized according to who can use our products and for
+what purposes. We will update our policy as our technology and the associated
+risks evolve or as we learn about unanticipated risks.
+
+- Universal Usage Standards: Our Universal Usage Standards apply to all users
+  and use cases.
+- High-Risk Use Case Requirements: Our High-Risk Use Case Requirements apply
+  to specific consumer-facing use cases that pose an elevated risk of harm.
+- Additional Use Case Guidelines: Our Additional Use Case Guidelines apply to
+  certain other use cases, including consumer-facing chatbots, products
+  serving minors, agentic use, and Model Context Protocol servers.
+
+Anthropic’s Safeguards Team will implement detection and monitoring to enforce
+our Usage Policy, so please review this policy carefully before using our
+products or services. If we learn that you have violated our Usage Policy, we
+may throttle, suspend, or terminate your access to our products and services.
+We may also block or modify model outputs when inputs violate our Usage
+Policy.
+
+If you believe that our model outputs are potentially inaccurate, biased or
+harmful, please notify us at usersafety@anthropic.com, or report it directly
+in our product through the “report issues” thumbs down button or similar
+feedback features (where available). You can read more about our Safeguards
+practices and recommendations in our Safeguards Support Center
+<https://support.anthropic.com/en/collections/4078535-safeguards>.
+
+This Usage Policy is calibrated to strike an optimal balance between enabling
+beneficial uses and mitigating potential harms. Anthropic may enter into
+contracts with certain governmental customers that tailor use restrictions to
+that customer’s public mission and legal authorities if, in Anthropic’s
+judgment, the contractual use restrictions and applicable safeguards are
+adequate to mitigate the potential harms addressed by this Usage Policy.
+
+Universal Usage Standards
+
+This includes using our products or services to:
+
+- Acquire or exchange illegal or controlled substances
+- Engage in or facilitate human trafficking or prostitution
+- Infringe, misappropriate, or violate the intellectual property rights of a
+  third party
+- Violate any other applicable laws or regulations in your jurisdiction
+
+This includes using our products or services to:
+
+- Facilitate the destruction or disruption of critical infrastructure such as
+  power grids, water treatment facilities, medical devices, telecommunication
+  networks, or air traffic control systems
+- Obtain unauthorized access to critical systems such as voting machines,
+  healthcare databases, and financial markets
+- Interfere with the operation of military bases and related infrastructure
+
+This includes using our products or services to:
+
+- Discover or exploit vulnerabilities in systems, networks, or applications
+  without authorization of the system owner
+- Gain unauthorized access to systems, networks, applications, or devices
+  through technical attacks or social engineering
+- Create or distribute malware, ransomware, or other types of malicious code
+- Develop tools for denial-of-service attacks or managing botnets
+- Create tools designed to intercept communications or monitor devices without
+  authorization of the system owner
+- Develop persistent access tools designed to operate below normal system
+  security levels, including firmware modifications or hardware implants
+- Create automated tools designed to compromise multiple systems at scale for
+  malicious purposes
+- Bypass security controls such as authenticated systems, endpoint protection,
+  or monitoring tools
+
+This includes using our products or services to:
+
+- Produce, modify, design, or illegally acquire weapons, explosives, dangerous
+  materials or other systems designed to cause harm to or loss of human life
+- Design or develop weaponization and delivery processes for the deployment of
+  weapons
+- Circumvent regulatory controls to acquire weapons or their precursors
+- Synthesize, or otherwise develop, high-yield explosives or biological,
+  chemical, radiological, or nuclear weapons or their precursors, including
+  modifications to evade detection or medical countermeasures
+
+This includes using our products or services to:
+
+- Incite, facilitate, or promote violent extremism, terrorism, or hateful
+  behavior
+- Provide material support for organizations or individuals associated with
+  violent extremism, terrorism, or hateful behavior
+- Facilitate or promote any act of violence or intimidation targeting
+  individuals, groups, animals, or property
+- Promote discriminatory practices or behaviors against individuals or groups
+  on the basis of one or more protected attributes such as race, ethnicity,
+  religion, national origin, gender, sexual orientation, or any other
+  identifying trait
+
+This includes using our products or services to:
+
+- Violate privacy rights as defined by applicable privacy laws, such as
+  sharing personal information without consent or accessing private data
+  unlawfully
+- Misuse, collect, solicit, or gain access without permission to private
+  information such as non-public contact details, health data, biometric or
+  neural data (including facial recognition), or confidential or proprietary
+  data
+- Impersonate a human by presenting results as human-generated, or using
+  results in a manner intended to convince a natural person that they are
+  communicating with a natural person when they are not
+
+This includes using our products or services to:
+
+- Create, distribute, or promote child sexual abuse material (“CSAM”),
+  including AI-generated CSAM
+- Facilitate the trafficking, sextortion, or any other form of exploitation of
+  a minor
+- Facilitate minor grooming, including generating content designed to
+  impersonate a minor
+- Facilitate child abuse of any form, including instructions for how to
+  conceal abuse
+- Promote or facilitate pedophilic relationships, including via roleplay with
+  the model
+- Fetishize or sexualize minors, including in fictional settings or via
+  roleplay with the model
+
+Note: We define a minor or child to be any individual under the age of 18
+years old, regardless of jurisdiction. When we detect CSAM (including
+AI-generated CSAM), or coercion or enticement of a minor to engage in sexual
+activities, we will report to relevant authorities.
+
+This includes using our products or services to:
+
+- Facilitate, promote, or glamorize any form of suicide or self-harm,
+  including disordered eating and unhealthy or compulsive exercise
+- Engage in behaviors that promote unhealthy or unattainable body image or
+  beauty standards, such as using the model to critique anyone’s body shape or
+  size
+- Shame, humiliate, intimidate, bully, harass, or celebrate the suffering of
+  individuals
+- Coordinate the harassment or intimidation of an individual or group
+- Generate content depicting animal cruelty or abuse
+- Promote, trivialize, or depict graphic violence or gratuitous gore,
+  including sexual violence
+- Develop a new product or service, or support an existing product or service
+  that employs or facilitates deceptive techniques with the intent of causing
+  emotional harm
+
+This includes using our products or services to:
+
+- Create or disseminate deceptive or misleading information about, or with the
+  intention of targeting, a group, entity or person
+- Create or disseminate deceptive or misleading information about laws,
+  regulations, procedures, practices, standards established by an institution,
+  entity or governing body
+- Create or disseminate conspiratorial narratives meant to target a specific
+  group, individual or entity
+- Impersonate real entities or create fake personas to falsely attribute
+  content or mislead others about its origin without consent or legal right
+- Provide false or misleading information related to medical, health or
+  science issues
+
+This includes using our products or services to:
+
+- Engage in personalized vote or campaign targeting based on individual
+  profiles or data
+- Create artificial or deceptive political movements in which the source,
+  scale or nature of the campaign or activities is misrepresented
+- Generate automated communications to public officials or voters at scale
+  that conceal their artificial origin, or engage in systematic vote
+  solicitation that could undermine election integrity
+- Create political content designed to deceive or mislead voters, including
+  synthetic media of political figures
+- Generate or disseminate false or misleading information in political and
+  electoral contexts, including about candidates, parties, policies, voting
+  procedures, or election security
+- Engage in political lobbying or grassroots advocacy using false or
+  fabricated information, or create lobbying or advocacy materials containing
+  demonstrably false claims about facts, data, or events
+- Incite, glorify or facilitate the disruption of electoral or civic
+  processes, including interference with voting systems, vote counting, or
+  certification processes
+- Create content designed to suppress voter turnout or discourage legitimate
+  political participation through deception or intimidation
+
+This includes using our products or services to:
+
+- Make determinations on criminal justice applications, including making
+  decisions about or determining eligibility for parole or sentencing
+- Target or track a person’s physical location, emotional state, or
+  communication without their consent, including using our products for facial
+  recognition, battlefield management applications or predictive policing
+- Utilize models to assign scores or ratings to individuals based on an
+  assessment of their trustworthiness or social behavior without notification
+  or their consent
+- Build or support emotional recognition systems or techniques that are used
+  to infer emotions of a natural person, except for medical or safety reasons
+- Analyze or identify specific content to censor on behalf of a government
+  organization
+- Utilize models as part of any biometric categorization system for
+  categorizing people based on their biometric data to infer their race,
+  political opinions, trade union membership, religious or philosophical
+  beliefs, sex life or sexual orientation
+- Utilize models as part of any law enforcement application that violates or
+  impairs the liberty, civil liberties, or human rights of natural persons
+
+This includes using our products or services to:
+
+- Facilitate the production, acquisition, or distribution of counterfeit or
+  illicitly acquired goods
+- Promote or facilitate the generation or distribution of spam
+- Generate content for fraudulent activities, schemes, scams, phishing, or
+  malware that can result in direct financial or psychological harm
+- Create falsified documents including fake IDs, licenses, currency, or other
+  government documents
+- Develop, promote, or otherwise facilitate the sale or distribution of
+  fraudulent or deceptive products
+- Generate deceptive or misleading digital content such as fake reviews,
+  comments, or media
+- Engage in or facilitate multi-level marketing, pyramid schemes, or other
+  deceptive business models that use high-pressure sales tactics or exploit
+  participants
+- Promote or facilitate payday loans, title loans, or other high-interest,
+  short-term lending practices that exploit vulnerable individuals
+- Engage in deceptive or abusive practices that exploit individuals based on
+  age, disability or a specific social or economic situation
+- Promote or facilitate the use of abusive or harassing debt collection
+  practices
+- Develop a product or support an existing service that deploys subliminal,
+  manipulative, or deceptive techniques to distort behavior by impairing
+  decision-making
+- Engage in actions or behaviors that circumvent the guardrails or terms of
+  other platforms or services
+- Plagiarize or submit AI-assisted work without proper permission or
+  attribution
+
+This includes using our products or services to:
+
+- Coordinate malicious activity across multiple accounts to avoid detection or
+  circumvent product guardrails or generating identical or similar inputs that
+  otherwise violate our Usage Policy
+- Utilize automation in account creation or to engage in spammy behavior
+- Circumvent a ban through the use of a different account, such as the
+  creation of a new account, use of an existing account, or providing access
+  to a person or entity that was previously banned
+- Access or facilitate account or API access to Claude to persons, entities,
+  or users in violation of our Supported Regions Policy
+  <https://www.anthropic.com/supported-countries>
+- Intentionally bypass capabilities, restrictions, or guardrails established
+  within our products for the purposes of instructing the model to produce
+  harmful outputs (e.g., jailbreaking or prompt injection) without prior
+  authorization from Anthropic
+- Utilization of inputs and outputs to train an AI model (e.g., “model
+  scraping” or “model distillation”) without prior authorization from
+  Anthropic
+
+This includes using our products or services to:
+
+- Depict or request sexual intercourse or sex acts
+- Generate content related to sexual fetishes or fantasies
+- Facilitate, promote, or depict incest or bestiality
+- Engage in erotic chats
+
+High-Risk Use Case Requirements
+
+Some use cases pose an elevated risk of harm because they influence domains
+that are vital to public welfare and social equity. For these use cases, given
+potential risks to individuals and consumers, we believe that relevant human
+expertise should be integrated and that end-users should be aware when AI has
+been involved in producing outputs.
+
+As such, for the “High-Risk Use Cases” described below, we require that you
+implement these additional safety measures:
+
+- Human-in-the-loop: When using our products or services to provide advice,
+  recommendations, or in subjective decision-making directly affecting
+  individuals or consumers, a qualified professional in that field must review
+  the content or decision prior to dissemination or finalization. You or your
+  organization are responsible for the accuracy and appropriateness of that
+  information.
+- Disclosure: If model outputs are presented directly to individuals or
+  consumers, you must disclose to them that you are using AI to help produce
+  your advice, decisions, or recommendations. This disclosure must be provided
+  at a minimum at the beginning of each session.
+
+“High-Risk Use Cases” include:
+
+- Legal: Use cases related to legal interpretation, legal guidance, or
+  decisions with legal implications
+- Healthcare: Use cases related to healthcare decisions, medical diagnosis,
+  patient care, therapy, mental health, or other medical guidance. Wellness
+  advice (e.g., advice on sleep, stress, nutrition, exercise, etc.) does not
+  fall under this category
+- Insurance: Use cases related to health, life, property, disability, or other
+  types of insurance underwriting, claims processing, or coverage decisions
+- Finance: Use cases related to financial decisions, including investment
+  advice, loan approvals, and determining financial eligibility or
+  creditworthiness
+- Employment and housing: Use cases related to decisions about the
+  employability of individuals, resume screening, hiring tools, or other
+  employment determinations or decisions regarding eligibility for housing,
+  including leases and home loans
+- Academic testing, accreditation and admissions: Use cases related to
+  standardized testing companies that administer school admissions (including
+  evaluating, scoring or ranking prospective students), language proficiency,
+  or professional certification exams; agencies that evaluate and certify
+  educational institutions
+- Media or professional journalistic content: Use cases related to using our
+  products or services to automatically generate content and publish it for
+  external consumption
+
+Additional Use Case Guidelines
+
+The below use cases – regardless of whether they are High-Risk Use Cases –
+must comply with the additional guidance provided.
+
+- All consumer-facing chatbots, including any external-facing or interactive
+  AI agent, must disclose to users that they are interacting with AI rather
+  than a human. This disclosure must be provided at a minimum at the beginning
+  of each chat session.
+- Products serving minors, including organizations providing minors with the
+  ability to directly interact with products that incorporate our API(s), must
+  comply with the additional guidelines outlined in our Help Center article.
+  <https://support.anthropic.com/en/articles/9307344-responsible-use-of-anthropic-s-models-guidelines-for-organizations-serving-minors>
+- Agentic use cases must still comply with the Usage Policy. We provide
+  examples of Usage Policy prohibitions in the context of agentic use in this
+  Help Center article
+  <https://support.anthropic.com/en/articles/12005017-using-agents-according-to-our-usage-policy>.
+- Model Context Protocol (MCP) servers listed in our Connector Directory must
+  comply with our Directory Policy
+  <https://support.anthropic.com/en/articles/11697096-anthropic-mcp-directory-policy>.
