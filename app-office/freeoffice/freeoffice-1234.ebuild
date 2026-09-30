@@ -13,6 +13,8 @@ SRC_URI="${BASE_URI}-amd64.tgz"
 S="${WORKDIR}"
 
 LICENSE="SoftMaker"
+# From media-fonts/noto-cjk for the bundled Noto Sans CJK fonts
+LICENSE+=" OFL-1.1"
 SLOT="0"
 KEYWORDS="~amd64"
 LANGUAGES="ar bg da de el en-GB en-US es et fi fr hu id it ja kk ko lt lv nl pl pt pt-BR ro ru sl sv tr uk zh"
