@@ -19,16 +19,33 @@ KEYWORDS="-* ~amd64"
 RESTRICT="strip"
 
 RDEPEND="
-	dev-libs/glib
-	net-libs/libsoup:3.0
-	net-libs/webkit-gtk:4.1
-	x11-libs/gdk-pixbuf
+	>=app-accessibility/at-spi2-core-2.46.0:2
+	dev-libs/expat
+	dev-libs/glib:2
+	dev-libs/nspr
+	dev-libs/nss
+	media-libs/alsa-lib
+	media-libs/mesa[gbm(+)]
+	net-print/cups
+	sys-apps/dbus
+	virtual/libudev:=
+	x11-libs/cairo
 	x11-libs/gtk+:3
+	x11-libs/libX11
+	x11-libs/libXcomposite
+	x11-libs/libXdamage
+	x11-libs/libXext
+	x11-libs/libXfixes
+	x11-libs/libXrandr
+	x11-libs/libxcb
+	x11-libs/libxkbcommon
+	x11-libs/pango
 "
 
 QA_PREBUILT="
 	usr/bin/reasonix-desktop
 	usr/bin/reasonix-launcher
+	usr/lib/reasonix/app/*
 "
 
 src_unpack() {
@@ -39,6 +56,11 @@ src_install() {
 	# Deb also ships /usr/bin/reasonix; leave that path to reasonix-bin.
 	dobin usr/bin/reasonix-desktop
 	dobin usr/bin/reasonix-launcher
+
+	# reasonix-desktop in /usr/bin starts the Electron shell from this fixed path.
+	dodir /usr/lib/reasonix
+	cp -r usr/lib/reasonix/app "${ED}"/usr/lib/reasonix/ || die
+	fperms 4711 /usr/lib/reasonix/app/chrome-sandbox
 
 	# Skip update-helper and polkit: they implement .deb self-update.
 	domenu usr/share/applications/reasonix.desktop
