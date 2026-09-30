@@ -1906,6 +1906,7 @@ source = "github"
 github = "lyswhut/lx-music-desktop"
 use_latest_tag = true
 prefix = "v"
+autobump = true
 github_account = "gouwazi"
 
 ["media-sound/netease-cloud-music-gtk"]
