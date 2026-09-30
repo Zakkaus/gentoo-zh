@@ -1476,6 +1476,7 @@ source = "github"
 github = "version-fox/vfox"
 use_latest_tag = true
 prefix = "v"
+autobump = true
 github_account = "gouwazi"
 
 ["dev-util/vimls-go-bin"]
