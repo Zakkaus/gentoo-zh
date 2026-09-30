@@ -1,0 +1,209 @@
+name: tatt
+
+# USE-combination testing with app-portage/tatt on amd64. A changed ebuild is tested when the
+# PR carries the `tatt` label, or when it has USE flags to vary and is new or changes IUSE or
+# REQUIRED_USE; emerge-on-pr already builds every other one with its default flags.
+
+on:
+  pull_request:
+    branches:
+      - master
+    types: [opened, reopened, synchronize, labeled]
+    paths-ignore:
+      - '.github/**'
+      - 'metadata/**'
+      - 'profiles/**'
+
+concurrency:
+  # any other label gets its own group, so adding it cannot cancel a running test
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}${{ github.event.action == 'labeled' && github.event.label.name != 'tatt' && '-label' || '' }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    name: scan changed ebuilds
+    if: github.event.action != 'labeled' || github.event.label.name == 'tatt'
+    runs-on: ubuntu-latest
+    outputs:
+      targets: ${{ steps.targets.outputs.targets }}
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        repository: ${{ github.event.pull_request.head.repo.full_name }}
+        ref: ${{ github.event.pull_request.head.sha }}
+
+    - name: select ebuilds
+      id: targets
+      env:
+        GH_TOKEN: ${{ github.token }}
+        BASE: ${{ github.event.pull_request.base.sha }}
+        PR: ${{ github.event.pull_request.number }}
+        LABELED: ${{ contains(github.event.pull_request.labels.*.name, 'tatt') }}
+      run: |
+        git fetch --quiet --depth=1 "https://github.com/$GITHUB_REPOSITORY" "$BASE"
+        # the checkout is the fork's, so name the repository; gh pr view lists only 100 files
+        gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files" \
+            --jq '.[] | select(.additions > 0) | [.filename, .previous_filename // ""] | @tsv' > files.tsv
+
+        # the IUSE and REQUIRED_USE assignments, one line each, double-quoted
+        use_vars() {
+            awk '!on && match($0, /^(IUSE|REQUIRED_USE)\+?=["\047]/) { on = 1; n = 0; q = substr($0, RLENGTH, 1) }
+                 on { printf "%s ", $0; n += gsub(q, q); if (n % 2 == 0) { on = 0; print "" } }' |
+                tr "'" '"' | tr -s ' \t' ' '
+        }
+        # the IUSE flags tatt varies, without the prefixes it ignores; an expansion counts as one
+        flags() {
+            use_vars | sed -n 's/^IUSE+\?="\([^"]*\)".*/\1/p' | tr ' ' '\n' | sed 's/^[+-]//' |
+                grep -vE '^$|^(test|debug|kdeenablefinal|elibc_|video_cards_|linguas_|python_targets_|python_single_target_|cpu_flags_)' || true
+        }
+        live='-9{4,}(-r[0-9]+)?\.ebuild$'
+
+        printf '| ebuild | tatt |\n|---|---|\n' >> "$GITHUB_STEP_SUMMARY"
+        while IFS=$'\t' read -r ebuild previous; do
+            [[ "$ebuild" =~ ^[A-Za-z0-9+_.-]+/[A-Za-z0-9+_.-]+/[A-Za-z0-9+_.-]+\.ebuild$ && -f "$ebuild" ]] || continue
+            pkg=${ebuild%/*}
+            keywords=$(sed -n "s/^KEYWORDS=[\"']\(.*\)[\"'].*/\1/p" "$ebuild")
+            if [[ "$ebuild" =~ $live ]]; then
+                keyword='**'
+            elif [[ " $keywords " == *" ~amd64 "* || " $keywords " == *" amd64 "* ]]; then
+                keyword='~amd64'
+            else
+                keyword=
+            fi
+
+            if [ -z "$keyword" ]; then
+                reason="skipped: not keyworded ~amd64"
+            elif [ "$LABELED" = true ]; then
+                reason="tested: tatt label"
+            elif [ -z "$(flags < "$ebuild")" ]; then
+                reason="skipped: no USE flag to vary"
+            elif [ -z "$(git ls-tree "$BASE" -- "$pkg/")" ]; then
+                reason="tested: new package"
+            else
+                # compare with the file it replaces, or with any release ebuild when it adds one
+                vars=$(use_vars < "$ebuild")
+                if [ -n "$previous" ]; then
+                    old=("$previous")
+                elif git cat-file -e "$BASE:$ebuild" 2> /dev/null; then
+                    old=("$ebuild")
+                else
+                    mapfile -t old < <(git ls-tree --name-only "$BASE" -- "$pkg/" | grep '\.ebuild$' | grep -vE -- "$live")
+                fi
+                reason="tested: IUSE or REQUIRED_USE changed"
+                for f in "${old[@]}"; do
+                    if [ "$(git show "$BASE:$f" | use_vars)" = "$vars" ]; then
+                        reason="skipped: add the tatt label to test"
+                        break
+                    fi
+                done
+            fi
+            echo "| \`$ebuild\` | $reason |" >> "$GITHUB_STEP_SUMMARY"
+            if [[ "$reason" == tested:* ]]; then
+                IFS=/ read -r cat _ pf <<< "${ebuild%.ebuild}"
+                printf '%s\t%s\n' "=$cat/$pf" "$keyword"
+            fi
+        done < files.tsv > targets.tsv
+
+        targets=$(jq -Rc 'split("\t") | {atom: .[0], keyword: .[1]}' targets.tsv | jq -sc .)
+        echo "targets: $targets"
+        echo "targets=${targets}" >> "$GITHUB_OUTPUT"
+
+  tatt:
+    name: tatt ${{ matrix.target.atom }}
+    needs: scan
+    if: ${{ fromJson(needs.scan.outputs.targets)[0] != null }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(needs.scan.outputs.targets) }}
+
+    runs-on: ubuntu-latest
+    container:
+      image: gentoo/stage3:amd64-desktop-systemd
+      options: --privileged
+    env:
+      ATOM: ${{ matrix.target.atom }}
+      KEYWORD: ${{ matrix.target.keyword }}
+
+    steps:
+    - name: sync gentoo main tree
+      run: emerge-webrsync --no-pgp-verify
+
+    - name: fetch repo
+      uses: actions/checkout@v7
+      with:
+        repository: ${{ github.event.pull_request.head.repo.full_name }}
+        ref: ${{ github.event.pull_request.head.sha }}
+
+    - name: setup portage config
+      run: |
+        mkdir -p /etc/portage/repos.conf /etc/portage/package.use /etc/portage/package.accept_keywords
+        cat > /etc/portage/repos.conf/ci.conf << EOF
+        [$(cat profiles/repo_name)]
+        location = $(realpath .)
+        priority = 0
+        EOF
+
+        cat >> /etc/portage/make.conf << EOF
+        MAKEOPTS="\${MAKEOPTS} -j$(nproc)"
+        FETCHCOMMAND="\${FETCHCOMMAND} --no-verbose"
+        RESUMECOMMAND="\${RESUMECOMMAND} --no-verbose"
+        EOF
+
+        cat > /etc/portage/binrepos.conf/ci.conf << EOF
+        [$(cat profiles/repo_name)-binhost]
+        sync-uri = https://distfiles.gentoozh.org/binpkgs/x86-64
+        priority = 2
+        EOF
+
+        printf '%s\n' 'dev-qt/qtwebengine bindist' 'net-libs/webkit-gtk keyring' > /etc/portage/package.use/ci
+        echo "$ATOM $KEYWORD" > /etc/portage/package.accept_keywords/ci
+
+    - name: setup keyring for binpkgs
+      run: |
+        getuto
+        export GNUPGHOME=/etc/portage/gnupg
+        wget -qO - https://distfiles.gentoozh.org/gentoo-zh-binhost.asc | gpg --import
+        gpg --batch --yes --pinentry-mode loopback --passphrase-file "${GNUPGHOME}/pass" --lsign-key 6A0726AF1476A2F382C6AC6638A0234EC16AD42E
+        gpg --batch --check-trustdb
+
+    - name: setup distfiles permissions
+      run: |
+        install -dm775 -o root -g portage /var/cache/distfiles
+        install -dm775 -o portage -g portage /var/cache/distfiles/git3-src
+
+    - name: setup tatt and cpu flags
+      run: |
+        FEATURES="getbinpkg" emerge --oneshot --quiet --autounmask=y --autounmask-write=y --autounmask-continue=y \
+            app-portage/tatt app-portage/cpuid2cpuflags
+        echo "$ATOM $(cpuid2cpuflags)" > /etc/portage/package.use/cpu-flags
+
+        # cpu_flags_* stay at the runner's values: toggling them would test binaries the host cannot run
+        cat > ~/.tatt << EOF
+        arch=amd64
+        usecombis=4
+        emergeopts="--autounmask=y --autounmask-write=y --autounmask-continue=y"
+        ignoreprefix="elibc_","video_cards_","linguas_","python_targets_","python_single_target_","kdeenablefinal","test","debug","cpu_flags_"
+        EOF
+
+    - name: emerge --onlydeps
+      run: FEATURES="getbinpkg" emerge --onlydeps --jobs 2 --quiet --autounmask=y --autounmask-write=y --autounmask-continue=y "$ATOM"
+
+    - name: run tatt
+      run: |
+        mkdir -p /report
+        cd /report
+        tatt -u "$ATOM"
+        # tatt's emerge writes to /dev/tty, which a container has only under a pseudo-terminal
+        script -qec "bash ./*-useflags.sh" /dev/null
+
+    - name: report
+      if: ${{ always() }}
+      run: |
+        {
+            echo "### tatt $ATOM"
+            echo '```'
+            cat /report/*.report 2> /dev/null || echo "no report"
+            echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"
