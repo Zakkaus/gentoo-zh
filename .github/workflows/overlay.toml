@@ -1178,6 +1178,7 @@ source = "github"
 github = "mozillazg/python-pinyin"
 use_latest_tag = true
 prefix = "v"
+autobump = true
 github_account = "blackteahamburger"
 
 ["dev-python/pyqt6-charts"]
