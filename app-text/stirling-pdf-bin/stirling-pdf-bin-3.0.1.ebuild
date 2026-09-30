@@ -11,6 +11,8 @@ SRC_URI="https://github.com/Stirling-Tools/Stirling-PDF/releases/download/v${PV}
 
 S="${WORKDIR}"
 LICENSE="MIT Stirling-PDF GPL-2-with-classpath-exception"
+# Java libraries in BOOT-INF/lib, including PDFBox, Batik, POI and flexmark
+LICENSE+=" Apache-2.0 BSD BSD-2"
 SLOT="0"
 KEYWORDS="-* ~amd64"
 
