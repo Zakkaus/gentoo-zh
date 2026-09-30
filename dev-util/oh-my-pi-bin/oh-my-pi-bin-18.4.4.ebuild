@@ -20,6 +20,8 @@ SRC_URI="
 S="${WORKDIR}"
 
 LICENSE="AGPL-3+ Apache-2.0 BSD CC-BY-4.0 MIT public-domain"
+# From dev-lang/bun-bin for the bundled Bun runtime
+LICENSE+=" Apache-2.0-with-LLVM-exceptions BSD-2 BSD-4 CC0-1.0 IJG ISC LGPL-2+ LGPL-2.1 ZLIB"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 IUSE="
