@@ -18,6 +18,8 @@ SRC_URI="
 S="${WORKDIR}/package"
 
 LICENSE="MIT"
+# Bundled node_modules, including LibreOffice Kit and sharp-libvips
+LICENSE+=" 0BSD Apache-2.0 BSD BSD-2 ISC LGPL-3+ MPL-2.0 PSF-2 Unlicense"
 SLOT="0"
 KEYWORDS="~amd64"
 RESTRICT="strip"
