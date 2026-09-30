@@ -18,6 +18,10 @@ SRC_URI="
 S="${WORKDIR}"
 
 LICENSE="MIT"
+# From net-misc/aria2 for the bundled aria2-next engine
+LICENSE+=" GPL-2+-with-openssl-exception"
+# Bundled DB-IP Lite database
+LICENSE+=" CC-BY-4.0"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 RDEPEND="sys-fs/fuse:0"
