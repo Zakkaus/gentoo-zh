@@ -2782,6 +2782,7 @@ github_account = "xz-dev"
 source = "regex"
 url = "https://www.adspower.com/tc/download"
 regex = 'linux-x64-global/([\d.]+)/AdsPower'
+autobump = true
 github_account = "zakkaus"
 
 ["www-client/brave-bin"]
