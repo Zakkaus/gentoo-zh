@@ -12,6 +12,12 @@ SRC_URI="${URI_PREFIX}${PV}_amd64.deb"
 
 S="${WORKDIR}"
 LICENSE="all-rights-reserved"
+# From www-client/chromium for the bundled Electron runtime
+LICENSE+=" Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD BSD-2 Base64 Boost-1.0 CC-BY-3.0 CC-BY-4.0 Clear-BSD FFT2D FTL"
+LICENSE+=" IJG ISC LGPL-2 LGPL-2.1 MIT MPL-1.1 MPL-2.0 Ms-PL PSF-2 SGI-B-2.0 SSLeay SunSoft Unicode-3.0"
+LICENSE+=" Unicode-DFS-2015 Unlicense UoI-NCSA ZLIB libtiff openssl"
+# From net-libs/nodejs
+LICENSE+=" Apache-1.1 BlueOak-1.0.0"
 
 SLOT="0"
 KEYWORDS="-* ~amd64"
