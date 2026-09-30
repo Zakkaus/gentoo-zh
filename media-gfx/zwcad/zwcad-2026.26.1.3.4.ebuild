@@ -22,6 +22,8 @@ SRC_URI="
 S=${WORKDIR}
 
 LICENSE="all-rights-reserved"
+# From dev-lang/python for the bundled Python runtime
+LICENSE+=" PSF-2"
 SLOT="0"
 KEYWORDS="-* ~amd64"
 
