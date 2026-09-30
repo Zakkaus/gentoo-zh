@@ -2950,6 +2950,7 @@ github_account = "gouwazi"
 source = "github"
 github = "linuxmint/mint-y-icons"
 use_latest_tag = true
+autobump = true
 github_account = "akira7095"
 
 ["x11-themes/nordic"]
