@@ -18,6 +18,8 @@ SRC_URI="
 S="${WORKDIR}"
 
 LICENSE="MIT GPL-2+ LGPL-2+ LGPL-2.1+"
+# Bundled DB-IP Lite database
+LICENSE+=" CC-BY-4.0"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 RDEPEND="sys-fs/fuse:0"
