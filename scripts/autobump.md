@@ -43,8 +43,8 @@ Not suitable:
 
 When in doubt, build-test first: Actions → autobump-trial → Run workflow, with `targets`
 set to nvchecker issue numbers separated by spaces. Each target gets a real bump, emerge,
-install and pkgcheck in the CI container and reports PASS, DEFER (transient, worth retrying) or
-FAIL, without opening a PR.
+install and pkgcheck through `scripts/autobump-trial.sh` in the `autobump-env` image. It reports
+PASS, DEFER (transient, worth retrying) or FAIL without opening a PR.
 
 ## Opting in and out
 

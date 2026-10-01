@@ -3,8 +3,6 @@ name: nvchecker
 on:
   workflow_dispatch:
   schedule:
-    # * is a special character in YAML so you have to quote this string
-    # UTC 09:00 -> CST (China) 17:00, see https://datetime360.com/cn/utc-cst-china-time/
     - cron: '0 09 * * *'
 
 concurrency:
@@ -25,10 +23,6 @@ jobs:
       run: |
         emerge-webrsync --no-pgp-verify
 
-    - name: cat binrepos
-      run: |
-        cat /etc/portage/binrepos.conf/*
-
     - name: setup features
       run: |
         echo 'FEATURES="getbinpkg"' >> /etc/portage/make.conf
@@ -36,7 +30,7 @@ jobs:
 
     - name: install depends
       run: |
-        emerge --verbose --quiet --jobs $(nproc) --autounmask y --autounmask-continue y \
+        emerge --verbose --quiet --jobs "$(nproc)" --autounmask y --autounmask-continue y \
         app-eselect/eselect-repository \
         app-portage/eix \
         dev-vcs/git
@@ -52,34 +46,7 @@ jobs:
 
     - name: eix
       id: eix
-      run: |
-        # eselect
-        echo "::group::eselect repository add and sync"
-        repo_name=$(cat profiles/repo_name)
-        eselect repository add "$repo_name" git "file://${PWD}"
-        emerge --sync "$repo_name"
-        egencache --jobs=$(nproc) --update --repo "$repo_name" &> /dev/null
-        eix-update
-        echo "::endgroup::"
-        # eix
-        echo "::group::eix search packages"
-        # availableversions minus live: bestversion picks 9999, which nothing upstream beats
-        pkgs=$(
-          ACCEPT_LICENSE="*" ACCEPT_KEYWORDS="~amd64 ~arm64 ~loong ~riscv" EIX_LIMIT=0 \
-          NONLIVE='{first}{!*nv}{}{!plainversion=9999}{!ishardmasked}{isstable}{*nv=<version>}{}{}{}{last}{$nv}<category>/<name>-<$nv>\n{}{}' \
-            eix --pure-packages --in-overlay "$repo_name" --format '<availableversions:NONLIVE>'
-        )
-        pkgs=$(qatom -F "\"%{CATEGORY}/%{PN}\": \"%{PV}\"," $pkgs) # remove revision
-        pkgs="{ ${pkgs::-1} }"
-        echo $pkgs
-        # use multiine string:
-        # https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#setting-an-output-parameter
-        {
-          echo 'pkgs<<EOF'
-          echo "$pkgs"
-          echo 'EOF'
-        } >> "$GITHUB_OUTPUT"
-        echo "::endgroup::"
+      run: scripts/nvchecker-eix.sh
 
   nvchecker:
     needs: eix
@@ -95,30 +62,30 @@ jobs:
         pip install nvchecker jq portage
 
     - name: echo pkgs
-      run: |
-        echo '${{ needs.eix.outputs.pkgs }}'
+      env:
+        PACKAGES: ${{ needs.eix.outputs.pkgs }}
+      run: echo "$PACKAGES"
 
     - name: nvchecker
       id: nvchecker
       env:
         GITHUB_TOKEN: ${{ secrets.GENTOO_ZH_NVCHECKER_PAT }}
+        PACKAGES: ${{ needs.eix.outputs.pkgs }}
+        NVCHECKER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        set -o pipefail
         echo "::group::nvchecker"
         cd .github/workflows/
-        echo '${{ needs.eix.outputs.pkgs }}' > old_ver.json
-        echo -e "[keys]\ngithub = \"${{ secrets.GITHUB_TOKEN }}\"" > keyfile.toml
+        printf '%s\n' "$PACKAGES" > old_ver.json
+        printf '[keys]\ngithub = "%s"\n' "$NVCHECKER_TOKEN" > keyfile.toml
         nvchecker --file overlay.toml --keyfile keyfile.toml
         echo "::endgroup::"
 
         echo "::group::nvcmp"
-        # assign on its own line: inside echo "$(...)" the exit status is echo's,
-        # so a failing pipe would go unnoticed until the matrix expands
-        set -o pipefail
-        # --sort portage: oldver comes from the tree, so PEP440 misreads _p and
-        # _rc and reports a downgrade as an update
+        # Tree oldver needs --sort portage: PEP440 misreads _p/_rc and reports downgrades as updates.
         nvcmp=$(nvcmp --file overlay.toml --json --newer --sort portage \
           | jq 'map({name, newver, oldver})' | jq -c .)
-        echo "nvcmp=${nvcmp}" >> $GITHUB_OUTPUT
+        echo "nvcmp=${nvcmp}" >> "$GITHUB_OUTPUT"
         echo "::endgroup::"
 
   issues-bumper:
@@ -126,6 +93,7 @@ jobs:
     if: needs.nvchecker.outputs.nvcmp != '[]'
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         include: ${{ fromJson(needs.nvchecker.outputs.nvcmp) }}
     steps:

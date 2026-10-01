@@ -28,7 +28,7 @@ jobs:
         run: ./update-relation.sh
       - name: Push changes
         if: ${{ steps.update_relation.outputs.state == 'changed' }}
-        uses: ad-m/github-push-action@master
+        uses: ad-m/github-push-action@881a6320fdb16eb5318c5054f31c218aec2b324c
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: deps-table

@@ -31,7 +31,7 @@
 * 带 `files/` patch 的包，因为 patch 每次都要重新验证。
 * 每个版本都要单独生成 vendor bundle、但 overlay.toml 没写明来源的包（见 [vendor bundle](#vendor-bundle)）。
 
-不确定就先做 build-test：Actions → autobump-trial → Run workflow，`targets` 填 nvchecker issue 号，空格分隔。每个目标会在 CI 容器里跑一遍真实的 bump、emerge、install 和 pkgcheck，汇报 PASS、DEFER（暂时性问题，值得重试）或 FAIL，不创建 PR。
+不确定就先做 build-test：Actions → autobump-trial → Run workflow，`targets` 填 nvchecker issue 号，空格分隔。`scripts/autobump-trial.sh` 在 `autobump-env` 镜像中执行 bump、emerge、install 和 pkgcheck，汇报 PASS、DEFER（暂时性问题，值得重试）或 FAIL，不创建 PR。
 
 ## 开启和关闭
 

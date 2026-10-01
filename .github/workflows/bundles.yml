@@ -1,15 +1,3 @@
-# bundles: check or prepare the vendor bundles a package's ebuild downloads.
-#
-# One entry point for every gentoo-deps and gentoo-zh-drafts bundle: type the package, and
-# autobump-rb's bin/bundles.py resolves its repository, producer workflow and inputs from the
-# `deps` or `bundle` key in overlay.toml. `status` only reads; `prepare` dispatches the
-# producer when neither a release nor a producer run exists for the tag. The job summary links
-# the run and the release.
-#
-# autobump.yml plan runs the same script for every open nvchecker issue. A prepare here is
-# not written to autobump's ledger, so it does not count toward the three dispatches a
-# version gets there; run autobump with `bundles_only` to prepare through the ledger.
-
 name: bundles
 
 on:
@@ -43,8 +31,7 @@ jobs:
         repository: gentoo-zh/autobump-rb
         path: autobump-rb
 
-    # each owner on its own: a failed mint must not skip the other owner's token or the
-    # controller, which reports the owner it has no token for as unknown
+    # One failed token mint must not prevent the other owner from running.
     - name: mint gentoo-deps token
       id: deps-token
       continue-on-error: true
@@ -68,7 +55,6 @@ jobs:
       env:
         GH_TOKEN_GENTOO_ZH: ${{ steps.deps-token.outputs.token }}
         GH_TOKEN_GENTOO_ZH_DRAFTS: ${{ steps.drafts-token.outputs.token }}
-        # passed via env, never inlined into the script
         PACKAGES: ${{ inputs.packages }}
         VERSION: ${{ inputs.version }}
         MODE: ${{ inputs.mode }}
@@ -78,7 +64,7 @@ jobs:
         case "$VERSION" in *[!A-Za-z0-9_.+-]*) echo "not a version: $VERSION" >&2; exit 1;; esac
         args=()
         [ -n "$VERSION" ] && args=(--version "$VERSION")
-        # $PACKAGES intentionally unquoted so it word-splits into atoms (validated above)
+        # shellcheck disable=SC2086
         python3 autobump-rb/bin/bundles.py "$MODE" $PACKAGES "${args[@]}" --out bundles.json
 
     - name: upload snapshot

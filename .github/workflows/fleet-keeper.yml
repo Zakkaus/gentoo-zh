@@ -1,12 +1,6 @@
 name: fleet-keeper
 
-# GitHub disables a repository's scheduled workflows after 60 days without a commit,
-# and does so silently. The gentoo-zh-drafts forks mirror upstream and build vendor
-# bundles on such a schedule, so a slow-moving package's fork stops producing bundles
-# once it crosses that line, with no error anywhere. This runs weekly from the overlay
-# (which commits daily, so it never freezes itself) and re-enables any fork schedule
-# GitHub has disabled for inactivity.
-
+# Vendor forks can lose their schedules after 60 days without commits.
 on:
   schedule:
     - cron: '30 5 * * 1'

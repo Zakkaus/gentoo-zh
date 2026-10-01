@@ -65,7 +65,7 @@ Treat `master` only as an upstream-sync branch.
 - Push only topic branches to an unambiguous personal fork, never `master` or the canonical remote. Use `--force-with-lease` after a rebase.
 - A missing or ambiguous personal fork blocks publishing, not local editing.
 - Preserve unrelated changes; never overwrite, revert, stage, or commit them.
-- For non-ebuild changes, check `.github/workflows/emerge-on-pr.yml` `ignore_list` so paths are not interpreted as package atoms.
+- For non-ebuild changes, check `scripts/emerge-targets.sh` `ignore_list` so paths are not interpreted as package atoms.
 - Stop before editing if any of these holds:
 
   - The canonical remote is ambiguous.

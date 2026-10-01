@@ -1,34 +1,11 @@
-# autobump: try the mechanical version bumps that nvchecker filed as issues.
-#
-# Design:
-# - The plan job resolves the queue against cached state and hands workers disjoint shards;
-#   workers share no state and collect merges their deltas.
-# - No model anywhere while AUTOBUMP_JUDGE is unset: whatever is not mechanically safe gets
-#   an evidence comment on its issue and stops. The judge hook in autobump-sweep.py is for
-#   later, where semantic judgment is worth a cheap model call.
-# - Mechanical bumps become normal PRs (draft when multi-arch), so emerge-on-pr and pkgcheck
-#   re-verify everything and a human is still the only merger.
-#
-# Requires: repo setting "Allow GitHub Actions to create and approve pull
-# requests", and maintainer agreement that the bot pushes its topic branches
-# to this repo (the engine names them <category>-<pn>-<version>).
-#
-# Engine: autobump-rb (Ruby, cloned per-run, github.com/gentoo-zh/autobump-rb), driven via
-# AUTOBUMP_ENGINE. Its stage-6 build test is a real `emerge` (build deps via getbinpkg), so
-# from-source packages are actually build-tested, not just `ebuild install`; it also
-# escalates hackport/haskell-cabal bumps (dep bounds come from the upstream .cabal).
-
 name: autobump
 
 on:
-  # chained to nvchecker rather than a clock: scheduled runs here start hours after their
-  # cron, so a fixed offset cannot keep autobump behind the issues it reads
+  # Scheduled runs can start hours late, so chain from nvchecker.
   workflow_run:
     workflows: [nvchecker]
     types: [completed]
-    # a manual nvchecker run from a topic branch is not the daily queue
     branches: [master]
-  # backstop: if nvchecker stops running, the queue would go quiet with nothing saying so
   schedule:
     - cron: '0 11 * * *'
   workflow_dispatch:
@@ -68,20 +45,18 @@ permissions:
   issues: write
 
 jobs:
-  # the queue is the open issues, not nvchecker's output, so a failed issue or dispatch job
-  # there does not hold the bumps back; only a cancelled run skips
+  # A failed nvchecker run can still leave issues to bump.
   wait:
     if: >-
       (github.repository == 'gentoo-zh/overlay' || github.event_name == 'workflow_dispatch')
       && github.event.workflow_run.conclusion != 'cancelled'
     runs-on: ubuntu-latest
     steps:
-    # the issues exist by now; this waits on the search index the queue is read through
+    # The issue search index lags issue creation.
     - name: wait for the issues to settle
       if: github.event_name == 'workflow_run'
       run: sleep 60
 
-  # after plan, so a run with an empty queue builds nothing
   env:
     needs: plan
     if: ${{ fromJSON(needs.plan.outputs.plan).matrix.include[0] != null }}
@@ -93,7 +68,6 @@ jobs:
       force: ${{ github.event_name == 'workflow_dispatch' && inputs.rebuild_env }}
       date: ${{ inputs.env_date || '' }}
 
-  # only the workers need portage, and a container start costs a 3.5 GB pull
   plan:
     needs: wait
     runs-on: ubuntu-latest
@@ -110,6 +84,7 @@ jobs:
         repository: gentoo-zh/autobump-rb
         path: autobump-rb
 
+    # App-created PRs trigger the package checks.
     - name: mint app token
       id: app-token
       uses: actions/create-github-app-token@v3
@@ -119,9 +94,7 @@ jobs:
         owner: gentoo-zh
         repositories: overlay
 
-    # the bundle controller dispatches bundle producers with these; only this job holds them.
-    # A fork without the DRAFTS_BOT secrets still plans: its bundle reads go out anonymously
-    # and a bundle that needs a dispatch stays unknown, which ends the run failed.
+    # Only the planner dispatches bundle producers.
     - name: mint gentoo-deps token
       id: deps-token
       continue-on-error: true
@@ -156,22 +129,18 @@ jobs:
         GH_TOKEN_GENTOO_ZH_DRAFTS: ${{ steps.drafts-token.outputs.token }}
         XDG_STATE_HOME: ${{ github.workspace }}/.autobump-state
         AUTOBUMP_BUNDLE_CONTROLLER: autobump-rb/bin/bundles.py
-        ISSUES: ${{ github.event.inputs.issues }}
-        LIMIT: ${{ github.event.inputs.limit || 0 }}
-        RETRY: ${{ github.event.inputs.retry == 'true' && '--retry' || '' }}
-        BUNDLES_ONLY: ${{ github.event.inputs.bundles_only == 'true' && '--bundles-only' || '' }}
+        ISSUES: ${{ inputs.issues }}
+        LIMIT: ${{ inputs.limit || 0 }}
+        RETRY: ${{ format('{0}', inputs.retry) == 'true' && '--retry' || '' }}
+        BUNDLES_ONLY: ${{ format('{0}', inputs.bundles_only) == 'true' && '--bundles-only' || '' }}
         SHARDS: '8'
       run: |
-        # validate before use: ISSUES is space-separated issue numbers, LIMIT and SHARDS are ints.
         case "$ISSUES" in *[!0-9\ ]*) echo "issues must be numbers: $ISSUES" >&2; exit 1;; esac
         case "$LIMIT" in ''|*[!0-9]*) echo "limit must be a number: $LIMIT" >&2; exit 1;; esac
-        # $ISSUES intentionally unquoted so it word-splits into positional args (validated above).
-        # --comment: the plan tells an issue when its bundle was dispatched or escalated
+        # shellcheck disable=SC2086
         plan=$(python3 scripts/autobump-sweep.py $ISSUES $RETRY $BUNDLES_ONLY --limit "$LIMIT" --comment --bundles bundles.json --bundles-delta autobump-delta-plan.json --plan "$SHARDS")
         echo "plan=$plan" >> "$GITHUB_OUTPUT"
 
-    # the shards judge a bundle 404 from this snapshot, and collect needs the plan's ledger lines
-    # even when no shard runs. A name is taken once per run, so "Re-run all jobs" overwrites.
     - name: upload bundle snapshot
       uses: actions/upload-artifact@v7
       with:
@@ -188,7 +157,6 @@ jobs:
 
   bump:
     needs: [env, plan]
-    # a job-level block replaces the workflow defaults, so all four are listed
     permissions:
       contents: write
       pull-requests: write
@@ -196,19 +164,14 @@ jobs:
       packages: read
     if: ${{ fromJSON(needs.plan.outputs.plan).matrix.include[0] != null }}
     runs-on: ubuntu-latest
-    # a worker's fixed cost is paid in parallel, so more shards only shorten the tail one
-    # slow package leaves behind
     strategy:
       fail-fast: false
       max-parallel: 8
       matrix: ${{ fromJSON(needs.plan.outputs.plan).matrix }}
-    # A heavy from-source dep (e.g. net-libs/nodejs for the pnpm/npm family) can take ~1h+; give the
-    # per-op ceiling (AUTOBUMP_OP_TIMEOUT below) room for it and keep this job ceiling above one such
-    # build plus a tail of light packages, so a heavy build finishes instead of being cut off mid-run.
+    # Source dependencies such as nodejs can take over an hour.
     timeout-minutes: 360
     container:
       image: ${{ needs.env.outputs.image }}
-      # the image is private until someone makes it public; do not depend on which it is
       credentials:
         username: gentoo-zh-bot
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -218,12 +181,10 @@ jobs:
     - name: sync gentoo main tree
       run: emerge-webrsync --no-pgp-verify
 
-    # describes the runner, so the image cannot carry it
     - name: tune portage for this runner
       run: echo "MAKEOPTS=\"\${MAKEOPTS} -j$(nproc)\"" >> /etc/portage/make.conf
 
-    # every shard restores, one saves: an entry holds the whole directory, and eight
-    # near-copies a day would evict the rest of the repo's 10 GB
+    # Every shard restores; only one saves because near-copies would evict the rest of the repo's 10 GB cache.
     - name: restore dependency binpkgs
       uses: actions/cache/restore@v6
       with:
@@ -242,8 +203,7 @@ jobs:
         repository: gentoo-zh/autobump-rb
         path: autobump-rb
 
-    # outside the checkout: the engine switches branches under it. A failed controller leaves
-    # no snapshot and no bundle item in any shard; the other packages still bump.
+    # The engine switches branches, so the snapshot stays outside the checkout.
     - name: download bundle snapshot
       continue-on-error: true
       uses: actions/download-artifact@v8
@@ -254,9 +214,7 @@ jobs:
     - name: register overlay
       run: |
         mkdir -p /etc/portage/repos.conf
-        # pkgcore (pkgdev/pkgcheck) reads /etc/portage/repos.conf/ but NOT portage's
-        # built-in default, so the gentoo repo must be declared here explicitly or
-        # `pkgdev manifest` aborts with "default repo 'gentoo' is undefined or invalid".
+        # pkgcore reads /etc/portage/repos.conf, not Portage's built-in default; declare gentoo or pkgdev manifest aborts.
         cat > /etc/portage/repos.conf/gentoo.conf << EOF
         [DEFAULT]
         main-repo = gentoo
@@ -270,8 +228,6 @@ jobs:
         priority = 0
         EOF
 
-    # as in emerge-on-pr: the runner's CPU flags only for a package whose REQUIRED_USE the
-    # baseline cannot meet, so dependencies keep the binhost's USE
     - name: set CPU flags for the packages that need them
       env:
         PACKAGES: ${{ matrix.packages }}
@@ -283,18 +239,12 @@ jobs:
         done > /etc/portage/package.use/autobump-cpuflags
         cat /etc/portage/package.use/autobump-cpuflags
 
-    # Mint an installation token for the gentoo-zh-autobump GitHub App. A PR opened with
-    # the default GITHUB_TOKEN (github-actions[bot]) does NOT trigger emerge-on-pr/pkgcheck
-    # -- GitHub blocks recursive workflow triggers -- so the verification safety net would
-    # never run. An App token opens the PR as gentoo-zh-autobump[bot], which DOES trigger it.
     - name: mint app token
       id: app-token
       uses: actions/create-github-app-token@v3
       with:
         client-id: ${{ secrets.APP_CLIENT_ID }}
         private-key: ${{ secrets.APP_PRIVATE_KEY }}
-        # the App is installed on gentoo-zh/overlay; name it explicitly so the token
-        # resolves whether this workflow runs on the overlay or on a fork (dispatch test).
         owner: gentoo-zh
         repositories: overlay
 
@@ -307,25 +257,16 @@ jobs:
     - name: bump shard
       env:
         GH_TOKEN: ${{ steps.app-token.outputs.token }}
-        # sync master from origin: after deploy, origin IS gentoo-zh/overlay, so this pulls
-        # the latest master to bump against. LIVE_OVERLAY is left at its default -- the CI
-        # overlay checkout is itself the registered repo, so separate_overlay is false and
-        # the emerge runs against the workspace directly (no host-path ${{ github.workspace }}).
         AUTOBUMP_SYNC_REMOTE: origin
-        # relative path on purpose: in a CONTAINER job ${{ github.workspace }} expands to
-        # the HOST path (/home/runner/work/...), but the container mounts the workspace at
-        # /__w/..., so an absolute host path does not exist inside the container. The sweep
-        # cd's into the overlay (= the workspace), so a path relative to it always resolves.
+        # Container mounts differ from github.workspace; use a relative engine path.
         AUTOBUMP_ENGINE: ruby autobump-rb/bin/autobump
-        # allow a generous per-op ceiling so a heavy from-source build (net-libs/nodejs ~1h)
-        # finishes instead of timing out and deferring; keep in step with timeout-minutes above.
         AUTOBUMP_OP_TIMEOUT: '7200'
-        # inside the container: ${{ runner.temp }} is a host path the container lacks
+        # runner.temp is a host path absent from the container.
         AUTOBUMP_EVIDENCE_DIR: /tmp/autobump-evidence
         AUTOBUMP_BUNDLE_STATUS: /tmp/autobump-bundles/bundles.json
         SHARD: ${{ toJSON(fromJSON(needs.plan.outputs.plan).shards[matrix.shard]) }}
         SHARD_ID: ${{ matrix.shard }}
-        LIMIT: ${{ github.event.inputs.limit || 0 }}
+        LIMIT: ${{ inputs.limit || 0 }}
       run: python3 scripts/autobump-sweep.py --worker "$SHARD" --delta "autobump-delta-$SHARD_ID.json" --limit "$LIMIT" --pr --comment
 
     - name: save dependency binpkgs
@@ -344,7 +285,6 @@ jobs:
 
     - name: upload escalation evidence
       if: always()
-      # evidence is for reading afterwards; losing it must not fail a bump that worked
       continue-on-error: true
       uses: actions/upload-artifact@v7
       with:
@@ -368,7 +308,6 @@ jobs:
         key: autobump-state-${{ github.run_id }}
         restore-keys: autobump-state-
 
-    # the plan's delta is always there, so this runs even when no shard did
     - name: download deltas
       uses: actions/download-artifact@v8
       with:
@@ -384,17 +323,14 @@ jobs:
         shopt -s nullglob
         python3 scripts/autobump-sweep.py --collect "$PLAN" autobump-deltas/*.json
 
-    # a key is written once, so a rerun saves its dispatches under a key of its own; the
-    # restore steps take the newest state by prefix
     - name: save state
       if: success()
       uses: actions/cache/save@v6
       with:
         path: ${{ github.workspace }}/.autobump-state/autobump
+        # Cache keys are written once; run_attempt gives a rerun its own key.
         key: autobump-state-${{ github.run_id }}-${{ github.run_attempt }}
 
-    # last, so the counts of this run are saved: a failed controller, or a bundle it could not
-    # judge, must not pass as a quiet run
     - name: fail on a bundle controller error
       if: always() && fromJSON(needs.plan.outputs.plan).bundle_error
       env:
