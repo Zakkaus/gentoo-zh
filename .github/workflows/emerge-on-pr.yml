@@ -217,10 +217,16 @@ jobs:
         install -dm775 -o root -g portage /var/cache/distfiles
         install -dm775 -o portage -g portage /var/cache/distfiles/git3-src
 
+    # the runner's CPU flags go only to a target whose REQUIRED_USE the baseline cannot meet;
+    # a masked package hides its REQUIRED_USE, hence the accepted keywords and licenses
     - name: setup cpu flags
+      env:
+        ATOM: ${{ matrix.target.package }}
       run: |
+        out=$(ACCEPT_KEYWORDS="~$(portageq envvar ARCH)" ACCEPT_LICENSE="*" emerge -pq --nodeps "$ATOM" 2>&1) || true
+        grep -q REQUIRED_USE <<<"$out" || exit 0
         FEATURES="getbinpkg" emerge --oneshot --quiet app-portage/cpuid2cpuflags
-        echo "${{ matrix.target.package }} $(cpuid2cpuflags)" > /etc/portage/package.use/cpu-flags
+        echo "$ATOM $(cpuid2cpuflags)" > /etc/portage/package.use/cpu-flags
         cat /etc/portage/package.use/cpu-flags
 
     - name: emerge --onlydeps packages

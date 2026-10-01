@@ -177,9 +177,13 @@ jobs:
       run: |
         FEATURES="getbinpkg" emerge --oneshot --quiet --autounmask=y --autounmask-write=y --autounmask-continue=y \
             app-portage/tatt app-portage/cpuid2cpuflags
-        echo "$ATOM $(cpuid2cpuflags)" > /etc/portage/package.use/cpu-flags
+        # the runner's CPU flags only when the baseline cannot satisfy REQUIRED_USE, as in emerge-on-pr
+        out=$(ACCEPT_KEYWORDS="~$(portageq envvar ARCH)" ACCEPT_LICENSE="*" emerge -pq --nodeps "$ATOM" 2>&1) || true
+        if grep -q REQUIRED_USE <<<"$out"; then
+          echo "$ATOM $(cpuid2cpuflags)" > /etc/portage/package.use/cpu-flags
+        fi
 
-        # cpu_flags_* stay at the runner's values: toggling them would test binaries the host cannot run
+        # cpu_flags_* stay as set above: toggling them would test binaries the host cannot run
         cat > ~/.tatt << EOF
         arch=amd64
         usecombis=4
