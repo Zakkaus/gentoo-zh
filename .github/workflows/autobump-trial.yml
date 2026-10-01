@@ -1,15 +1,3 @@
-# autobump-trial: build-test a candidate package WITHOUT opting it in or opening a PR.
-#
-# Given nvchecker issue numbers, it runs the engine's real build trial (bump + emerge build +
-# install + pkgcheck) in the same gentoo container autobump.yml uses, then reports PASS/FAIL per
-# target. It calls `bin/autobump <issue> --install` directly, so it bypasses the `autobump = true`
-# opt-in gate (which lives only in autobump-sweep.py) and passes no `--pr` -- nothing is pushed,
-# no PR is opened, no state is kept. Use it to prove a not-yet-whitelisted package builds
-# mechanically before a maintainer adds `autobump = true` in overlay.toml.
-#
-# The container setup is copied verbatim from autobump.yml (getbinpkg/ci-binhost/getuto +
-# ACCEPT_LICENSE + full tooling) -- the minimal selftest setup would defer non-free or heavy-dep
-# trials. No App token: the trial only reads issues, so the default GITHUB_TOKEN is enough.
 name: autobump-trial
 
 on:
@@ -25,64 +13,38 @@ concurrency:
 
 permissions:
   contents: read
-  # the trial upserts a status comment per issue; a read token loses it silently
   issues: write
+  packages: read
 
 jobs:
+  env:
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/autobump-env.yml
+
   trial:
-    if: github.repository == 'gentoo-zh/overlay' || github.event_name == 'workflow_dispatch'
+    needs: env
     runs-on: ubuntu-latest
     timeout-minutes: 150
     container:
-      image: gentoo/stage3:amd64-desktop-openrc
+      image: ${{ needs.env.outputs.image }}
+      credentials:
+        username: gentoo-zh-bot
+        password: ${{ secrets.GITHUB_TOKEN }}
       options: --privileged
 
     steps:
     - name: sync gentoo main tree
       run: emerge-webrsync --no-pgp-verify
 
-    - name: setup portage
-      run: |
-        # expand $(nproc) HERE, not in make.conf: a literal $(...) there trips portage's
-        # config parser ("$: bad substitution") and breaks the whole config. FEATURES/
-        # MAKEOPTS keep their ${...} so portage appends to the stage3 defaults.
-        {
-          echo 'FEATURES="${FEATURES} getbinpkg"'
-          echo "MAKEOPTS=\"\${MAKEOPTS} -j$(nproc)\""
-          echo 'PORTAGE_ELOG_CLASSES="qa warn error"'
-          echo 'PORTAGE_ELOG_SYSTEM="save"'
-          # accept all licenses: many candidates are non-free (-bin blobs, CC-BY-NC, vendor
-          # EULAs). Without this emerge masks them and the trial DEFERS with a misleading reason.
-          echo 'ACCEPT_LICENSE="*"'
-        } >> /etc/portage/make.conf
-        # Align heavy-dep USE to the binhost's binpkgs so getbinpkg USES them instead of
-        # rebuilding from source (which would blow the op-timeout). Keep in sync with autobump.yml.
-        mkdir -p /etc/portage/package.use
-        cat > /etc/portage/package.use/ci-binhost << 'EOF'
-        dev-qt/qtwebengine bindist
-        net-libs/webkit-gtk keyring
-        EOF
-        getuto
-        install -dm775 -o root -g portage /var/cache/distfiles
-
-    - name: install tooling
-      run: |
-        mkdir -p /etc/portage/package.use
-        echo "x11-base/xorg-server xvfb minimal -xorg" > /etc/portage/package.use/autobump-xvfb
-        emerge --quiet --getbinpkg --autounmask=y --autounmask-write=y --autounmask-continue=y \
-          dev-lang/ruby dev-vcs/git dev-util/pkgdev dev-util/pkgcheck app-portage/portage-utils \
-          app-portage/iwdevtools dev-util/github-cli app-misc/jq net-misc/curl \
-          app-portage/cpuid2cpuflags x11-base/xorg-server
-
     - name: tune portage for this runner
       run: echo "MAKEOPTS=\"\${MAKEOPTS} -j$(nproc)\"" >> /etc/portage/make.conf
 
-    # the engine commits with pkgdev even without --pr, and pkgdev needs an author
     - name: bot identity
       run: |
         git config --global user.name  "gentoo-zh-bot"
         git config --global user.email "bot@gentoozh.org"
-        git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
     - name: checkout
       uses: actions/checkout@v7
@@ -117,99 +79,7 @@ jobs:
         AUTOBUMP_SYNC_REMOTE: origin
         AUTOBUMP_UPSTREAM_REPO: gentoo-zh/overlay
         AUTOBUMP_OP_TIMEOUT: '2700'
-        # bundles.py status only reads public releases and runs
         GH_TOKEN_GENTOO_ZH: ${{ github.token }}
         GH_TOKEN_GENTOO_ZH_DRAFTS: ${{ github.token }}
-        # passed via env, never inlined into the script (shell-injection hygiene)
-        TARGETS: ${{ github.event.inputs.targets }}
-      run: |
-        set +e -uo pipefail              # +e: GitHub's default run shell is `bash -e`; a FAIL
-                                         # trial (engine exit 3) must not abort the whole batch
-        git config --global --add safe.directory "$(realpath .)"
-        # validate first, THEN word-split $TARGETS unquoted on purpose (digits + spaces only)
-        case "$TARGETS" in
-          '')          echo 'no targets given' >&2; exit 1 ;;
-          *[!0-9\ ]*)  echo "targets must be issue numbers: $TARGETS" >&2; exit 1 ;;
-        esac
-        TRIAL_MARKER='<!-- autobump-trial-status -->'
-        RUN_URL="${GITHUB_SERVER_URL:-https://github.com}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-        trial_comment() {  # $1=issue $2=body ; upsert ONE marked comment (edit in place, no spam)
-          local n=$1 body="$2"$'\n\n'"$TRIAL_MARKER" cid i
-          cid=SKIP
-          for i in 1 2 3; do
-            if cid=$(gh api "repos/$AUTOBUMP_UPSTREAM_REPO/issues/$n/comments" --paginate \
-                    --jq "map(select(.body|contains(\"$TRIAL_MARKER\")))|.[0].id // empty" 2>/dev/null); then break; fi
-            cid=SKIP; sleep 3
-          done
-          [ "$cid" = SKIP ] && return 0
-          if [ -n "$cid" ]; then
-            for i in 1 2 3; do gh api -X PATCH "repos/$AUTOBUMP_UPSTREAM_REPO/issues/comments/$cid" -f body="$body" >/dev/null 2>&1 && return 0; sleep 3; done
-          else
-            for i in 1 2 3; do gh issue comment "$n" --repo "$AUTOBUMP_UPSTREAM_REPO" --body "$body" >/dev/null 2>&1 && return 0; sleep 3; done
-          fi
-        }
-        {
-          echo '## autobump build-trial'
-          echo
-          echo '| issue | package | → version | exit | result |'
-          echo '|------:|---------|-----------|:----:|--------|'
-        } >> "$GITHUB_STEP_SUMMARY"
-        for n in $TARGETS; do            # intentionally unquoted -> word-split (validated above)
-          git checkout -q master 2>/dev/null || true    # deterministic clean start per target
-          title=$(gh issue view "$n" --repo "$AUTOBUMP_UPSTREAM_REPO" --json title --jq .title 2>/dev/null || true)
-          pkg=$(sed -nE 's/^\[nvchecker\] ([a-z0-9-]+\/[A-Za-z0-9_.+-]+) can be bump to .*/\1/p' <<<"$title")
-          ver=$(sed -nE 's/.* can be bump to ([A-Za-z0-9._+-]+)$/\1/p' <<<"$title")
-          if [ -z "$pkg" ] || [ -z "$ver" ]; then
-            printf '| #%s | (unparseable title) |  | - | SKIP |\n' "$n" >> "$GITHUB_STEP_SUMMARY"
-            continue
-          fi
-          echo "==== #$n  $pkg -> $ver ===="
-          # as in production, the runner's CPU flags only when the baseline cannot meet REQUIRED_USE
-          if scripts/needs-cpu-flags.sh "$pkg"; then
-            echo "$pkg $(cpuid2cpuflags)" > /etc/portage/package.use/autobump-cpuflags
-          else
-            rm -f /etc/portage/package.use/autobump-cpuflags
-          fi
-          trial_comment "$n" "**autobump-trial** build-testing \`$pkg\` → \`$ver\` (not opted in)… · [run]($RUN_URL)"
-          # the package's own rewrite/retention flags, so a trial runs what a real sweep would
-          args=(); a=$(python3 scripts/autobump-args.py "$pkg") && [ -n "$a" ] && mapfile -t args <<<"$a"
-          # the same read-only snapshot a sweep shard gets: the engine judges a bundle 404 from
-          # it, and the summary shows its state because a covered URI is not probed before fetch
-          bundle=''
-          # an unreadable index is not a package without bundles: the engine would run blind
-          if ! has=$(python3 autobump-rb/bin/bundles.py has "$pkg"); then
-            echo "::error title=bundles::cannot tell whether $pkg has a bundle; see the log"
-            printf '| #%s | `%s` | %s | - | SKIP — bundle index unreadable |\n' "$n" "$pkg" "$ver" >> "$GITHUB_STEP_SUMMARY"
-            continue
-          fi
-          if [ "$has" = yes ]; then
-            snap="/tmp/autobump-bundles/$n.json"
-            python3 autobump-rb/bin/bundles.py status "$pkg" --version "$ver" --out "$snap"
-            if [ ! -s "$snap" ]; then
-              printf '| #%s | `%s` | %s | - | SKIP — no bundle snapshot |\n' "$n" "$pkg" "$ver" >> "$GITHUB_STEP_SUMMARY"
-              continue
-            fi
-            args+=(--bundle-status "$snap")
-            bundle=" · bundle $(jq -r '.targets[0].state' "$snap")"
-          fi
-          ruby autobump-rb/bin/autobump "$n" --install "${args[@]}"; ec=$?   # build+install+pkgcheck, no --pr, no opt-in
-          case "$ec" in
-            0)   res='PASS — mechanical, built + installed + pkgcheck clean' ;;
-            3)   res='FAIL — escalate / build-fail (major jump, deps, patch, vendor, or emerge/QA/pkgcheck failure)' ;;
-            2)   res='DEFER — transient (fetch / network / dep-gap / timeout / precondition)' ;;
-            130) res='interrupted (signal)' ;;
-            *)   res="unexpected exit $ec" ;;
-          esac
-          case "$ec" in
-            0)   tres="**PASS** — builds + installs + pkgcheck clean; safe to opt in." ;;
-            3)   tres="**FAIL** — escalate / build failure; needs a manual bump. · [log]($RUN_URL)" ;;
-            2)   tres="**DEFER** — transient (fetch / dep-gap / timeout)." ;;
-            *)   tres="unexpected exit $ec. · [log]($RUN_URL)" ;;
-          esac
-          trial_comment "$n" "**autobump-trial** \`$pkg\` → \`$ver\`: $tres$bundle"
-          printf '| #%s | `%s` | %s | %s | %s%s |\n' "$n" "$pkg" "$ver" "$ec" "$res" "$bundle" >> "$GITHUB_STEP_SUMMARY"
-        done
-        {
-          echo
-          echo 'Exit codes: **0** mechanical-built · **2** defer · **3** escalate/build-fail — the engine contract is 0/2/3 only.'
-        } >> "$GITHUB_STEP_SUMMARY"
+        TARGETS: ${{ inputs.targets }}
+      run: scripts/autobump-trial.sh
