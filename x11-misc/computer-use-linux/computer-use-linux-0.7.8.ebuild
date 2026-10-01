@@ -256,6 +256,7 @@ src_test() {
 		windowing::backends::kwin::transaction_tests::transaction_times_out_and_cleans_up_when_callback_never_arrives
 		windowing::backends::kwin::transaction_tests::transaction_times_out_and_cleans_up_when_load_script_never_replies
 		windowing::backends::kwin::transaction_tests::transaction_times_out_and_cleans_up_when_start_never_replies
+		windowing::backends::niri::tests::discovery_refuses_other_sessions_and_ambiguous_sockets
 	)
 	cargo_src_test
 }
