@@ -1,0 +1,52 @@
+name: Setup Gentoo
+description: Configure the stage3 container for overlay CI
+runs:
+  using: composite
+  steps:
+    - name: sync gentoo main tree
+      shell: bash
+      run: emerge-webrsync --no-pgp-verify
+
+    - name: setup repo
+      shell: bash
+      run: |
+        mkdir -p /etc/portage/repos.conf
+        cat > /etc/portage/repos.conf/ci.conf << EOF
+        [$(cat profiles/repo_name)]
+        location = $(realpath .)
+        priority = 0
+        EOF
+
+    - name: setup portage config
+      shell: bash
+      run: |
+        cat >> /etc/portage/make.conf << EOF
+        MAKEOPTS="\${MAKEOPTS} -j$(nproc)"
+        PORTAGE_ELOG_CLASSES="qa warn error"
+        PORTAGE_ELOG_SYSTEM="save"
+        FETCHCOMMAND="\${FETCHCOMMAND} --no-verbose"
+        RESUMECOMMAND="\${RESUMECOMMAND} --no-verbose"
+        EOF
+        cat > /etc/portage/binrepos.conf/ci.conf << EOF
+        [$(cat profiles/repo_name)-binhost]
+        sync-uri = https://distfiles.gentoozh.org/binpkgs/x86-64
+        priority = 2
+        EOF
+        mkdir -p /etc/portage/package.use
+        printf '%s\n' 'dev-qt/qtwebengine bindist' 'net-libs/webkit-gtk keyring' > /etc/portage/package.use/ci
+        cat /etc/portage/make.conf
+
+    - name: setup keyring for binpkgs
+      shell: bash
+      run: |
+        getuto
+        export GNUPGHOME=/etc/portage/gnupg
+        wget -qO - https://distfiles.gentoozh.org/gentoo-zh-binhost.asc | gpg --import
+        gpg --batch --yes --pinentry-mode loopback --passphrase-file "$GNUPGHOME/pass" --lsign-key 6A0726AF1476A2F382C6AC6638A0234EC16AD42E
+        gpg --batch --check-trustdb
+
+    - name: setup distfiles permissions
+      shell: bash
+      run: |
+        install -dm775 -o root -g portage /var/cache/distfiles
+        install -dm775 -o portage -g portage /var/cache/distfiles/git3-src

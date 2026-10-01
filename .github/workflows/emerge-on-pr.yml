@@ -26,126 +26,11 @@ jobs:
     - name: scan changed ebuilds
       env:
         GH_TOKEN: ${{ github.token }}
+        PR: ${{ github.event.pull_request.number }}
       id: packages
       run: |
-        declare -a packages=()
-        # new or modifie
-        for file in $(gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[] | select(.additions > 0) | .path'); do
-            if [[ "$file" == *.ebuild ]]; then
-                packages+=(\=$(echo "$file" | awk -F'/' '{ sub(/\.ebuild$/, "", $3); print $1"/"$3 }'))
-            else
-                packages+=($(echo "$file" | awk -F'/' '{print $1"/"$2}'))
-            fi
-        done
-        echo "scan additions files: $(printf '%s\n' "${packages[@]}" | sort -u | jq -R . | jq -s .)"
-
-        # treeclean, delete and modifie
-        for file in $(gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[] | select(.deletions > 0) | .path'); do
-            if [ ! -d "$(echo "$file" | awk -F'/' '{print $1"/"$2}')" ]; then
-                continue
-            elif [[ "$file" == *.ebuild ]]; then
-                if [ -f "$file" ]; then
-                    packages+=(\=$(echo "$file" | awk -F'/' '{ sub(/\.ebuild$/, "", $3); print $1"/"$3 }'))
-                fi
-            else
-                packages+=($(echo "$file" | awk -F'/' '{print $1"/"$2}'))
-            fi
-        done
-
-        echo "scan deletions files: $(printf '%s\n' "${packages[@]}" | sort -u | jq -R . | jq -s .)"
-
-        # git mv (without modified)
-        for file in $(gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[] | select(.deletions == 0 and .additions == 0) | .path'); do
-            if [[ "$file" == *.ebuild ]]; then
-                packages+=(\=$(echo "$file" | awk -F'/' '{ sub(/\.ebuild$/, "", $3); print $1"/"$3 }'))
-            else
-                packages+=($(echo "$file" | awk -F'/' '{print $1"/"$2}'))
-            fi
-        done
-
-        echo "scan non-modified files: $(printf '%s\n' "${packages[@]}" | sort -u | jq -R . | jq -s .)"
-
-        declare -a ignore_list=(
-            .agents
-            .gitignore
-            AGENTS.md
-            AUTHORS
-            COPYING
-            MIGRATION.md
-            README.md
-            README.en.md
-            README.zh-TW.md
-            README.yue.md
-            repo.xml
-            skel.ChangeLog
-            skel.metadata.xml
-            .github
-            eclass
-            licenses
-            metadata
-            profiles
-            scripts
-        )
-        for i in "${ignore_list[@]}"; do
-            packages=($(printf '%s\n' "${packages[@]}" | grep -v "^$i" || true))
-        done
-
-        # the ebuild gives "=cat/pn-ver" and its Manifest the bare "cat/pn": one build, two
-        # atoms. A package with no versioned atom (files/-only, treeclean) keeps its bare one.
-        declare -a deduped=()
-        for atom in "${packages[@]}"; do
-            if [[ "$atom" != =* ]] && printf '%s\n' "${packages[@]}" | grep -q "^=${atom}-"; then
-                continue
-            fi
-            deduped+=("$atom")
-        done
-        packages=("${deduped[@]}")
-
-        echo "scan all files: $(printf '%s\n' "${packages[@]}" | sort -u | jq -R . | jq -s .)"
-
-        # arm64 subset: keep only atoms whose ebuild keywords arm64 (stable or ~).
-        # -arm64 / no keyword -> dropped, so those packages only build on amd64.
-        declare -a arm64_packages=()
-        while IFS= read -r atom; do
-            [ -z "$atom" ] && continue
-            if [[ "$atom" == =* ]]; then
-                pf="${atom##*/}"; cat="${atom#=}"; cat="${cat%%/*}"
-                ebuilds=("$cat"/*/"$pf".ebuild)
-            else
-                ebuilds=("$atom"/*.ebuild)
-            fi
-            for eb in "${ebuilds[@]}"; do
-                [ -f "$eb" ] || continue
-                kw=$(sed -n 's/^KEYWORDS="\(.*\)"/\1/p' "$eb")
-                for tok in $kw; do
-                    if [[ "$tok" == "arm64" || "$tok" == "~arm64" ]]; then
-                        arm64_packages+=("$atom"); break 2
-                    fi
-                done
-            done
-        done < <(printf '%s\n' "${packages[@]}" | sort -u)
-
-        echo "scan arm64 files: $(printf '%s\n' "${arm64_packages[@]}" | sort -u | jq -R . | jq -s .)"
-
-        # emerge matrix: one entry per (package, profile, runner). every package builds on
-        # both amd64 profiles; arm64-keyworded ones also on arm64-desktop-systemd (arm64 has
-        # no desktop-openrc stage3). the build job fans out over this single list.
-        targets=$(
-          {
-            printf '%s\n' "${packages[@]}" | sort -u | while IFS= read -r p; do
-                [ -z "$p" ] && continue
-                printf '%s\t%s\t%s\n' "$p" amd64-desktop-openrc ubuntu-latest
-                printf '%s\t%s\t%s\n' "$p" amd64-desktop-systemd ubuntu-latest
-            done
-            printf '%s\n' "${arm64_packages[@]}" | sort -u | while IFS= read -r p; do
-                [ -z "$p" ] && continue
-                printf '%s\t%s\t%s\n' "$p" arm64-desktop-systemd ubuntu-24.04-arm
-            done
-          } | jq -R 'select(length>0)|split("\t")|{package:.[0],profile:.[1],runner:.[2]}' | jq -sc .
-        )
-        echo "scan targets: $targets"
-        echo "targets=${targets}" >> "$GITHUB_OUTPUT"
-
+        targets=$(scripts/emerge-targets.sh "$PR")
+        echo "targets=$targets" >> "$GITHUB_OUTPUT"
 
   build:
     name: emerge ${{ matrix.target.package }} (${{ matrix.target.profile }})
@@ -162,63 +47,15 @@ jobs:
       options: --privileged
 
     steps:
-    - name: sync gentoo main tree
-      run: emerge-webrsync --no-pgp-verify
-
     - name: fetch repo
       uses: actions/checkout@v7
       with:
         repository: ${{ github.event.pull_request.head.repo.full_name }}
         ref: ${{ github.event.pull_request.head.sha }}
 
-    - name: setup repo
-      run: |
-        mkdir -p /etc/portage/repos.conf
-        cat > /etc/portage/repos.conf/ci.conf << EOF
-        [$(cat profiles/repo_name)]
-        location = $(realpath .)
-        priority = 0
-        EOF
-
     - name: setup portage config
-      run: |
-        cat >> /etc/portage/make.conf << EOF
-        MAKEOPTS="\${MAKEOPTS} -j$(nproc)"
-        PORTAGE_ELOG_CLASSES="qa warn error"
-        PORTAGE_ELOG_SYSTEM="save"
-        FETCHCOMMAND="\${FETCHCOMMAND} --no-verbose"
-        RESUMECOMMAND="\${RESUMECOMMAND} --no-verbose"
-        EOF
+      uses: ./.github/actions/setup-gentoo
 
-        cat > /etc/portage/binrepos.conf/ci.conf << EOF
-        [$(cat profiles/repo_name)-binhost]
-        sync-uri = https://distfiles.gentoozh.org/binpkgs/x86-64
-        priority = 2
-        EOF
-
-        mkdir -p /etc/portage/package.use
-        cat > /etc/portage/package.use/ci << EOF
-        dev-qt/qtwebengine bindist
-        net-libs/webkit-gtk keyring
-        EOF
-
-        cat /etc/portage/make.conf
-
-    - name: setup keyring for binpkgs
-      run: |
-        getuto
-        export GNUPGHOME=/etc/portage/gnupg
-        wget -qO - https://distfiles.gentoozh.org/gentoo-zh-binhost.asc | gpg --import
-        gpg --batch --yes --pinentry-mode loopback --passphrase-file "${GNUPGHOME}/pass" --lsign-key 6A0726AF1476A2F382C6AC6638A0234EC16AD42E
-        gpg --batch --check-trustdb
-
-    - name: setup distfiles permissions
-      run: |
-        install -dm775 -o root -g portage /var/cache/distfiles
-        install -dm775 -o portage -g portage /var/cache/distfiles/git3-src
-
-    # only a target whose REQUIRED_USE the baseline cannot meet gets the runner's CPU flags;
-    # other targets and every dependency keep the profile's baseline
     - name: setup cpu flags
       env:
         ATOM: ${{ matrix.target.package }}
@@ -230,18 +67,22 @@ jobs:
         fi
 
     - name: emerge --onlydeps packages
+      env:
+        ATOM: ${{ matrix.target.package }}
       run: |
-        FEATURES="getbinpkg" emerge --onlydeps --jobs 2 --quiet --verbose --autounmask=y --autounmask-write=y --autounmask-continue=y ${{ matrix.target.package }}
+        FEATURES="getbinpkg" emerge --onlydeps --jobs 2 --quiet --verbose --autounmask=y --autounmask-write=y --autounmask-continue=y "$ATOM"
         rm -rf /var/log/portage/elog/*
 
     - name: emerge packages
-      run: emerge --verbose --autounmask=y --autounmask-write=y --autounmask-continue=y ${{ matrix.target.package }}
+      env:
+        ATOM: ${{ matrix.target.package }}
+      run: emerge --verbose --autounmask=y --autounmask-write=y --autounmask-continue=y "$ATOM"
 
     - name: check Portage elog (fail if exists)
       run: |
         if ls /var/log/portage/elog/* 1> /dev/null 2>&1; then
-          echo "❌ Found Portage elog messages:"
+          echo "Found Portage elog messages:"
           cat /var/log/portage/elog/*
           exit 1
         fi
-        echo "✅ No elog messages found."
+        echo "No elog messages found."
