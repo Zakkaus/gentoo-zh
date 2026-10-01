@@ -66,6 +66,15 @@ jobs:
           cat /etc/portage/package.use/cpu-flags
         fi
 
+    - name: update perl to the binhost version
+      env:
+        ATOM: ${{ matrix.target.package }}
+      run: |
+        if scripts/needs-perl-update.sh "$ATOM"; then
+          FEATURES="getbinpkg" emerge --oneshot --update --quiet dev-lang/perl
+          FEATURES="getbinpkg" perl-cleaner --all -- --quiet --jobs 4
+        fi
+
     - name: emerge --onlydeps packages
       env:
         ATOM: ${{ matrix.target.package }}

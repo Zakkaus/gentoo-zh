@@ -89,6 +89,13 @@ jobs:
         ignoreprefix=$(scripts/tatt-targets.sh --ignore-prefixes)
         EOF
 
+    - name: update perl to the binhost version
+      run: |
+        if scripts/needs-perl-update.sh "$ATOM"; then
+          FEATURES="getbinpkg" emerge --oneshot --update --quiet dev-lang/perl
+          FEATURES="getbinpkg" perl-cleaner --all -- --quiet --jobs 4
+        fi
+
     - name: emerge --onlydeps
       run: FEATURES="getbinpkg" emerge --onlydeps --jobs 2 --quiet --autounmask=y --autounmask-write=y --autounmask-continue=y "$ATOM"
 
