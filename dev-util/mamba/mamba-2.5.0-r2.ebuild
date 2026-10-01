@@ -28,8 +28,9 @@ DEPEND="app-arch/libarchive:=
 	dev-cpp/nlohmann_json
 	dev-cpp/reproc:=
 	dev-cpp/expected
-	dev-cpp/yaml-cpp
-	dev-libs/simdjson
+	dev-cpp/yaml-cpp:=
+	dev-libs/openssl:=
+	dev-libs/simdjson:=
 	sys-libs/libsolv:=[conda]
 	mamba? (
 		app-crypt/mit-krb5
@@ -47,7 +48,7 @@ DEPEND="app-arch/libarchive:=
 		sys-fs/e2fsprogs
 		virtual/zlib
 		)
-	dev-libs/libfmt
+	dev-libs/libfmt:=
 	dev-libs/spdlog
 	net-misc/curl
 	python? ( ${PYTHON_DEPS} )
