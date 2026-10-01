@@ -27,7 +27,7 @@ DEPEND="dev-vcs/git
 		dev-python/frozendict[${PYTHON_USEDEP}]
 		dev-python/jsonpatch[${PYTHON_USEDEP}]
 		dev-python/menuinst[${PYTHON_USEDEP}]
-		dev-python/packaging[${PYTHON_USEDEP}]
+		>=dev-python/packaging-26.3[${PYTHON_USEDEP}]
 		dev-python/platformdirs[${PYTHON_USEDEP}]
 		dev-python/pluggy[${PYTHON_USEDEP}]
 		dev-python/pyopenssl[${PYTHON_USEDEP}]
@@ -41,7 +41,7 @@ DEPEND="dev-vcs/git
 		dev-python/pycosat[${PYTHON_USEDEP}]')
 		$(python_gen_cond_dep '
 		dev-python/backports-zstd[${PYTHON_USEDEP}]' python3_12 python3_13)
-		mamba? ( dev-python/conda-libmamba-solver[${PYTHON_SINGLE_USEDEP}] )"
+		mamba? ( >=dev-python/conda-libmamba-solver-26.7.0[${PYTHON_SINGLE_USEDEP}] )"
 RDEPEND="${DEPEND}"
 
 IUSE="+user +mamba"
