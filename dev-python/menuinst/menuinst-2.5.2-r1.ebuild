@@ -15,6 +15,9 @@ LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~amd64"
 
+RDEPEND="
+	dev-python/tomli-w[${PYTHON_USEDEP}]
+"
 BDEPEND="
 	$(python_gen_cond_dep 'dev-python/setuptools-scm[${PYTHON_USEDEP}]')
 "
