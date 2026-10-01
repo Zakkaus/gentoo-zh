@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit desktop xdg
+inherit desktop unpacker xdg
 
 MY_PN="${PN%-bin}"
 
@@ -11,8 +11,8 @@ DESCRIPTION="A full-featured download manager"
 HOMEPAGE="https://github.com/AnInsomniacy/rayburst"
 URL_PREFIX="https://github.com/AnInsomniacy/rayburst/releases/download/v${PV}/Rayburst_${PV}"
 SRC_URI="
-	amd64? ( ${URL_PREFIX}_amd64.AppImage )
-	arm64? ( ${URL_PREFIX}_aarch64.AppImage )
+	amd64? ( ${URL_PREFIX}_amd64.deb )
+	arm64? ( ${URL_PREFIX}_arm64.deb )
 "
 
 S="${WORKDIR}"
@@ -20,31 +20,33 @@ S="${WORKDIR}"
 LICENSE="MIT GPL-2+ LGPL-2+ LGPL-2.1+"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
-RDEPEND="sys-fs/fuse:0"
+RDEPEND="
+	dev-libs/glib:2
+	dev-libs/libayatana-appindicator
+	net-libs/libsoup:3.0
+	net-libs/webkit-gtk:4.1
+	sys-apps/dbus
+	x11-libs/cairo
+	x11-libs/gdk-pixbuf:2
+	x11-libs/gtk+:3
+	x11-libs/pango
+"
 
 RESTRICT="strip"
-QA_PREBUILT="usr/bin/${MY_PN}"
-
-src_unpack() {
-	if use amd64; then
-		cp "${DISTDIR}/Rayburst_${PV}_amd64.AppImage" "${MY_PN}" || die
-	elif use arm64; then
-		cp "${DISTDIR}/Rayburst_${PV}_aarch64.AppImage" "${MY_PN}" || die
-	fi
-
-	chmod +x "${MY_PN}" || die
-	./"${MY_PN}" --appimage-extract >/dev/null || die
-}
+QA_PREBUILT="usr/bin/aria2-next usr/bin/${MY_PN}*"
 
 src_install() {
-	dobin "${MY_PN}"
+	dobin usr/bin/{aria2-next,${MY_PN},${MY_PN}-browser-launcher}
 
-	domenu squashfs-root/usr/share/applications/Rayburst.desktop
+	insinto /usr/lib/Rayburst
+	doins -r usr/lib/Rayburst/.
+
+	domenu usr/share/applications/Rayburst.desktop
 
 	for size in 32 128; do
-		doicon -s ${size} squashfs-root/usr/share/icons/hicolor/${size}x${size}/apps/${MY_PN}.png
+		doicon -s ${size} usr/share/icons/hicolor/${size}x${size}/apps/${MY_PN}.png
 	done
-	doicon -s 256 squashfs-root/usr/share/icons/hicolor/256x256@2/apps/${MY_PN}.png
+	doicon -s 256 usr/share/icons/hicolor/256x256@2/apps/${MY_PN}.png
 }
 
 pkg_postinst() {
