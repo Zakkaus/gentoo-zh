@@ -14,19 +14,21 @@ declare -A GIT_CRATES=(
 	[cacao]='https://github.com/clslaid/cacao;05e1536b0b43aaae308ec72c0eed703e875b7b95;cacao-%commit%'
 	[cidre-macros]='https://github.com/yury/cidre;f05c4288f9870c9fab53272ddafd6ec01c7b2dbf;cidre-%commit%/cidre-macros'
 	[cidre]='https://github.com/yury/cidre;f05c4288f9870c9fab53272ddafd6ec01c7b2dbf;cidre-%commit%/cidre'
-	[clipboard-master]='https://github.com/rustdesk-org/clipboard-master;7762d74e38db37cfeb6ded88c964b9cdbddfb6db;clipboard-master-%commit%'
+	[clipboard-master]='https://github.com/rustdesk-org/clipboard-master;522fafb65edfe7939cf63fa797f916569ecab595;clipboard-master-%commit%'
 	[confy]='https://github.com/rustdesk-org/confy;83db9ec19a2f97e9718aef69e4fc5611bb382479;confy-%commit%'
 	[core-foundation-sys]='https://github.com/madsmtm/core-foundation-rs;7d593d016175755e492a92ef89edca68ac3bd5cd;core-foundation-rs-%commit%/core-foundation-sys'
 	[core-foundation]='https://github.com/madsmtm/core-foundation-rs;7d593d016175755e492a92ef89edca68ac3bd5cd;core-foundation-rs-%commit%/core-foundation'
 	[core-graphics-types]='https://github.com/madsmtm/core-foundation-rs;7d593d016175755e492a92ef89edca68ac3bd5cd;core-foundation-rs-%commit%/core-graphics-types'
 	[core-graphics]='https://github.com/madsmtm/core-foundation-rs;7d593d016175755e492a92ef89edca68ac3bd5cd;core-foundation-rs-%commit%/core-graphics'
-	[cpal]='https://github.com/rustdesk-org/cpal;6b374bcaed076750ca8fce6da518ab39b882e14a;cpal-%commit%'
+	[cpal]='https://github.com/rustdesk-org/cpal;96d4da121b7d949677ac5b6887413a9185fd7f39;cpal-%commit%'
 	[default_net]='https://github.com/rustdesk-org/default_net;78f8f70cd85151a3a2c4a3230d80d5272703c02e;default_net-%commit%'
 	[evdev]='https://github.com/rustdesk-org/evdev;cec616e37790293d2cd2aa54a96601ed6b1b35a9;evdev-%commit%'
 	[filedescriptor]='https://github.com/rustdesk-org/wezterm;80174f8009f41565f0fa8c66dab90d4f9211ae16;wezterm-%commit%/filedescriptor'
+	[fuser]='https://github.com/rustdesk-org/fuser;a3c0babe4a533f8dbcff5bce59ae7f2424b8d877;fuser-%commit%'
 	[hwcodec]='https://github.com/rustdesk-org/hwcodec;778df1f99597722473b29443bac22ae6c23946fe;hwcodec-%commit%'
 	[impersonate_system]='https://github.com/rustdesk-org/impersonate-system;2f429010a5a10b1fe5eceb553c6672fd53d20167;impersonate-system-%commit%'
-	[kcp-sys]='https://github.com/rustdesk-org/kcp-sys;32a6c09fc6223f54aea83981a6aa8995931d29be;kcp-sys-%commit%'
+	[interceptor]='https://github.com/rustdesk-org/webrtc;49c89bd8d30e6e62e4c1a96cee38fdc11f79ef63;webrtc-%commit%/interceptor'
+	[kcp-sys]='https://github.com/rustdesk-org/kcp-sys;938eda3e5e9757a612385503af7a6cb1189b2cdd;kcp-sys-%commit%'
 	[keepawake]='https://github.com/rustdesk-org/keepawake-rs;64d568586dd16551d02120e19668d2b0fec8e3c9;keepawake-rs-%commit%'
 	[machine-uid]='https://github.com/rustdesk-org/machine-uid;381ff579c1dc3a6c54db9dfec47c44bcb0246542;machine-uid-%commit%'
 	[magnum-opus]='https://github.com/rustdesk-org/magnum-opus;588c6e1f9ed50c3a01fa64f3bd3e7cdb0378a114;magnum-opus-%commit%'
@@ -35,32 +37,46 @@ declare -A GIT_CRATES=(
 	[nokhwa-bindings-windows]='https://github.com/rustdesk-org/nokhwa;c2f74662b6ce117f7f94301693fdfadc0b1ec91a;nokhwa-%commit%/nokhwa-bindings-windows'
 	[nokhwa-core]='https://github.com/rustdesk-org/nokhwa;c2f74662b6ce117f7f94301693fdfadc0b1ec91a;nokhwa-%commit%/nokhwa-core'
 	[nokhwa]='https://github.com/rustdesk-org/nokhwa;c2f74662b6ce117f7f94301693fdfadc0b1ec91a;nokhwa-%commit%'
-	[pam-sys]='https://github.com/rustdesk-org/pam-sys;3337c9bb9a9c68d7497ec8c93cad2368c26091b7;pam-sys-%commit%'
-	[pam]='https://github.com/rustdesk-org/pam;7bfd25510202cd269292cbdd7c71f3977a6fd762;pam-%commit%'
 	[parity-tokio-ipc]='https://github.com/rustdesk-org/parity-tokio-ipc;d0ae39bffe5d5a3e8d82a1b6bcb1ca5a9b2f1c01;parity-tokio-ipc-%commit%'
 	[portable-pty]='https://github.com/rustdesk-org/wezterm;80174f8009f41565f0fa8c66dab90d4f9211ae16;wezterm-%commit%/pty'
-	[rdev]='https://github.com/rustdesk-org/rdev;871bf1c856d6a30af2f56ab8848396a025140855;rdev-%commit%'
+	[rdev]='https://github.com/rustdesk-org/rdev;a361d86a8b0245f3618a9efb375c149530a6b599;rdev-%commit%'
+	[rtcp]='https://github.com/rustdesk-org/webrtc;49c89bd8d30e6e62e4c1a96cee38fdc11f79ef63;webrtc-%commit%/rtcp'
+	[rtp]='https://github.com/rustdesk-org/webrtc;49c89bd8d30e6e62e4c1a96cee38fdc11f79ef63;webrtc-%commit%/rtp'
 	[rust-pulsectl]='https://github.com/rustdesk-org/pulsectl;aa34dde499aa912a3abc5289cc0b547bd07dd6e2;pulsectl-%commit%'
 	[sciter-rs]='https://github.com/rustdesk-org/rust-sciter;5322f3a755a0e6bf999fbc60d1efc35246c0f821;rust-sciter-%commit%'
+	[sdp]='https://github.com/rustdesk-org/webrtc;49c89bd8d30e6e62e4c1a96cee38fdc11f79ef63;webrtc-%commit%/sdp'
+	[stun]='https://github.com/rustdesk-org/webrtc;49c89bd8d30e6e62e4c1a96cee38fdc11f79ef63;webrtc-%commit%/stun'
 	[sysinfo]='https://github.com/rustdesk-org/sysinfo;90b1705d909a4902dbbbdea37ee64db17841077d;sysinfo-%commit%'
 	[tao-macros]='https://github.com/rustdesk-org/tao;288c219cb0527e509590c2b2d8e7072aa9feb2d3;tao-%commit%/tao-macros'
 	[tao]='https://github.com/rustdesk-org/tao;288c219cb0527e509590c2b2d8e7072aa9feb2d3;tao-%commit%'
 	[tfc]='https://github.com/rustdesk-org/The-Fat-Controller;78bb80a8e596e4c14ae57c8448f5fca75f91f2b0;The-Fat-Controller-%commit%'
 	[tokio-socks]='https://github.com/rustdesk-org/tokio-socks;bdb9aa3de5bac41602d0742b8ef6bbc6bfebd127;tokio-socks-%commit%'
+	[tokio-tungstenite]='https://github.com/rustdesk-org/tokio-tungstenite;c241b11b03de4881faf1ecd2fe6e867c92f3013b;tokio-tungstenite-%commit%'
 	[tray-icon]='https://github.com/tauri-apps/tray-icon;0a5835b0e6828e37a1f781de9c2d671ae7a939e6;tray-icon-%commit%'
+	[tungstenite]='https://github.com/rustdesk-org/tungstenite-rs;efce47e5364f00a63302cf07ab1fb13ded478914;tungstenite-rs-%commit%'
+	[turn]='https://github.com/rustdesk-org/webrtc;49c89bd8d30e6e62e4c1a96cee38fdc11f79ef63;webrtc-%commit%/turn'
 	[wallpaper]='https://github.com/rustdesk-org/wallpaper.rs;ce4a0cd3f58327c7cc44d15a63706fb0c022bacf;wallpaper.rs-%commit%'
 	[webm-sys]='https://github.com/rustdesk-org/rust-webm;d2c4d3ac133c7b0e4c0f656da710b48391981e64;rust-webm-%commit%/src/sys'
 	[webm]='https://github.com/rustdesk-org/rust-webm;d2c4d3ac133c7b0e4c0f656da710b48391981e64;rust-webm-%commit%'
+	[webrtc-data]='https://github.com/rustdesk-org/webrtc;49c89bd8d30e6e62e4c1a96cee38fdc11f79ef63;webrtc-%commit%/data'
+	[webrtc-dtls]='https://github.com/rustdesk-org/webrtc;49c89bd8d30e6e62e4c1a96cee38fdc11f79ef63;webrtc-%commit%/dtls'
+	[webrtc-ice]='https://github.com/rustdesk-org/webrtc;49c89bd8d30e6e62e4c1a96cee38fdc11f79ef63;webrtc-%commit%/ice'
+	[webrtc-mdns]='https://github.com/rustdesk-org/webrtc;49c89bd8d30e6e62e4c1a96cee38fdc11f79ef63;webrtc-%commit%/mdns'
+	[webrtc-media]='https://github.com/rustdesk-org/webrtc;49c89bd8d30e6e62e4c1a96cee38fdc11f79ef63;webrtc-%commit%/media'
+	[webrtc-sctp]='https://github.com/rustdesk-org/webrtc;49c89bd8d30e6e62e4c1a96cee38fdc11f79ef63;webrtc-%commit%/sctp'
+	[webrtc-srtp]='https://github.com/rustdesk-org/webrtc;49c89bd8d30e6e62e4c1a96cee38fdc11f79ef63;webrtc-%commit%/srtp'
+	[webrtc-util]='https://github.com/rustdesk-org/webrtc;49c89bd8d30e6e62e4c1a96cee38fdc11f79ef63;webrtc-%commit%/util'
+	[webrtc]='https://github.com/rustdesk-org/webrtc;49c89bd8d30e6e62e4c1a96cee38fdc11f79ef63;webrtc-%commit%/webrtc'
 	[x11-clipboard]='https://github.com/clslaid/x11-clipboard;5fc2e73bc01ada3681159b34cf3ea8f0d14cd904;x11-clipboard-%commit%'
 	[x11]='https://github.com/bjornsnoen/x11-rs;c2e9bfaa7b196938f8700245564d8ac5d447786a;x11-rs-%commit%/x11'
 )
 
-LLVM_COMPAT=( 18 19 20 21 22 )
+LLVM_COMPAT=( 19 20 21 22 )
 # have no idea why CI use rust-bin-9999, rustix broken on it
 # https://github.com/bytecodealliance/rustix/issues/1620
 # set RUST_MAX_VER to a max version now
 RUST_MAX_VER="1.95.0"
-RUST_MIN_VER="1.81.0"
+RUST_MIN_VER="1.85.0"
 RUST_NEEDS_LLVM=1
 inherit cargo desktop llvm-r1 systemd xdg
 
@@ -73,9 +89,9 @@ SRC_URI="
 	${CARGO_CRATE_URIS}
 "
 
-# grep -i vcpkg .github/workflows/flutter-build.yml
-_VCPKG_TAG="2025.08.27"
-SRC_URI+=" https://github.com/gentoo-zh-drafts/rustdesk-vcpkg/releases/download/${PV}/${P}-vcpkg-${_VCPKG_TAG}-lite.tar.gz"
+# grep VCPKG_COMMIT_ID .github/workflows/flutter-build.yml
+_VCPKG_COMMIT="9e593bb18ea69cc5095e012465dcd675a822ed0d"
+SRC_URI+=" https://github.com/gentoo-zh-drafts/rustdesk-vcpkg/releases/download/${PV}/${P}-vcpkg-${_VCPKG_COMMIT}-lite.tar.gz"
 
 # FIX:
 # 1. missing rust-webm-*/src/sys/libwebm
@@ -90,19 +106,19 @@ SRC_URI+=" https://github.com/rustdesk-org/externals/archive/${_HWCODEC_EXTERNAL
 
 # FIX: missing libs/hbb_common
 # curl https://api.github.com/repos/rustdesk/rustdesk/contents/libs/hbb_common | jq -r '.sha'
-_HBB_COMMON_COMMIT="7e1c392c62d39c364127307cd408421dd5f8cfb0"
+_HBB_COMMON_COMMIT="229b904508364c8997aad0fb5af57effac859f60"
 SRC_URI+=" https://github.com/rustdesk/hbb_common/archive/${_HBB_COMMON_COMMIT}.tar.gz -> hbb_common-${_HBB_COMMON_COMMIT}.tar.gz"
 
 # FIX: missing kcp-sys-*/kcp
 # curl https://api.github.com/repos/rustdesk-org/kcp-sys/contents/kcp | jq -r '.sha'
-_KCP_COMMIT="7f9805887b0909c52c825925f123e7a84da37167"
+_KCP_COMMIT="32da082e529a26730aea3eb19922f80634ee6dea"
 SRC_URI+=" https://github.com/skywind3000/kcp/archive/${_KCP_COMMIT}.tar.gz -> kcp-${_KCP_COMMIT}.tar.gz"
 
 LICENSE="AGPL-3"
 # Dependent crate licenses
 LICENSE+="
 	Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD-2 BSD Boost-1.0
-	CC0-1.0 CDLA-Permissive-2.0 GPL-3+ IJG ISC MIT MIT-0 MPL-2.0
+	CDLA-Permissive-2.0 GPL-3+ IJG ISC MIT MIT-0 MPL-2.0
 	Unicode-DFS-2016 Unlicense WTFPL-2 ZLIB
 "
 SLOT="0"
@@ -142,8 +158,7 @@ QA_PRESTRIPPED="
 "
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-1.4.8-fix-llvm22-bindgen.patch
-	"${FILESDIR}"/${PN}-1.4.8-disable-check-x11.patch
+	"${FILESDIR}"/${PN}-1.5.0-disable-check-x11.patch
 )
 
 pkg_setup() {
@@ -155,6 +170,16 @@ src_prepare() {
 	default
 	cd "${S}"/.. || die
 	eapply "${FILESDIR}"/rust-sciter.patch
+
+	# GIT_CRATES does not override git sources in [patch.crates-io]
+	local _TUNGSTENITE_COMMIT=`echo "${GIT_CRATES[tungstenite]}" | awk -F';' '{print $2}'`
+	local _WEBRTC_COMMIT=`echo "${GIT_CRATES[webrtc]}" | awk -F';' '{print $2}'`
+	sed -i \
+		-e "s|^tungstenite = { git = .*|tungstenite = { path = \"${WORKDIR}/tungstenite-rs-${_TUNGSTENITE_COMMIT}\" }|" \
+		-e "s|^webrtc = { git = .*|webrtc = { path = \"${WORKDIR}/webrtc-${_WEBRTC_COMMIT}/webrtc\" }|" \
+		-e "s|^webrtc-util = { git = .*|webrtc-util = { path = \"${WORKDIR}/webrtc-${_WEBRTC_COMMIT}/util\" }|" \
+		-e "s|^webrtc-sctp = { git = .*|webrtc-sctp = { path = \"${WORKDIR}/webrtc-${_WEBRTC_COMMIT}/sctp\" }|" \
+		"${S}"/Cargo.toml || die
 
 	rm -rf "${S}"/libs/hbb_common || die
 	ln -s "${WORKDIR}/hbb_common-${_HBB_COMMON_COMMIT}" "${S}"/libs/hbb_common || die
