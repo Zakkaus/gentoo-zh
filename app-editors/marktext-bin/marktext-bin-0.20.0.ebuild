@@ -44,15 +44,14 @@ RDEPEND="
 "
 
 QA_PREBUILT="
-	opt/marktext/chrome-sandbox
-	opt/marktext/chrome_crashpad_handler
-	opt/marktext/libEGL.so
-	opt/marktext/libffmpeg.so
-	opt/marktext/libGLESv2.so
-	opt/marktext/libvk_swiftshader.so
-	opt/marktext/libvulkan.so.1
-	opt/marktext/marktext
-	opt/marktext/resources/app.asar.unpacked/node_modules/*
+	opt/MarkText/chrome_crashpad_handler
+	opt/MarkText/libEGL.so
+	opt/MarkText/libffmpeg.so
+	opt/MarkText/libGLESv2.so
+	opt/MarkText/libvk_swiftshader.so
+	opt/MarkText/libvulkan.so.1
+	opt/MarkText/marktext
+	opt/MarkText/resources/app.asar.unpacked/node_modules/*
 "
 
 src_prepare(){
@@ -64,7 +63,7 @@ src_prepare(){
 
 src_install(){
 	insinto /opt
-	doins -r opt/marktext
+	doins -r opt/MarkText
 
 	insinto /usr/share
 	doins -r usr/share/icons
@@ -76,7 +75,6 @@ src_install(){
 	for f in ${QA_PREBUILT}; do
 		fperms +x "/${f}"
 	done
-	fperms u+s /opt/marktext/chrome-sandbox
 
-	dosym ../../opt/marktext/${PN%-bin} /usr/bin/${PN%-bin}
+	dosym ../../opt/MarkText/${PN%-bin} /usr/bin/${PN%-bin}
 }
