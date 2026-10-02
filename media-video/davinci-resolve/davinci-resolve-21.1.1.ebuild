@@ -190,7 +190,6 @@ src_prepare() {
 	rm -f "${squashfs}/DaVinci Control Panels Setup/libk5crypto.so.3" || die
 	rm -f "${squashfs}/share/DaVinciResolveInstaller.desktop" || die
 	rm -f "${squashfs}/scripts/"{pre_install.sh,post_install.sh,uninstall.sh} || die
-	rm -f "${squashfs}/LUT/GenLut" "${squashfs}/LUT/GenOutputLut" || die
 	rm -f "${squashfs}/bin/sqlite3" || die
 	if ! use video_cards_nvidia; then
 		rm -f \
