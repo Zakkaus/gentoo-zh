@@ -2503,6 +2503,7 @@ github = "xinggaoya/sing-box-windows"
 use_latest_release = true
 prefix = "v"
 github_account = "gouwazi"
+autobump = true
 
 ["net-proxy/smartproxy"]
 source = "github"
