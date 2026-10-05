@@ -2382,7 +2382,7 @@ prefix = "v"
 
 ["net-proxy/clash-rs"]
 source = "github"
-github = "Watfaq/clash-rs"
+github = "Watfaq-legacy/clash-rs"
 use_latest_release = true
 prefix = "v"
 github_account = "liuyujielol"

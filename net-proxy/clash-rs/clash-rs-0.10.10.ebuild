@@ -36,10 +36,10 @@ inherit cargo systemd
 DESCRIPTION="Custom protocol, rule based network proxy"
 HOMEPAGE="
 	https://watfaq.gitbook.io/clashrs-user-manual/
-	https://github.com/Watfaq/clash-rs/
+	https://github.com/Watfaq-legacy/clash-rs/
 "
 SRC_URI="
-	https://github.com/Watfaq/clash-rs/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
+	https://github.com/Watfaq-legacy/clash-rs/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
 	https://github.com/gentoo-zh-drafts/${PN}/releases/download/v${PV}/${P}-crates.tar.xz
 	${CARGO_CRATE_URIS}
 "

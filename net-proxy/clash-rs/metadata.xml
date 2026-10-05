@@ -13,6 +13,6 @@
 		<flag name="perf">Enable Perf Features, plus + jemallocator</flag>
 	</use>
 	<upstream>
-		<remote-id type="github">Watfaq/clash-rs</remote-id>
+		<remote-id type="github">Watfaq-legacy/clash-rs</remote-id>
 	</upstream>
 </pkgmetadata>
