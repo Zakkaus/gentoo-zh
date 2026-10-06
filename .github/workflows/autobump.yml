@@ -15,7 +15,7 @@ on:
         required: false
         default: ''
       limit:
-        description: 'max issues per run (0 = the whole queue)'
+        description: 'max issues per run (0 = matrix limit, 256)'
         required: false
         default: '0'
       retry:
@@ -133,7 +133,7 @@ jobs:
         LIMIT: ${{ inputs.limit || 0 }}
         RETRY: ${{ format('{0}', inputs.retry) == 'true' && '--retry' || '' }}
         BUNDLES_ONLY: ${{ format('{0}', inputs.bundles_only) == 'true' && '--bundles-only' || '' }}
-        SHARDS: '8'
+        SHARDS: '256'
       run: |
         case "$ISSUES" in *[!0-9\ ]*) echo "issues must be numbers: $ISSUES" >&2; exit 1;; esac
         case "$LIMIT" in ''|*[!0-9]*) echo "limit must be a number: $LIMIT" >&2; exit 1;; esac

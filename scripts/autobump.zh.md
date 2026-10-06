@@ -182,9 +182,9 @@ gh workflow run autobump.yml --repo gentoo-zh/overlay -f bundles_only=true
 
 两种方式的输入相同，`issues` 只接受数字和空格。
 
-worker 跑在每天构建一次的镜像里（`autobump-env`）。`rebuild_env` 强制重建，`env_date` 指定用更早一天的镜像，保留最近三个。
+worker 使用每天构建一次的镜像（`autobump-env`）。`rebuild_env` 强制重建，`env_date` 指定用更早一天的镜像，保留最近三个。
 
-`limit` 限制这次运行自己挑出来的引擎尝试数，默认 0 表示整个队列都跑；手动指定的 issue 号不受它限制，全部都会尝试。规划阶段按缓存状态解析队列，把这些尝试分到互不重叠的 shard，跳过不占额度。
+每个包使用独立的新容器，最多同时执行八个工作，其余排队。`limit` 限制自动选择的尝试数，默认 0 不加限制；手动指定的 issue 不受 `limit` 限制。两种方式都受 GitHub matrix 的 256 个工作上限约束。跳过的包不占额度；超过上限的待更新包留到后续运行。
 
 一次运行分三段：规划、最多八个并行的 bump worker、合并。每个 worker 最多 360 分钟，到时由 GitHub 取消。每个计时操作各有两小时上限，`ebuild install`、`emerge` 和 `ebuild unpack` 超时后标记暂缓、下次重试，所以一个包可能在 worker 的六小时里用掉好几个两小时。
 

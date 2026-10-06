@@ -849,8 +849,10 @@ def plan_issues(settings, issues, apply_run_limit):
             results[issue] = "skip (bundles_only run)"
             continue
 
-        cap = run_limit(settings)
-        if apply_run_limit and cap is not None and attempts >= cap:
+        # GitHub matrices allow at most 256 jobs, including named issues.
+        cap = run_limit(settings) if apply_run_limit else None
+        cap = min(cap or 256, 256)
+        if attempts >= cap:
             results[issue] = f"skip (per-run attempt limit {cap} reached)"
             continue
 
