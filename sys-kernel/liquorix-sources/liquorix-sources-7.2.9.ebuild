@@ -10,7 +10,7 @@ ETYPE="sources"
 K_EXP_GENPATCHES_NOUSE="1"
 
 # Just get basic genpatches, -lqx patch set already includes main updates
-K_GENPATCHES_VER="8"
+K_GENPATCHES_VER="10"
 
 # -lqx already sets EXTRAVERSION to kernel Makefile
 K_NOSETEXTRAVERSION="1"
