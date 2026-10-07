@@ -74,9 +74,28 @@ src_install() {
 	doexe "${S}"/usr/bin/*
 	insinto /usr/lib/clash-verge
 	doins -r "${S}"/usr/lib/Clash\ Verge/resources
-	domenu "${FILESDIR}"/clash-verge.desktop
+	exeinto /opt/clash-verge/libexec/openrc
+	newexe "${FILESDIR}"/clash-verge-openrc-systemctl systemctl
+	newbin "${FILESDIR}"/clash-verge-launcher clash-verge
+	sed -e 's|/opt/clash-verge/bin/clash-verge|clash-verge|' \
+		"${FILESDIR}"/clash-verge.desktop > "${T}"/clash-verge.desktop || die
+	domenu "${T}"/clash-verge.desktop
 	doicon -s 128 usr/share/icons/hicolor/128x128/apps/clash-verge.png
 	doicon -s 256 usr/share/icons/hicolor/256x256@2/apps/clash-verge.png
 	doicon -s 32 usr/share/icons/hicolor/32x32/apps/clash-verge.png
-	newinitd "${FILESDIR}"/clash-verge.initd clash-verge
+	newinitd "${FILESDIR}"/clash-verge.initd-r1 clash-verge
+}
+
+pkg_postinst() {
+	xdg_pkg_postinst
+
+	if [[ ! -d /run/systemd/system ]]; then
+		elog "On OpenRC, manage the service with rc-service instead of the in-app"
+		elog "install or repair buttons, because upstream's installer only supports systemd:"
+		elog "  rc-update add clash-verge default"
+		elog "  rc-service clash-verge start"
+		elog "Start clash-verge through the menu entry or /usr/bin/clash-verge, so it can"
+		elog "detect the OpenRC service. An autostart entry created by clash-verge itself"
+		elog "runs /opt/clash-verge/bin/clash-verge directly; point its Exec= at clash-verge."
+	fi
 }

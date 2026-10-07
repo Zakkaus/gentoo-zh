@@ -1,0 +1,12 @@
+#!/bin/sh
+# clash-verge only asks systemctl whether its service is registered; answer from OpenRC instead.
+if [ "$*" = "show --property=LoadState --value clash-verge-service.service" ]; then
+	if [ -x /etc/init.d/clash-verge ]; then
+		echo loaded
+	else
+		echo not-found
+	fi
+	exit 0
+fi
+echo "systemctl $*: unsupported on OpenRC, use rc-service clash-verge" >&2
+exit 1
