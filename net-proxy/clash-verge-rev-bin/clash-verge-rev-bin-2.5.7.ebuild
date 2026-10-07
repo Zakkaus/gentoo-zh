@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit desktop unpacker xdg
+inherit desktop systemd unpacker xdg
 
 DESCRIPTION="(Continuation) of Clash Meta GUI based on Tauri"
 HOMEPAGE="https://github.com/clash-verge-rev/clash-verge-rev"
@@ -79,4 +79,14 @@ src_install() {
 	doicon -s 256 usr/share/icons/hicolor/256x256@2/apps/clash-verge.png
 	doicon -s 32 usr/share/icons/hicolor/32x32/apps/clash-verge.png
 	newinitd "${FILESDIR}"/clash-verge.initd clash-verge
+}
+
+pkg_postinst() {
+	xdg_pkg_postinst
+
+	if ! systemd_is_booted; then
+		elog "OpenRC 下暂不支持服务模式，因为上游的服务安装器只支持 systemd，修复服务会失败。"
+		elog "Service mode does not work on OpenRC yet, because upstream's installer only supports systemd."
+		elog "https://github.com/clash-verge-rev/clash-verge-service-ipc/pull/86"
+	fi
 }
