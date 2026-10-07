@@ -1,0 +1,27 @@
+https://github.com/clash-verge-rev/clash-verge-rev/pull/8187
+
+From: Zakk <zakk@gentoozh.org>
+Date: Wed, 7 Oct 2026 05:05:48 +0000
+Subject: [PATCH] fix(service): detect the service on OpenRC
+
+---
+ src-tauri/src/core/service.rs | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/src-tauri/src/core/service.rs b/src-tauri/src/core/service.rs
+index 975ec59..15c57d5 100644
+--- a/src-tauri/src/core/service.rs
++++ b/src-tauri/src/core/service.rs
+@@ -300,6 +300,12 @@ pub(crate) fn service_stopped() -> Result<bool> {
+ 
+ #[cfg(target_os = "linux")]
+ pub(crate) fn trusted_service_evidence() -> Result<bool> {
++    // Without systemd, the installer registers an OpenRC script instead of a unit.
++    if !Path::new("/run/systemd/system").exists() && Path::new("/run/openrc").exists() {
++        return Ok(Path::new("/etc/init.d")
++            .join(clash_verge_service_ipc::SERVICE_SLUG)
++            .exists());
++    }
+     let unit = format!("{}.service", clash_verge_service_ipc::SERVICE_SLUG);
+     let output = StdCommand::new("systemctl")
+         .args(["show", "--property=LoadState", "--value", &unit])

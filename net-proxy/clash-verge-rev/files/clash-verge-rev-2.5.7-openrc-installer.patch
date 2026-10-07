@@ -1,0 +1,162 @@
+https://github.com/clash-verge-rev/clash-verge-service-ipc/pull/86
+
+From: Zakk <zakk@gentoozh.org>
+Date: Wed, 7 Oct 2026 04:25:36 +0000
+Subject: [PATCH] feat(installer): support OpenRC on Linux
+
+---
+ resources/openrc_service.tmpl | 13 ++++++++++
+ src/bin/install_service.rs    | 47 ++++++++++++++++++++++++++++++++++-
+ src/bin/shared/mod.rs         | 11 ++++++++
+ src/bin/uninstall_service.rs  | 23 +++++++++++------
+ 4 files changed, 86 insertions(+), 8 deletions(-)
+ create mode 100644 resources/openrc_service.tmpl
+
+diff --git a/resources/openrc_service.tmpl b/resources/openrc_service.tmpl
+new file mode 100644
+index 0000000..97aaa40
+--- /dev/null
++++ b/resources/openrc_service.tmpl
+@@ -0,0 +1,13 @@
++#!/sbin/openrc-run
++
++description="Clash Verge Service helps to launch Clash Core."
++supervisor="supervise-daemon"
++command="{exec_start}"
++command_user="root:{group}"
++respawn_delay=5
++respawn_max=0
++
++depend() {{
++	need net
++	use nftables iptables
++}}
+diff --git a/src/bin/install_service.rs b/src/bin/install_service.rs
+index 2473a75..bb64839 100644
+--- a/src/bin/install_service.rs
++++ b/src/bin/install_service.rs
+@@ -847,13 +847,24 @@ fn main() -> Result<(), Error> {
+     let staged = stage_binary(&source, &target)?;
+     let unit_name = format!("{}.service", clash_verge_service_ipc::SERVICE_SLUG);
+     let unit_path = PathBuf::from("/etc/systemd/system").join(&unit_name);
++    let openrc = shared::openrc_booted();
+ 
+-    let _ = run_command("systemctl", &["stop", &unit_name], debug);
++    if openrc {
++        let _ = run_command("rc-service", &[clash_verge_service_ipc::SERVICE_SLUG, "stop"], debug);
++    } else {
++        let _ = run_command("systemctl", &["stop", &unit_name], debug);
++    }
+     shared::repair_active_owner_state()?;
+     // Staged where the service is already down, so a core it was running no longer holds its file.
+     install_service_cores(&options.cores)?;
+     publish_staged_binary(&staged, &target)?;
+ 
++    if openrc {
++        install_openrc_service(&target, &group, debug)?;
++        wait_for_service_ready()?;
++        return Ok(());
++    }
++
+     let unit_file_content = format!(
+         include_str!("../../resources/systemd_service_unit.tmpl"),
+         exec_start = target.to_string_lossy(),
+@@ -878,6 +889,40 @@ fn main() -> Result<(), Error> {
+     Ok(())
+ }
+ 
++#[cfg(target_os = "linux")]
++fn install_openrc_service(target: &Path, group: &str, debug: bool) -> Result<(), Error> {
++    use std::os::unix::fs::PermissionsExt as _;
++
++    let script_path = shared::openrc_script_path();
++    let script = format!(
++        include_str!("../../resources/openrc_service.tmpl"),
++        exec_start = target.to_string_lossy(),
++        group = group,
++    );
++    let mut file =
++        File::create(&script_path).with_context(|| format!("failed to create OpenRC script {script_path:?}"))?;
++    file.write_all(script.as_bytes())
++        .with_context(|| format!("failed to write OpenRC script {script_path:?}"))?;
++    file.set_permissions(std::fs::Permissions::from_mode(0o755))
++        .with_context(|| format!("failed to make OpenRC script {script_path:?} executable"))?;
++    file.sync_all()
++        .with_context(|| format!("failed to sync OpenRC script {script_path:?}"))?;
++    // An executable still open for writing cannot be run (ETXTBSY).
++    drop(file);
++
++    if !Path::new("/etc/runlevels/default")
++        .join(clash_verge_service_ipc::SERVICE_SLUG)
++        .exists()
++    {
++        run_command(
++            "rc-update",
++            &["add", clash_verge_service_ipc::SERVICE_SLUG, "default"],
++            debug,
++        )?;
++    }
++    run_command("rc-service", &[clash_verge_service_ipc::SERVICE_SLUG, "restart"], debug)
++}
++
+ #[cfg(windows)]
+ fn main() -> anyhow::Result<()> {
+     use platform_lib::{
+diff --git a/src/bin/shared/mod.rs b/src/bin/shared/mod.rs
+index bd5ea9d..439a938 100644
+--- a/src/bin/shared/mod.rs
++++ b/src/bin/shared/mod.rs
+@@ -53,6 +53,17 @@ pub fn uninstall_old_service() -> Result<(), Error> {
+     Ok(())
+ }
+ 
++/// OpenRC manages the service when the system was not booted by systemd.
++#[cfg(target_os = "linux")]
++pub(crate) fn openrc_booted() -> bool {
++    !std::path::Path::new("/run/systemd/system").exists() && std::path::Path::new("/run/openrc").exists()
++}
++
++#[cfg(target_os = "linux")]
++pub(crate) fn openrc_script_path() -> std::path::PathBuf {
++    std::path::Path::new("/etc/init.d").join(clash_verge_service_ipc::SERVICE_SLUG)
++}
++
+ #[cfg(any(target_os = "linux", target_os = "macos"))]
+ pub fn run_command(cmd: &str, args: &[&str], debug: bool) -> Result<(), Error> {
+     if debug {
+diff --git a/src/bin/uninstall_service.rs b/src/bin/uninstall_service.rs
+index bb5bd7b..1cdb933 100644
+--- a/src/bin/uninstall_service.rs
++++ b/src/bin/uninstall_service.rs
+@@ -159,15 +159,24 @@ fn main() -> Result<(), Error> {
+     let debug = env::args().any(|arg| arg == "--debug");
+     let service_name = clash_verge_service_ipc::SERVICE_SLUG;
+ 
+-    let _ = run_command("systemctl", &["stop", &format!("{}.service", service_name)], debug);
+-    let _ = run_command("systemctl", &["disable", &format!("{}.service", service_name)], debug);
++    if shared::openrc_booted() {
++        let _ = run_command("rc-service", &[service_name, "stop"], debug);
++        let _ = run_command("rc-update", &["del", service_name, "default"], debug);
++        let script = shared::openrc_script_path();
++        if script.exists() {
++            std::fs::remove_file(&script).map_err(|e| anyhow::anyhow!("Failed to remove OpenRC script: {}", e))?;
++        }
++    } else {
++        let _ = run_command("systemctl", &["stop", &format!("{}.service", service_name)], debug);
++        let _ = run_command("systemctl", &["disable", &format!("{}.service", service_name)], debug);
+ 
+-    let unit_file = format!("/etc/systemd/system/{}.service", service_name);
+-    if std::path::Path::new(&unit_file).exists() {
+-        std::fs::remove_file(&unit_file).map_err(|e| anyhow::anyhow!("Failed to remove service file: {}", e))?;
+-    }
++        let unit_file = format!("/etc/systemd/system/{}.service", service_name);
++        if std::path::Path::new(&unit_file).exists() {
++            std::fs::remove_file(&unit_file).map_err(|e| anyhow::anyhow!("Failed to remove service file: {}", e))?;
++        }
+ 
+-    let _ = run_command("systemctl", &["daemon-reload"], debug);
++        let _ = run_command("systemctl", &["daemon-reload"], debug);
++    }
+     let target = clash_verge_service_ipc::prepare_service_install_directory()?.join("clash-verge-service");
+     if target.exists() {
+         std::fs::remove_file(&target)

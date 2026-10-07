@@ -74,8 +74,16 @@ BDEPEND="
 	sys-apps/moreutils
 "
 
+PATCHES=(
+	"${FILESDIR}"/${P}-openrc-detection.patch
+)
+
 src_prepare() {
 	default
+
+	pushd "${WORKDIR}/${SERVICE_P}" >/dev/null || die
+	eapply "${FILESDIR}"/${P}-openrc-installer.patch
+	popd >/dev/null || die
 
 	# FIXME: tempfile or moreutils?
 	#jq ... "${S}/package.json" > tmp.json && mv tmp.json "${S}/package.json" || die
