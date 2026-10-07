@@ -1,0 +1,31 @@
+#!/sbin/openrc-run
+# Copyright 2025-2026 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+name="clash-verge"
+description="Clash Verge Service helps to launch Clash Core."
+supervisor="supervise-daemon"
+command="/opt/clash-verge/bin/clash-verge-service"
+pidfile="/run/${RC_SVCNAME}.pid"
+output_log="/var/log/${RC_SVCNAME}.log"
+error_log="/var/log/${RC_SVCNAME}.log"
+respawn_delay=5
+respawn_max=0
+
+depend() {
+    need net
+    use nftables iptables
+    after bootmisc
+}
+
+start_pre() {
+    # The service only runs cores published to /var/lib/clash-verge-service/cores
+    local core args=""
+    for core in verge-mihomo verge-mihomo-alpha; do
+        [ -f "/opt/clash-verge/bin/${core}" ] && args="${args} --install-core /opt/clash-verge/bin/${core}"
+    done
+    [ -n "${args}" ] || return 0
+    ebegin "Publishing bundled cores for ${RC_SVCNAME}"
+    /opt/clash-verge/bin/clash-verge-service-install ${args} >/dev/null
+    eend $?
+}

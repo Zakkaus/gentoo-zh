@@ -1,0 +1,5 @@
+#!/bin/sh
+# Let clash-verge detect the OpenRC service
+[ -d /run/systemd/system ] || PATH="/opt/clash-verge/libexec/openrc:${PATH}"
+export PATH
+exec /opt/clash-verge/bin/clash-verge "$@"

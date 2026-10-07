@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit desktop unpacker xdg
+inherit desktop systemd unpacker xdg
 
 DESCRIPTION="(Continuation) of Clash Meta GUI based on Tauri"
 HOMEPAGE="https://github.com/clash-verge-rev/clash-verge-rev"
@@ -74,9 +74,25 @@ src_install() {
 	doexe "${S}"/usr/bin/*
 	insinto /usr/lib/clash-verge
 	doins -r "${S}"/usr/lib/Clash\ Verge/resources
+	exeinto /opt/clash-verge/libexec/openrc
+	newexe "${FILESDIR}"/clash-verge-openrc-systemctl systemctl
+	newbin "${FILESDIR}"/clash-verge-launcher clash-verge
 	domenu "${FILESDIR}"/clash-verge.desktop
 	doicon -s 128 usr/share/icons/hicolor/128x128/apps/clash-verge.png
 	doicon -s 256 usr/share/icons/hicolor/256x256@2/apps/clash-verge.png
 	doicon -s 32 usr/share/icons/hicolor/32x32/apps/clash-verge.png
-	newinitd "${FILESDIR}"/clash-verge.initd clash-verge
+	newinitd "${FILESDIR}"/clash-verge.initd-r1 clash-verge
+}
+
+pkg_postinst() {
+	xdg_pkg_postinst
+
+	if ! systemd_is_booted; then
+		elog "OpenRC 下请用 rc-service 管理服务，不要用应用内的安装/修复服务："
+		elog "On OpenRC, manage the service with rc-service, not the in-app install/repair:"
+		elog "  rc-update add clash-verge default"
+		elog "  rc-service clash-verge start"
+		elog "开机自启项需执行 /usr/bin/clash-verge 才能识别该服务。"
+		elog "Autostart entries must run /usr/bin/clash-verge to detect the service."
+	fi
 }
