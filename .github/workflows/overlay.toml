@@ -128,6 +128,7 @@ source = "github"
 github = "igo95862/bubblejail"
 use_latest_release = true
 github_account = "gouwazi"
+autobump = true
 
 ["app-crypt/archlinux-keyring"]
 source = "gitlab"
@@ -267,6 +268,7 @@ github = "AOSC-Dev/liblol"
 use_latest_release = true
 prefix = "v"
 github_account = "xen0n"
+autobump = true
 
 ["app-emulation/liblol-glibc"]
 source = "github"
@@ -291,6 +293,7 @@ github = "winboat-org/winboat"
 use_latest_release = true
 prefix = "v"
 github_account = "gouwazi"
+autobump = true
 
 ["app-emulation/winetricks-zh"]
 source = "github"
@@ -518,6 +521,7 @@ github = "farion1231/cc-switch"
 use_latest_release = true
 prefix = "v"
 github_account = ["liangyongxiang", "gouwazi"]
+autobump = true
 
 ["app-misc/cc-switch-cli"]
 source = "github"
@@ -628,6 +632,7 @@ github_account = "liangyongxiang"
 bundle = [
   { id = "node_modules", repo = "gentoo-zh-drafts/openclaude", workflow = "node_modules.yml", tag = "v{PV}", inputs = { tag = "v{PV}" } },
 ]
+autobump = true
 
 ["app-misc/qwen-code"]
 source = "github"
@@ -815,6 +820,7 @@ source = "github"
 github = "eclipse-lemminx/lemminx"
 use_latest_tag = true
 github_account = ["blackteahamburger", "gouwazi"]
+autobump = true
 
 ["app-text/readest-bin"]
 source = "github"
@@ -864,6 +870,7 @@ github = "Neargye/nameof"
 use_latest_release = true
 prefix = "v"
 github_account = ["CHN-beta", "gouwazi"]
+autobump = true
 
 ["dev-cpp/reproc"]
 source = "github"
@@ -913,6 +920,7 @@ source = "github"
 github = "cweill/gotests"
 use_latest_release = true
 prefix = "v"
+autobump = true
 
 ["dev-go/staticcheck"]
 source = "github"
@@ -976,6 +984,7 @@ github_account = ["microcai", "gouwazi"]
 
 # packaged from a pinned commit, no tag to compare
 #["dev-libs/qnodeeditor"]
+autobump = true
 
 ["dev-libs/singleapplication"]
 source = "github"
@@ -989,6 +998,7 @@ github_account = ["blackteahamburger", "gouwazi"]
 
 # high update frequency
 #["dev-libs/v2ray-domain-list-community-bin"]
+autobump = true
 
 ["dev-libs/v2ray-geoip"]
 source = "github"
@@ -1014,6 +1024,7 @@ github = "archspec/archspec"
 use_latest_release = true
 prefix = "v"
 github_account = ["OriPoin", "gouwazi"]
+autobump = true
 
 ["dev-python/autopxd2"]
 source = "github"
@@ -1021,6 +1032,7 @@ github = "elijahr/python-autopxd2"
 use_latest_release = true
 prefix = "v"
 github_account = "vowstar"
+autobump = true
 
 ["dev-python/browser-cookie3"]
 source = "github"
@@ -1196,6 +1208,7 @@ source = "github"
 github = "Freed-Wu/pyrime"
 use_latest_release = true
 github_account = "Freed-Wu"
+autobump = true
 
 ["dev-python/qasync"]
 source = "pypi"
@@ -1253,6 +1266,7 @@ github_account = "gouwazi"
 
 # The snapshot we carry is above upstream 2.0.1, the last release.
 #["dev-util/cmakerc"]
+autobump = true
 
 ["dev-util/codex"]
 source = "github"
@@ -1290,6 +1304,7 @@ source = "github"
 github = "leoafarias/fvm"
 use_latest_release = true
 deps = "dart"
+autobump = true
 
 ["dev-util/gemini-cli"]
 source = "regex"
@@ -1956,6 +1971,7 @@ github = "imsyy/SPlayer"
 use_latest_release = true
 prefix = "v"
 github_account = "flying-balloon-cat"
+autobump = true
 
 ["media-sound/spotube-bin"]
 source = "github"
@@ -1971,6 +1987,7 @@ github = "tramhao/termusic"
 use_latest_release = true
 prefix = "v"
 github_account = "liuyujielol"
+autobump = true
 
 ["media-sound/yesplaymusic-bin"]
 source = "github"
@@ -2081,6 +2098,7 @@ source = "github"
 github = "cilium/pwru"
 use_latest_release = true
 prefix = "v"
+autobump = true
 
 ["net-analyzer/realitlscanner"]
 source = "github"
@@ -2251,6 +2269,7 @@ source = "github"
 github = "simulot/immich-go"
 use_latest_release = true
 prefix = "v"
+autobump = true
 
 ["net-misc/lazyssh-bin"]
 source = "github"
@@ -2271,6 +2290,7 @@ source = "github"
 github = "pendulum-project/ntpd-rs"
 use_latest_release = true
 prefix = "v"
+autobump = true
 
 ["net-misc/pcmanx-gtk2"]
 source = "github"
@@ -2297,6 +2317,7 @@ github = "AlynxZhou/reframe"
 use_latest_release = true
 prefix = "v"
 github_account = "Jack77793"
+autobump = true
 
 ["net-misc/remmina-plugin-rustdesk"]
 source = "github"
@@ -2336,7 +2357,7 @@ github = "trzsz/tsshd"
 use_latest_release = true
 prefix = "v"
 github_account = "locez"
-# autobump off: the per-version vendor bundle must be regenerated first -- not a mechanical bump.
+autobump = true
 
 ["net-misc/yaak-bin"]
 source = "github"
@@ -2534,6 +2555,7 @@ source = "github"
 github = "v2fly/v2ray-core"
 use_latest_release = true
 prefix = "v"
+autobump = true
 
 ["net-proxy/v2rayA"]
 source = "github"
@@ -2631,6 +2653,7 @@ github = "leanprover/elan"
 use_latest_release = true
 prefix = "v"
 github_account = "xz-dev"
+autobump = true
 
 ["sci-mathematics/rstudio-desktop-bin"]
 source = "regex"
@@ -2727,6 +2750,7 @@ github_account = "gouwazi"
 
 # live package only
 #["sys-fs/systemd-zpool-scrub"]
+autobump = true
 
 ["sys-kernel/cachyos-sources"]
 source = "regex"
@@ -2793,6 +2817,7 @@ github = "pranshuparmar/witr"
 use_latest_release = true
 prefix = "v"
 github_account = "liangyongxiang"
+autobump = true
 
 ["sys-power/tlpui"]
 source = "github"
@@ -2810,6 +2835,7 @@ github_account = "xz-dev"
 #["virtual/v2ray-domain-list-community"]
 
 #["virtual/v2ray-geoip"]
+autobump = true
 
 ["www-client/adspower-global"]
 source = "regex"
@@ -2860,6 +2886,7 @@ source = "github"
 github = "svenstaro/miniserve"
 use_latest_release = true
 prefix = "v"
+autobump = true
 
 ["www-servers/s-ui-bin"]
 source = "github"
@@ -2880,6 +2907,7 @@ github_account = ["microcai", "gouwazi"]
 
 # live package only
 #["x11-libs/xcb-imdkit"]
+autobump = true
 
 ["x11-misc/9menu"]
 source = "debianpkg"
