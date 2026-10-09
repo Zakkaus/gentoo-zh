@@ -162,6 +162,8 @@ src_install(){
 	tar x -f "freeoffice2024.tar" \
 		&& rm "freeoffice2024.tar" || die
 	rm "installfreeoffice"
+	# 1238 bundles libdecor and its plugins, which no program in the package loads
+	rm libdecor-{cairo,gtk,main}.so || die
 
 	chrpath --delete "textmaker"
 	chrpath --delete "planmaker"
