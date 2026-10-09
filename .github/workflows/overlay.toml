@@ -265,7 +265,8 @@ github_account = "xen0n"
 ["app-emulation/liblol"]
 source = "github"
 github = "AOSC-Dev/liblol"
-use_latest_release = true
+use_max_tag = true
+include_regex = "^v\\d+\\.\\d+\\.\\d+$"
 prefix = "v"
 github_account = "xen0n"
 autobump = true
@@ -273,14 +274,16 @@ autobump = true
 ["app-emulation/liblol-glibc"]
 source = "github"
 github = "AOSC-Dev/liblol"
-use_latest_release = true
+use_max_tag = true
+include_regex = "^v\\d+\\.\\d+\\.\\d+$"
 prefix = "v"
 github_account = "xen0n"
 
 ["app-emulation/liblol-libxcrypt"]
 source = "github"
 github = "AOSC-Dev/liblol"
-use_latest_release = true
+use_max_tag = true
+include_regex = "^v\\d+\\.\\d+\\.\\d+$"
 prefix = "v"
 github_account = "xen0n"
 
