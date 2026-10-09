@@ -2,9 +2,14 @@
 # usage: nvchecker-eix.sh
 set -euo pipefail
 
-echo "::group::eselect repository add and sync"
+echo "::group::add and sync the overlay"
 repo_name=$(cat profiles/repo_name)
-eselect repository add "$repo_name" git "file://${PWD}"
+cat > "/etc/portage/repos.conf/${repo_name}.conf" << EOF
+[${repo_name}]
+location = /var/db/repos/${repo_name}
+sync-type = git
+sync-uri = file://${PWD}
+EOF
 emerge --sync "$repo_name"
 egencache --jobs="$(nproc)" --update --repo "$repo_name" &> /dev/null
 eix-update

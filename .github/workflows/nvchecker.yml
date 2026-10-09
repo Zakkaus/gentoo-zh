@@ -31,13 +31,20 @@ jobs:
     - name: install depends
       run: |
         emerge --verbose --quiet --jobs "$(nproc)" --autounmask y --autounmask-continue y \
-        app-eselect/eselect-repository \
         app-portage/eix \
         dev-vcs/git
 
+    # eselect repository fetches repositories.xml from api.gentoo.org, which the runner
+    # sometimes resolves to IPv6 only and cannot reach
     - name: setup gentoo git repo
       run: |
-        eselect repository add gentoo git https://github.com/gentoo-mirror/gentoo.git
+        mkdir -p /etc/portage/repos.conf
+        cat > /etc/portage/repos.conf/gentoo.conf << EOF
+        [gentoo]
+        location = /var/db/repos/gentoo
+        sync-type = git
+        sync-uri = https://github.com/gentoo-mirror/gentoo.git
+        EOF
         rm -rf /var/db/repos/gentoo
         emaint sync -r gentoo
 
