@@ -52,6 +52,7 @@ case "${1:?packages, scan or stage}" in
         cp packages.txt pkgcheck-report/packages 2>/dev/null || : > pkgcheck-report/packages
         cp report.txt pkgcheck-report/report.txt 2>/dev/null || : > pkgcheck-report/report.txt
         cp new.txt pkgcheck-report/new.txt 2>/dev/null || : > pkgcheck-report/new.txt
-        [ ! -f scan-complete ] || : > pkgcheck-report/complete
+        # the comment runs master's scripts, which may be newer than the ones that made this artifact
+        [ -f scan-complete ] || : > pkgcheck-report/incomplete
         ;;
 esac
