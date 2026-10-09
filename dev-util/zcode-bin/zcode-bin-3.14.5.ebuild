@@ -54,6 +54,12 @@ src_unpack() {
 	mv squashfs-root "${P}" || die
 }
 
+src_prepare() {
+	default
+	# The AppImage ships resources/ and its subdirectories as 0700, so only root could start the app.
+	chmod -R go+rX . || die
+}
+
 src_install() {
 	local dest=/opt/zcode-bin
 	dodir "${dest}"
