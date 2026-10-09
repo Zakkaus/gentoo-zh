@@ -588,6 +588,7 @@ github = "angristan/fast-resume"
 use_latest_release = true
 prefix = "v"
 github_account = "liangyongxiang"
+autobump = true
 
 ["app-misc/go-yq-bin"]
 source = "github"
