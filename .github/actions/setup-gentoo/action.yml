@@ -36,7 +36,6 @@ runs:
         fi
         mkdir -p /etc/portage/package.use
         printf '%s\n' 'dev-qt/qtwebengine bindist' 'net-libs/webkit-gtk keyring' > /etc/portage/package.use/ci
-        cat /etc/portage/make.conf
 
     - name: setup keyring for binpkgs
       shell: bash

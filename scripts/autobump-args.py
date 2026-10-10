@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """Print a package's autobump engine flags, one per line.
 
-Shared by autobump-sweep and autobump-trial.yml: the trial workflow calls the engine
-directly, so without this a trial ran with different flags than the sweep it is meant
-to predict.
+Shared by autobump-sweep.py and autobump-trial.sh: the trial calls the engine directly,
+so without this a trial ran with different flags than the sweep it is meant to predict.
 
-    mapfile -t args < <(python3 scripts/autobump-args.py <category/package>)
+    python3 scripts/autobump-args.py <category/package>
     python3 scripts/autobump-args.py --describe <category/package>   # one phrase for the issue comment
 
 Exit 2 with a reason when the table asks for something the engine cannot honour.
@@ -23,7 +22,7 @@ def die(reason):
 
 def keep_old_flag(pkg, value):
     """`autobump` carries the retention: true replaces, N keeps N, "all" keeps every one."""
-    # `1` compares equal to True here and still means the number: keep only the new version
+    # `1 == True`, so test the type: true replaces, while 1 is a count passed as --keep-old=1
     if value is None or isinstance(value, bool) or value == 0:
         return []
     if value == "all":
