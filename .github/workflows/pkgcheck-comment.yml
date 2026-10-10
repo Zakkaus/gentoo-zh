@@ -55,14 +55,7 @@ jobs:
         pulls=$(gh api "repos/$REPO/pulls?state=open&per_page=100" --paginate --slurp)
         pr=$(jq -r --arg sha "$HEAD_SHA" 'first(.[][] | select(.head.sha == $sha) | .number) // empty' <<< "$pulls")
         [ -n "$pr" ] || exit 0
-        bad=$(gh api "repos/$REPO/pulls/$pr/commits?per_page=100" --paginate --jq '
-          .[] | (.commit.message | split("\n")[0]) as $s
-          | if (.parents | length) > 1 then ["It is a merge commit"]
-            else [ if ($s | test("^(Revert \"|[^\\s:][^:]*: \\S)")) then empty else "The subject does not start with what it changes" end,
-                   if (.commit.message | test("(?m)^Signed-off-by: \\S")) then empty else "It has no `Signed-off-by:` line" end ]
-            end as $why
-          | select($why | length > 0)
-          | "- `\(.sha[0:12])` \($s)\n" + ($why | map("  - " + .) | join("\n"))')
+        bad=$(scripts/commit-rules.sh "$pr")
         [ -n "$bad" ] || exit 0
         cat > body.md <<EOF
         This pull request was closed automatically because these commits break the commit rules:
