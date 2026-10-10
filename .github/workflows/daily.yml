@@ -1,0 +1,31 @@
+name: daily
+
+# The one scheduled start of the bump round; autobump follows through workflow_run.
+# Scheduled runs start 5-8 hours late here, still on the UTC day autobump-env is tagged with.
+on:
+  schedule:
+    - cron: '17 0 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: daily
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  stage3:
+    if: github.repository == 'gentoo-zh/overlay' || github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/stage3.yml
+
+  autobump-env:
+    needs: stage3
+    if: ${{ !cancelled() && needs.stage3.result != 'skipped' }}
+    uses: ./.github/workflows/autobump-env.yml
+
+  nvchecker:
+    if: github.repository == 'gentoo-zh/overlay' || github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/nvchecker.yml
+    secrets: inherit

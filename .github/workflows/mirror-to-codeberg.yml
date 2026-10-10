@@ -4,7 +4,6 @@ on:
   push:
     branches: [master]
     tags: ['**']
-  delete:
   schedule:
     - cron: '40 4 * * *'
 
