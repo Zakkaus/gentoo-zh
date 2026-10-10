@@ -20,6 +20,25 @@ jobs:
       with:
         args: --checks=-RedundantVersionCheck --keywords=-NonsolvableDepsInDev --exit=NonexistentDeps
 
+  commits:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v7
+
+    - name: Check the commit rules
+      env:
+        GH_TOKEN: ${{ github.token }}
+        REPO: ${{ github.repository }}
+        PR: ${{ github.event.pull_request.number }}
+      run: |
+        bad=$(scripts/commit-rules.sh "$PR")
+        if [ -n "$bad" ]; then
+          printf '%s\n' "$bad"
+          exit 1
+        fi
+
   # Ebuilds execute PR code; the write token belongs to pkgcheck-comment.
   report:
     if: github.event_name == 'pull_request'
