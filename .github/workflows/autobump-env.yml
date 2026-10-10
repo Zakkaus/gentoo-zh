@@ -1,5 +1,4 @@
-# The bump workers' environment image, tagged by ref and date: one build a day, and a
-# branch test never overwrites what the scheduled runs pull.
+# Tagged by ref so a branch test never overwrites the image the scheduled runs pull.
 
 name: autobump-env
 

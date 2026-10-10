@@ -85,10 +85,6 @@ for n in "${issue_numbers[@]}"; do
             res='DEFER — transient (fetch / network / dep-gap / timeout / precondition)'
             tres='**DEFER** — transient (fetch / dep-gap / timeout).'
             ;;
-        130)
-            res='interrupted (signal)'
-            tres="unexpected exit $ec. · [log]($RUN_URL)"
-            ;;
         *)
             res="unexpected exit $ec"
             tres="unexpected exit $ec. · [log]($RUN_URL)"

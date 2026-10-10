@@ -23,8 +23,8 @@ import time
 import tomllib
 
 
-STATUS_MARKER = "<!-- autobump-status -->"
 # One hidden marker keeps each issue editable instead of creating an unbounded status-comment stream.
+STATUS_MARKER = "<!-- autobump-status -->"
 SPACE = " \t\r\n\v\f"
 
 
@@ -50,7 +50,6 @@ class Settings:
     repo: str
     upstream_repo: str
     assignee: str
-    judge: str
     done_ledger: Path | None
     attempts_ledger: Path | None
     bundles_ledger: Path | None
@@ -158,7 +157,7 @@ def attempt_count(settings, package, version):
     return matching_ledger_count(settings.attempts_ledger, package, version)
 
 
-# A dangling value flag keeps its current value, matching the shell this replaced.
+# A dangling value flag keeps its current value.
 VALUE_FLAGS = {
     "--limit": "limit",
     "--plan": "plan_shards",
@@ -297,8 +296,7 @@ def short_status_reason(reason):
     return reason
 
 
-# Seconds between status-lookup retries; the tests drive the failure path and do not wait.
-STATUS_LOOKUP_BACKOFF = float(os.environ.get("AUTOBUMP_STATUS_BACKOFF", "3"))
+STATUS_LOOKUP_BACKOFF = 3
 
 
 def find_status_comment_id(issue, upstream_repo):
@@ -435,14 +433,6 @@ def evidence_directory_from_output(text):
     return evidence_directories[-1] if evidence_directories else ""
 
 
-def current_version(text):
-    for line in text.split("\n"):
-        match = re.match(r"^>> current: ([^ ]+) +-> +target:.*", line)
-        if match:
-            return match.group(1)
-    return ""
-
-
 def evidence_reasons(evidence):
     try:
         with (evidence / "escalations.txt").open() as f:
@@ -461,13 +451,6 @@ def human_verdict(evidence):
         "deps_changed": [],
         "issue_comment": f"not mechanically safe: {reason}",
     }
-
-
-def parse_verdict(verdict_json):
-    try:
-        return json.loads(verdict_json)
-    except json.JSONDecodeError:
-        return {}
 
 
 def last_clear_reason(text):
@@ -537,8 +520,6 @@ def read_settings(argv):
     upstream_repo = os.environ.get("AUTOBUMP_UPSTREAM_REPO") or "gentoo-zh/overlay"
     # the account that opens the nvchecker issues; an empty value assigns nobody
     assignee = os.environ.get("AUTOBUMP_ASSIGNEE", "gentoo-zh-bot")
-    # An unset judge sends each escalation to a human; configure one only when its semantic judgment merits a call.
-    judge = os.environ.get("AUTOBUMP_JUDGE", "")
     # where escalation evidence is kept for upload; unset means the run keeps none
     evidence_dir = os.environ.get("AUTOBUMP_EVIDENCE_DIR")
     state_home = os.environ.get("XDG_STATE_HOME") or f"{os.environ.get('HOME', '')}/.local/state"
@@ -575,7 +556,6 @@ def read_settings(argv):
         repo=repo,
         upstream_repo=upstream_repo,
         assignee=assignee,
-        judge=judge,
         done_ledger=done_ledger if arguments.worker is None else None,
         attempts_ledger=attempts_ledger if arguments.worker is None else None,
         bundles_ledger=bundles_ledger if arguments.worker is None else None,
@@ -635,13 +615,11 @@ def select_issues(settings):
 def copy_tools():
     _, original_branch = command_output(["git", "branch", "--show-current"])
     tools = Path(tempfile.mkdtemp(prefix="autobump-tools-", dir="/tmp"))
-    shutil.copy2("scripts/autobump-judge.sh", tools / "autobump-judge.sh")
     shutil.copy2("scripts/autobump-args.py", tools / "autobump-args.py")
     return tools, original_branch
 
 
 def engine_command(settings):
-    # autobump-rb is the single engine. There is no in-tree fallback to silently use.
     if not settings.engine:
         print("AUTOBUMP_ENGINE: set AUTOBUMP_ENGINE, e.g. ruby autobump-rb/bin/autobump", file=sys.stderr)
         return None
@@ -931,54 +909,6 @@ def defer_unparseable_evidence(settings, package, version):
     return f"exit 3 but evidence dir not found (try {tries + 1}), retrying"
 
 
-def escalation_verdict(settings, tools, evidence, package, current, version):
-    if settings.judge:
-        _, verdict_json = command_output(
-            ["bash", str(tools / "autobump-judge.sh"), str(evidence), package, current or "?", version]
-        )
-        print(f"judge: {verdict_json}")
-        return parse_verdict(verdict_json)
-
-    return human_verdict(evidence)
-
-
-def retry_accepted_escalation(
-    settings, engine, issue, package, version, args, footer, status_comment_failed
-):
-    retry_status, retry_output = command_output_with_stderr(
-        engine + [issue, "--accept-surface", "--accept-payload", *args] + ([settings.pr] if settings.pr else [])
-    )
-    print(retry_output)
-    if retry_status == 0:
-        record_ledger(settings, "done", package, version, "bumped-after-judge")
-        return "bumped (judge accepted surface delta)"
-    if retry_status != 2:
-        record_ledger(settings, "done", package, version, "deferred")
-        return f"deferred (retry failed, exit {retry_status})"
-
-    # Share ATTEMPTS with judge retries so an escalation → judge → timeout loop ends without judging every sweep.
-    tries = attempt_count(settings, package, version)
-    record_ledger(settings, "attempts", package, version)
-    if tries < 2:
-        return f"judge-retry deferred transiently (try {tries + 1})"
-
-    record_ledger(settings, "done", package, version, "deferred-transient")
-    keep_evidence(settings, Path(evidence_directory_from_output(retry_output)), package, version)
-    status_comment(
-        issue,
-        (
-            f"**autobump** accepted the surface delta for `{package}` → `{version}` "
-            f"but the retry hit transient failures {tries + 1} times. "
-            f"A maintainer may need to bump it by hand.{run_link(settings.upstream_repo)}"
-        ),
-        comment=settings.comment,
-        footer=footer,
-        upstream_repo=settings.upstream_repo,
-        status_comment_failed=status_comment_failed,
-    )
-    return f"deferred after {tries + 1} judge-retry transients"
-
-
 def record_escalation(settings, issue, package, version, evidence, verdict, engine_output, footer, status_comment_failed):
     record_ledger(settings, "done", package, version, "deferred")
     reason = last_clear_reason(engine_output)
@@ -1009,22 +939,14 @@ def record_escalation(settings, issue, package, version, evidence, verdict, engi
     return f"escalated: {reason}"
 
 
-def handle_escalation(
-    settings, tools, engine, issue, package, version, args, footer, engine_output, status_comment_failed
-):
+def handle_escalation(settings, issue, package, version, footer, engine_output, status_comment_failed):
     evidence_path = evidence_directory_from_output(engine_output)
     evidence = Path(evidence_path)
     if not evidence_path or not evidence.is_dir():
         return defer_unparseable_evidence(settings, package, version)
 
     keep_evidence(settings, evidence, package, version)
-    verdict = escalation_verdict(
-        settings, tools, evidence, package, current_version(engine_output), version
-    )
-    if verdict.get("verdict") == "proceed":
-        return retry_accepted_escalation(
-            settings, engine, issue, package, version, args, footer, status_comment_failed
-        )
+    verdict = human_verdict(evidence)
     return record_escalation(
         settings, issue, package, version, evidence, verdict, engine_output, footer, status_comment_failed
     )
@@ -1119,7 +1041,7 @@ def defer_transient(settings, issue, package, version, engine_output, footer, st
     return f"deferred after {tries + 1} transient attempts: {reason}"
 
 
-def run_package(settings, tools, engine, issue, package, version, args, footer, attempt, status_comment_failed,
+def run_package(settings, engine, issue, package, version, args, footer, attempt, status_comment_failed,
                 bundle_observations=None, bundle_observation_limit=None):
     cap = run_limit(settings)
     counter = f"{attempt}/{cap}" if cap else str(attempt)
@@ -1129,7 +1051,7 @@ def run_package(settings, tools, engine, issue, package, version, args, footer, 
     result = None
     try:
         result = bump_package(
-            settings, tools, engine, issue, package, version, args, footer, status_comment_failed,
+            settings, engine, issue, package, version, args, footer, status_comment_failed,
             bundle_observations, bundle_observation_limit,
         )
         return result
@@ -1138,7 +1060,7 @@ def run_package(settings, tools, engine, issue, package, version, args, footer, 
             assign_issue(settings, issue, False)
 
 
-def bump_package(settings, tools, engine, issue, package, version, args, footer, status_comment_failed,
+def bump_package(settings, engine, issue, package, version, args, footer, status_comment_failed,
                  bundle_observations, bundle_observation_limit):
     status_comment(
         issue,
@@ -1152,9 +1074,7 @@ def bump_package(settings, tools, engine, issue, package, version, args, footer,
     if status == 0:
         return record_bumped(settings, issue, package, version, engine_output, footer, status_comment_failed)
     if status == 3:
-        return handle_escalation(
-            settings, tools, engine, issue, package, version, args, footer, engine_output, status_comment_failed
-        )
+        return handle_escalation(settings, issue, package, version, footer, engine_output, status_comment_failed)
     bundle = engine_bundle_result(engine_output) if bundle_observations is not None else None
     if bundle and bundle.get("exit") == 2:
         return defer_bundle(
@@ -1194,10 +1114,9 @@ def run_issues(settings, issues, apply_run_limit, tools, engine):
         attempts += 1
         try:
             results[issue] = run_package(
-                settings, tools, engine, issue, package, version, args, footer, attempts, status_comment_failed
+                settings, engine, issue, package, version, args, footer, attempts, status_comment_failed
             )
-        # the shell this replaced ran without `set -e`: one broken issue never took the rest
-        # of the sweep, and the summary is the only record of a run
+        # one broken issue must not take the rest of the sweep, and the summary is the only record of a run
         except Exception as error:  # noqa: BLE001
             results[issue] = f"error ({type(error).__name__}: {error})"
     return results, status_comment_failed
@@ -1229,10 +1148,9 @@ def write_delta(settings, results, status_comment_failed):
 def run_worker(settings):
     results = {}
     status_comment_failed = set()
-    tools = None
     original_branch = ""
     try:
-        tools, original_branch = copy_tools()
+        _, original_branch = command_output(["git", "branch", "--show-current"])
         engine = engine_command(settings)
         if engine is None:
             return 1
@@ -1241,7 +1159,6 @@ def run_worker(settings):
                 args = worker_engine_arguments(item)
                 results[item["issue"]] = run_package(
                     settings,
-                    tools,
                     engine,
                     item["issue"],
                     item["package"],
@@ -1259,8 +1176,6 @@ def run_worker(settings):
                 print(f"::error title=autobump #{item['issue']}::{results[item['issue']]}")
     finally:
         restore_branch(original_branch)
-        if tools is not None:
-            shutil.rmtree(tools, ignore_errors=True)
         write_delta(settings, results, status_comment_failed)
     return 0
 

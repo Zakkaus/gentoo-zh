@@ -45,7 +45,6 @@ jobs:
         LABELED: ${{ contains(github.event.pull_request.labels.*.name, 'tatt') }}
       run: |
         targets=$(scripts/tatt-targets.sh "$PR" "$BASE" "$LABELED")
-        echo "targets: $targets"
         echo "targets=$targets" >> "$GITHUB_OUTPUT"
 
     - name: image name
