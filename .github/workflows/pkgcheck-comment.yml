@@ -45,3 +45,33 @@ jobs:
         HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         RUN_URL: ${{ github.event.workflow_run.html_url }}
       run: scripts/pkgcheck-comment.sh pkgcheck-report
+
+    - name: Close a pull request with malformed commits
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        REPO: ${{ github.repository }}
+        HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+      run: |
+        pulls=$(gh api "repos/$REPO/pulls?state=open&per_page=100" --paginate --slurp)
+        pr=$(jq -r --arg sha "$HEAD_SHA" 'first(.[][] | select(.head.sha == $sha) | .number) // empty' <<< "$pulls")
+        [ -n "$pr" ] || exit 0
+        bad=$(gh api "repos/$REPO/pulls/$pr/commits?per_page=100" --paginate --jq '
+          .[] | (.commit.message | split("\n")[0]) as $s
+          | [ if (.parents | length) > 1 then "merge commit" else empty end,
+              if ($s | test("^(Revert \"|[^\\s:][^:]*: \\S)")) then empty else "标题格式" end,
+              if (.commit.message | test("(?m)^Signed-off-by: \\S")) then empty else "缺少 Signed-off-by" end ] as $why
+          | select($why | length > 0)
+          | "- `\(.sha[0:12])` \($s)（\($why | join("、"))）"')
+        [ -n "$bad" ] || exit 0
+        cat > body.md <<EOF
+        本 PR 已自动关闭，因为以下 commit 不符合提交格式：
+
+        $bad
+
+        - 标题以改动对象开头：软件包写 \`category/package: 说明\`，其他改动写 eclass、路径或文件名，例如 \`profiles: 说明\`。
+        - 每个 commit 带 \`Signed-off-by:\`，提交时加 \`-s\` 或使用 \`pkgdev commit --signoff\`。
+        - 分支不含 merge commit，用 rebase 同步 master。
+
+        详见 [pr-text.md](https://github.com/gentoo-zh/overlay/blob/master/.agents/rules/pr-text.md)。用 \`git rebase -i master\` 修改标题、\`git rebase --signoff master\` 补签名后，请重新开一个 PR。
+        EOF
+        gh pr close "$pr" -R "$REPO" --comment "$(cat body.md)"
