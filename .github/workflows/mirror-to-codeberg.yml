@@ -1,4 +1,4 @@
-name: mirror to codeberg
+name: mirror-to-codeberg
 on:
   workflow_dispatch:
   push:
@@ -18,10 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     if: github.repository == 'gentoo-zh/overlay' && github.actor != 'dependabot[bot]'
     steps:
-    - name: Clone GitHub repository (bare mirror)
+    - name: clone a bare mirror
       run: git clone --mirror "https://github.com/${GITHUB_REPOSITORY}.git" repo.git
 
-    - name: Push branches and tags to Codeberg
+    - name: push branches and tags to codeberg
       working-directory: repo.git
       env:
         SSH_KEY: ${{ secrets.CODEBERG_SSH_KEY }}

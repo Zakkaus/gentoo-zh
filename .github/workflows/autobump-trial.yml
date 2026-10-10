@@ -30,7 +30,7 @@ jobs:
     container:
       image: ${{ needs.env.outputs.image }}
       credentials:
-        username: gentoo-zh-bot
+        username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
       options: --privileged
 
@@ -41,7 +41,7 @@ jobs:
     - name: tune portage for this runner
       run: echo "MAKEOPTS=\"\${MAKEOPTS} -j$(nproc)\"" >> /etc/portage/make.conf
 
-    - name: bot identity
+    - name: set git identity
       run: |
         git config --global user.name  "gentoo-zh-bot"
         git config --global user.email "bot@gentoozh.org"
@@ -51,7 +51,7 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: fetch autobump-rb (the Ruby engine)
+    - name: checkout autobump-rb
       uses: actions/checkout@v7
       with:
         repository: gentoo-zh/autobump-rb
@@ -73,7 +73,7 @@ jobs:
         priority = 0
         EOF
 
-    - name: build-trial each target (no PR, no opt-in gate)
+    - name: build-trial each target
       env:
         GH_TOKEN: ${{ github.token }}
         AUTOBUMP_SYNC_REMOTE: origin

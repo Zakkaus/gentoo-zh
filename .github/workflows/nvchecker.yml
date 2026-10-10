@@ -53,7 +53,7 @@ jobs:
     - name: checkout
       uses: actions/checkout@v7
 
-    - name: eix
+    - name: run eix
       id: eix
       run: scripts/nvchecker-eix.sh
 
@@ -70,7 +70,7 @@ jobs:
       run: |
         pip install nvchecker jq portage
 
-    - name: nvchecker
+    - name: run nvchecker
       id: nvchecker
       env:
         GITHUB_TOKEN: ${{ secrets.GENTOO_ZH_NVCHECKER_PAT }}
@@ -103,14 +103,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.nvchecker.outputs.nvcmp) }}
+        include: ${{ fromJSON(needs.nvchecker.outputs.nvcmp) }}
     steps:
-    - name: Checkout bumpbot
+    - name: checkout bumpbot
       uses: actions/checkout@v7
       with:
         repository: 'gentoo-zh-drafts/bumpbot'
 
-    - name: Checkout gentoo-zh
+    - name: checkout gentoo-zh
       uses: actions/checkout@v7
       with:
         path: 'gentoo-zh'
@@ -118,10 +118,10 @@ jobs:
     - name: update issues
       timeout-minutes: 1
       env:
-        name: ${{ matrix.name }}
-        newver: ${{ matrix.newver }}
-        oldver: ${{ matrix.oldver }}
+        NAME: ${{ matrix.name }}
+        NEWVER: ${{ matrix.newver }}
+        OLDVER: ${{ matrix.oldver }}
         # a personal token has its own API rate limit, which the shared GITHUB_TOKEN kept hitting
         GITHUB_TOKEN: ${{ secrets.GENTOO_ZH_NVCHECKER_PAT }}
       run: |
-        go run . --file gentoo-zh/.github/workflows/overlay.toml --name "$name" --newver "$newver" --oldver "$oldver"
+        go run . --file gentoo-zh/.github/workflows/overlay.toml --name "$NAME" --newver "$NEWVER" --oldver "$OLDVER"

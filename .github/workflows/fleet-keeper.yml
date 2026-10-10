@@ -12,30 +12,30 @@ jobs:
   keep:
     runs-on: ubuntu-latest
     steps:
-      - name: Get a token that can manage fork workflows
-        uses: actions/create-github-app-token@v3
-        id: app-token
-        with:
-          client-id: ${{ secrets.DRAFTS_BOT_CLIENT_ID }}
-          private-key: ${{ secrets.DRAFTS_BOT_PRIVATE_KEY }}
-          owner: gentoo-zh-drafts
+    - name: mint gentoo-zh-drafts token
+      uses: actions/create-github-app-token@v3
+      id: app-token
+      with:
+        client-id: ${{ secrets.DRAFTS_BOT_CLIENT_ID }}
+        private-key: ${{ secrets.DRAFTS_BOT_PRIVATE_KEY }}
+        owner: gentoo-zh-drafts
 
-      - name: Re-enable inactivity-disabled fork schedules
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: |
-          seen=0; enabled=0
-          repos=$(gh repo list gentoo-zh-drafts --limit 300 --json name -q '.[].name')
-          for repo in $repos; do
-            ids=$(gh api "repos/gentoo-zh-drafts/$repo/actions/workflows" \
-                --jq '.workflows[] | select(.state == "disabled_inactivity") | .id')
-            for id in $ids; do
-              seen=$((seen + 1))
-              if gh api -X PUT "repos/gentoo-zh-drafts/$repo/actions/workflows/$id/enable" >/dev/null 2>&1; then
-                enabled=$((enabled + 1)); echo "re-enabled $repo"
-              else
-                echo "::warning title=fleet-keeper::could not re-enable $repo (workflow $id)"
-              fi
-            done
+    - name: re-enable inactivity-disabled fork schedules
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+      run: |
+        seen=0; enabled=0
+        repos=$(gh repo list gentoo-zh-drafts --limit 300 --json name -q '.[].name')
+        for repo in $repos; do
+          ids=$(gh api "repos/gentoo-zh-drafts/$repo/actions/workflows" \
+              --jq '.workflows[] | select(.state == "disabled_inactivity") | .id')
+          for id in $ids; do
+            seen=$((seen + 1))
+            if gh api -X PUT "repos/gentoo-zh-drafts/$repo/actions/workflows/$id/enable" >/dev/null 2>&1; then
+              enabled=$((enabled + 1)); echo "re-enabled $repo"
+            else
+              echo "::warning title=fleet-keeper::could not re-enable $repo (workflow $id)"
+            fi
           done
-          echo "frozen found: $seen, re-enabled: $enabled" | tee -a "$GITHUB_STEP_SUMMARY"
+        done
+        echo "frozen found: $seen, re-enabled: $enabled" | tee -a "$GITHUB_STEP_SUMMARY"

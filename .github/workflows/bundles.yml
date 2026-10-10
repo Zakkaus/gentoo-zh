@@ -25,7 +25,7 @@ jobs:
     - name: checkout
       uses: actions/checkout@v7
 
-    - name: fetch autobump-rb (the bundle controller)
+    - name: checkout autobump-rb
       uses: actions/checkout@v7
       with:
         repository: gentoo-zh/autobump-rb
@@ -51,7 +51,7 @@ jobs:
         private-key: ${{ secrets.DRAFTS_BOT_PRIVATE_KEY }}
         owner: gentoo-zh-drafts
 
-    - name: bundles
+    - name: run the bundle controller
       env:
         GH_TOKEN_GENTOO_ZH: ${{ steps.deps-token.outputs.token }}
         GH_TOKEN_GENTOO_ZH_DRAFTS: ${{ steps.drafts-token.outputs.token }}

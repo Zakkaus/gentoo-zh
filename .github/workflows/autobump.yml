@@ -44,7 +44,7 @@ permissions:
 jobs:
   env:
     needs: plan
-    if: ${{ fromJSON(needs.plan.outputs.plan).matrix.include[0] != null }}
+    if: fromJSON(needs.plan.outputs.plan).matrix.include[0] != null
     permissions:
       contents: read
       packages: write
@@ -66,7 +66,7 @@ jobs:
     - name: checkout
       uses: actions/checkout@v7
 
-    - name: fetch autobump-rb (the bundle controller)
+    - name: checkout autobump-rb
       uses: actions/checkout@v7
       with:
         repository: gentoo-zh/autobump-rb
@@ -152,7 +152,7 @@ jobs:
       pull-requests: write
       issues: write
       packages: read
-    if: ${{ fromJSON(needs.plan.outputs.plan).matrix.include[0] != null }}
+    if: fromJSON(needs.plan.outputs.plan).matrix.include[0] != null
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -163,7 +163,7 @@ jobs:
     container:
       image: ${{ needs.env.outputs.image }}
       credentials:
-        username: gentoo-zh-bot
+        username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
       options: --privileged
 
@@ -187,7 +187,7 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: fetch autobump-rb (the Ruby engine)
+    - name: checkout autobump-rb
       uses: actions/checkout@v7
       with:
         repository: gentoo-zh/autobump-rb
@@ -238,7 +238,7 @@ jobs:
         owner: gentoo-zh
         repositories: overlay
 
-    - name: git identity
+    - name: set git identity
       run: |
         git config --global --add safe.directory "$(realpath .)"
         git config user.name  "gentoo-zh-bot"
@@ -284,7 +284,7 @@ jobs:
 
   collect:
     needs: [plan, bump]
-    if: ${{ always() && needs.plan.result == 'success' }}
+    if: always() && needs.plan.result == 'success'
     runs-on: ubuntu-latest
 
     steps:

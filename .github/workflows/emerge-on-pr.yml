@@ -1,4 +1,4 @@
-name: emerge
+name: emerge-on-pr
 
 on:
   pull_request:
@@ -28,7 +28,8 @@ jobs:
       image: ${{ steps.image.outputs.ref }}
 
     steps:
-    - uses: actions/checkout@v7
+    - name: checkout
+      uses: actions/checkout@v7
 
     - name: scan changed ebuilds
       env:
@@ -39,16 +40,14 @@ jobs:
         targets=$(scripts/emerge-targets.sh "$PR")
         echo "targets=$targets" >> "$GITHUB_OUTPUT"
 
-    - name: image name
+    - name: set image name
       id: image
-      env:
-        OWNER: ${{ github.repository_owner }}
-      run: echo "ref=ghcr.io/$(printf '%s' "$OWNER" | tr 'A-Z' 'a-z')/stage3" >> "$GITHUB_OUTPUT"
+      run: echo "ref=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/stage3" >> "$GITHUB_OUTPUT"
 
   build:
     name: emerge ${{ matrix.target.package }} (${{ matrix.target.profile }})
     needs: scan
-    if: ${{ fromJson(needs.scan.outputs.targets)[0] != null }}
+    if: fromJSON(needs.scan.outputs.targets)[0] != null
     strategy:
       fail-fast: false
       matrix:
@@ -66,7 +65,7 @@ jobs:
       options: --privileged
 
     steps:
-    - name: fetch repo
+    - name: checkout
       uses: actions/checkout@v7
       with:
         repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -97,7 +96,7 @@ jobs:
         ATOM: ${{ matrix.target.package }}
       run: emerge --verbose --autounmask=y --autounmask-write=y --autounmask-continue=y "$ATOM"
 
-    - name: check Portage elog (fail if exists)
+    - name: check portage elog
       run: |
         if ls /var/log/portage/elog/* 1> /dev/null 2>&1; then
           echo "Found Portage elog messages:"

@@ -29,7 +29,7 @@ jobs:
     - name: checkout
       uses: actions/checkout@v7
 
-    - name: fetch autobump-rb
+    - name: checkout autobump-rb
       uses: actions/checkout@v7
       with:
         repository: gentoo-zh/autobump-rb

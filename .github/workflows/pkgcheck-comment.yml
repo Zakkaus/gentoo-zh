@@ -17,18 +17,17 @@ jobs:
     - name: checkout
       uses: actions/checkout@v7
 
-    - name: Check for the report
+    - name: check for the report
       id: report
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        REPO: ${{ github.repository }}
         RUN_ID: ${{ github.event.workflow_run.id }}
       run: |
-        artifacts=$(gh api "repos/$REPO/actions/runs/$RUN_ID/artifacts" --paginate --slurp)
+        artifacts=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID/artifacts" --paginate --slurp)
         available=$(jq 'any(.[] | .artifacts[]; .name == "pkgcheck-report")' <<< "$artifacts")
         echo "available=$available" >> "$GITHUB_OUTPUT"
 
-    - name: Download the report
+    - name: download the report
       if: steps.report.outputs.available == 'true'
       uses: actions/download-artifact@v8
       with:
@@ -37,22 +36,20 @@ jobs:
         run-id: ${{ github.event.workflow_run.id }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Post the report
+    - name: post the report
       if: steps.report.outputs.available == 'true'
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        REPO: ${{ github.repository }}
         HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         RUN_URL: ${{ github.event.workflow_run.html_url }}
       run: scripts/pkgcheck-comment.sh pkgcheck-report
 
-    - name: Close a pull request with malformed commits
+    - name: close a pull request with malformed commits
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        REPO: ${{ github.repository }}
         HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
       run: |
-        pulls=$(gh api "repos/$REPO/pulls?state=open&per_page=100" --paginate --slurp)
+        pulls=$(gh api "repos/$GITHUB_REPOSITORY/pulls?state=open&per_page=100" --paginate --slurp)
         pr=$(jq -r --arg sha "$HEAD_SHA" 'first(.[][] | select(.head.sha == $sha) | .number) // empty' <<< "$pulls")
         [ -n "$pr" ] || exit 0
         bad=$(scripts/commit-rules.sh "$pr")
@@ -89,4 +86,4 @@ jobs:
 
         A closed pull request cannot be reopened after a force push, so open a new one. See [CONTRIBUTING.en.md](https://github.com/gentoo-zh/overlay/blob/master/CONTRIBUTING.en.md).
         EOF
-        gh pr close "$pr" -R "$REPO" --comment "$(cat body.md)"
+        gh pr close "$pr" -R "$GITHUB_REPOSITORY" --comment "$(cat body.md)"
