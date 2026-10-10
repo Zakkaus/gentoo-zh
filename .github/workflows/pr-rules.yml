@@ -3,6 +3,7 @@ on:
   pull_request:
     branches:
       - master
+      - ci-test-base
     # edited reruns the check after the description is fixed, without rerunning pkgcheck
     types: [opened, reopened, synchronize, edited]
 
