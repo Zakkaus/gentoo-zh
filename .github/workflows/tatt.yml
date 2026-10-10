@@ -15,11 +15,17 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}${{ github.event.action == 'labeled' && github.event.label.name != 'tatt' && '-label' || '' }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   scan:
     name: scan changed ebuilds
     if: github.event.action != 'labeled' || github.event.label.name == 'tatt'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
       targets: ${{ steps.targets.outputs.targets }}
       image: ${{ steps.image.outputs.ref }}

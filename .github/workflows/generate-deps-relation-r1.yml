@@ -10,6 +10,9 @@ concurrency:
   group: deps-table
   cancel-in-progress: false
 
+permissions:
+  contents: read
+
 jobs:
   generate:
     if: github.repository == 'gentoo-zh/overlay' || github.event_name == 'workflow_dispatch'

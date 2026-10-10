@@ -60,7 +60,7 @@ jobs:
 
   cleanup:
     needs: build
-    if: always()
+    if: ${{ !cancelled() && needs.build.result != 'skipped' }}
     runs-on: ubuntu-latest
     steps:
     - name: drop replaced images

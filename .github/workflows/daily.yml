@@ -13,16 +13,21 @@ concurrency:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   stage3:
     if: github.repository == 'gentoo-zh/overlay' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+      packages: write
     uses: ./.github/workflows/stage3.yml
 
   autobump-env:
     needs: stage3
     if: ${{ !cancelled() && needs.stage3.result != 'skipped' }}
+    permissions:
+      contents: read
+      packages: write
     uses: ./.github/workflows/autobump-env.yml
     with:
       force: true
