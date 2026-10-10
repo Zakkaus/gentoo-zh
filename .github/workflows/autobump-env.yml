@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     outputs:
-      image: ${{ steps.image.outputs.ref }}
+      image: ${{ steps.existing.outputs.ref }}
 
     steps:
     - name: checkout
@@ -71,7 +71,9 @@ jobs:
       env:
         REF: ${{ steps.image.outputs.ref }}
         DAY: ${{ inputs.date }}
+        FORCE: ${{ inputs.force }}
       run: |
+        use=$REF
         # stdout is the manifest, stderr is why it is not there - keep the second
         if docker manifest inspect "$REF" > /dev/null; then
           echo "exists=true" >> "$GITHUB_OUTPUT"
@@ -79,7 +81,18 @@ jobs:
           # an earlier day cannot be rebuilt: its tree and binpkgs are gone
           echo "no image for $DAY: $REF" >&2
           exit 1
+        elif [ "$FORCE" != true ]; then
+          # daily builds today's image; a bump run before it, or after it failed, takes the newest kept one
+          for back in 1 2; do
+            old=${REF%-*}-$(date -u -d "$back days ago" +%Y%m%d)
+            if docker manifest inspect "$old" > /dev/null; then
+              use=$old
+              echo "exists=true" >> "$GITHUB_OUTPUT"
+              break
+            fi
+          done
         fi
+        echo "ref=$use" >> "$GITHUB_OUTPUT"
 
     # no build cache: the point of rebuilding is to pick up today's tree and binpkgs
     - name: build and push

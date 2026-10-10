@@ -24,6 +24,8 @@ jobs:
     needs: stage3
     if: ${{ !cancelled() && needs.stage3.result != 'skipped' }}
     uses: ./.github/workflows/autobump-env.yml
+    with:
+      force: true
 
   nvchecker:
     if: github.repository == 'gentoo-zh/overlay' || github.event_name == 'workflow_dispatch'
