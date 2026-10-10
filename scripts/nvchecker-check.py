@@ -17,7 +17,7 @@ repo = os.environ["GITHUB_REPOSITORY"]
 
 
 def gh(*args):
-    return subprocess.run(["gh", *args, "--repo", repo], stdout=subprocess.PIPE, text=True).stdout
+    return subprocess.run(["gh", *args, "--repo", repo], stdout=subprocess.PIPE, text=True, check=True).stdout
 
 
 def report(pkg, ver, maintainers):

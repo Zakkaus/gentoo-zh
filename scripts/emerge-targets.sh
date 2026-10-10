@@ -43,7 +43,7 @@ atoms=$(
         if [[ "$atom" != =* ]]; then
             versioned=false
             for candidate in "${packages[@]}"; do
-                if [[ "$candidate" == "=$atom-"* ]]; then
+                if [[ "$candidate" == "=$atom-"[0-9]* ]]; then
                     versioned=true
                     break
                 fi

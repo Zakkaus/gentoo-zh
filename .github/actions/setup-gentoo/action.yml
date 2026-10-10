@@ -27,11 +27,13 @@ runs:
         FETCHCOMMAND="\${FETCHCOMMAND} --no-verbose"
         RESUMECOMMAND="\${RESUMECOMMAND} --no-verbose"
         EOF
-        cat > /etc/portage/binrepos.conf/ci.conf << EOF
+        if [ "$(portageq envvar ARCH)" = amd64 ]; then
+          cat > /etc/portage/binrepos.conf/ci.conf << EOF
         [$(cat profiles/repo_name)-binhost]
         sync-uri = https://distfiles.gentoozh.org/binpkgs/x86-64
         priority = 2
         EOF
+        fi
         mkdir -p /etc/portage/package.use
         printf '%s\n' 'dev-qt/qtwebengine bindist' 'net-libs/webkit-gtk keyring' > /etc/portage/package.use/ci
         cat /etc/portage/make.conf
