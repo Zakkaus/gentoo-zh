@@ -1,0 +1,41 @@
+name: pr-rules
+on:
+  pull_request:
+    branches:
+      - master
+    # edited reruns the check after the description is fixed, without rerunning pkgcheck
+    types: [opened, reopened, synchronize, edited]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  pr-rules:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v7
+
+    - name: check the commit rules
+      env:
+        GH_TOKEN: ${{ github.token }}
+        PR: ${{ github.event.pull_request.number }}
+      run: |
+        bad=$(scripts/commit-rules.sh "$PR")
+        if [ -n "$bad" ]; then
+          printf '%s\n' "$bad"
+          exit 1
+        fi
+
+    - name: check that the pull request template is kept
+      if: ${{ !cancelled() }}
+      env:
+        GH_TOKEN: ${{ github.token }}
+        PR: ${{ github.event.pull_request.number }}
+      run: |
+        missing=$(scripts/pr-template.sh "$PR")
+        if [ -n "$missing" ]; then
+          printf 'The description lost these checkboxes of the pull request template:\n%s\n' "$missing"
+          exit 1
+        fi

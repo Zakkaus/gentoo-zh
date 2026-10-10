@@ -44,7 +44,7 @@ jobs:
         RUN_URL: ${{ github.event.workflow_run.html_url }}
       run: scripts/pkgcheck-comment.sh pkgcheck-report
 
-    - name: close a pull request with malformed commits
+    - name: close a pull request that breaks the pull request rules
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
@@ -53,9 +53,15 @@ jobs:
         pr=$(jq -r --arg sha "$HEAD_SHA" 'first(.[][] | select(.head.sha == $sha) | .number) // empty' <<< "$pulls")
         [ -n "$pr" ] || exit 0
         bad=$(scripts/commit-rules.sh "$pr")
-        [ -n "$bad" ] || exit 0
-        cat > body.md <<EOF
-        This pull request was closed automatically because these commits break the commit rules:
+        missing=$(scripts/pr-template.sh "$pr")
+        [ -n "$bad$missing" ] || exit 0
+        echo "This pull request was closed automatically because it breaks the rules below." > body.md
+        if [ -n "$bad" ]; then
+          cat >> body.md <<EOF
+
+        ## Commits
+
+        These commits break the commit rules:
 
         $bad
 
@@ -84,6 +90,23 @@ jobs:
         git push --force-with-lease
         \`\`\`
 
-        A closed pull request cannot be reopened after a force push, so open a new one. See [CONTRIBUTING.en.md](https://github.com/gentoo-zh/overlay/blob/master/CONTRIBUTING.en.md).
+        A closed pull request cannot be reopened after a force push.
+        EOF
+        fi
+        if [ -n "$missing" ]; then
+          cat >> body.md <<EOF
+
+        ## Pull request template
+
+        The description lost these checkboxes of the [pull request template](https://github.com/gentoo-zh/overlay/blob/master/.github/pull_request_template.md):
+
+        $missing
+
+        Write the description above the template and keep the checkboxes. Leave a box unticked when it does not apply.
+        EOF
+        fi
+        cat >> body.md <<EOF
+
+        Fix the problems above and open a new pull request. See [CONTRIBUTING.en.md](https://github.com/gentoo-zh/overlay/blob/master/CONTRIBUTING.en.md).
         EOF
         gh pr close "$pr" -R "$GITHUB_REPOSITORY" --comment "$(cat body.md)"
