@@ -15,10 +15,10 @@ jobs:
   scan:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
+    - name: checkout
       uses: actions/checkout@v7
 
-    - name: Run pkgcheck
+    - name: run pkgcheck
       uses: pkgcore/pkgcheck-action@v1
       with:
         args: --checks=-RedundantVersionCheck --keywords=-NonsolvableDepsInDev --exit=NonexistentDeps
@@ -30,13 +30,12 @@ jobs:
       contents: read
       pull-requests: read
     steps:
-    - name: Checkout code
+    - name: checkout
       uses: actions/checkout@v7
 
-    - name: Check the commit rules
+    - name: check the commit rules
       env:
         GH_TOKEN: ${{ github.token }}
-        REPO: ${{ github.repository }}
         PR: ${{ github.event.pull_request.number }}
       run: |
         bad=$(scripts/commit-rules.sh "$PR")
@@ -56,24 +55,24 @@ jobs:
         # The image has no /bin/bash symlink.
         shell: bash
     steps:
-    - name: Checkout code
+    - name: checkout
       uses: actions/checkout@v7
       with:
         fetch-depth: 0
 
-    - name: Collect the packages this PR touches
+    - name: collect the packages this PR touches
       id: pkgs
       run: scripts/pkgcheck-report.sh packages
 
-    - name: Scan
+    - name: scan
       if: steps.pkgs.outputs.count != '0'
       run: scripts/pkgcheck-report.sh scan
 
-    - name: Stage the report
+    - name: stage the report
       if: always()
       run: scripts/pkgcheck-report.sh stage
 
-    - name: Upload the report
+    - name: upload the report
       if: always()
       uses: actions/upload-artifact@v7
       with:

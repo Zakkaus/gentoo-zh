@@ -1,0 +1,43 @@
+name: deps-table
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+# runs for merges in quick succession would race on the deps-table push
+concurrency:
+  group: deps-table
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    if: github.repository == 'gentoo-zh/overlay' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: checkout deps-table
+      uses: actions/checkout@v7
+      with:
+        ref: deps-table
+        fetch-depth: 5
+    - name: checkout master
+      uses: actions/checkout@v7
+      with:
+        ref: master
+        path: gentoo-zh
+    - name: update package relations
+      id: update_relation
+      shell: bash
+      run: ./update-relation.sh
+    - name: push changes
+      if: steps.update_relation.outputs.state == 'changed'
+      uses: ad-m/github-push-action@881a6320fdb16eb5318c5054f31c218aec2b324c
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: deps-table
+        force: true

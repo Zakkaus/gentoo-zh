@@ -44,16 +44,15 @@ jobs:
       uses: actions/checkout@v7
 
     # ghcr takes neither an uppercase name nor the characters a git ref may carry
-    - name: image name
+    - name: set image name
       id: image
       env:
-        OWNER: ${{ github.repository_owner }}
         REF: ${{ github.ref_name }}
         DAY: ${{ inputs.date }}
       run: |
         case "$DAY" in ''|[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]) ;;
           *) echo "date must be YYYYMMDD: $DAY" >&2; exit 1;; esac
-        owner=$(printf '%s' "$OWNER" | tr 'A-Z' 'a-z')
+        owner=${GITHUB_REPOSITORY_OWNER,,}
         tag=$(printf '%s' "$REF" | tr 'A-Z' 'a-z' | tr -c 'a-z0-9._-' '-')
         echo "ref=ghcr.io/$owner/autobump-env:$tag-${DAY:-$(date -u +%Y%m%d)}" >> "$GITHUB_OUTPUT"
         echo "base=ghcr.io/$owner/stage3:amd64-desktop-openrc" >> "$GITHUB_OUTPUT"
@@ -62,7 +61,7 @@ jobs:
       uses: docker/login-action@v4
       with:
         registry: ghcr.io
-        username: gentoo-zh-bot
+        username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: look for the image
@@ -96,7 +95,7 @@ jobs:
     # no build cache: the point of rebuilding is to pick up today's tree and binpkgs
     - name: build and push
       id: build
-      if: ${{ inputs.date == '' && (inputs.force || steps.existing.outputs.exists != 'true') }}
+      if: inputs.date == '' && (inputs.force || steps.existing.outputs.exists != 'true')
       uses: docker/build-push-action@v7
       with:
         context: .github/autobump-env

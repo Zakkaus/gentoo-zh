@@ -7,7 +7,7 @@ body_file=$(mktemp)
 trap 'rm -f "$body_file"' EXIT
 
 # commits/{sha}/pulls returns nothing for a fork PR; the artifact is not trusted
-pulls=$(gh api "repos/$REPO/pulls?state=open&per_page=100" --paginate --slurp)
+pulls=$(gh api "repos/$GITHUB_REPOSITORY/pulls?state=open&per_page=100" --paginate --slurp)
 matches=$(jq -r --arg head_sha "$HEAD_SHA" '
     .[][] | select(.head.sha == $head_sha) | .number
 ' <<< "$pulls")
@@ -84,5 +84,5 @@ fi
     echo "${MARKER}"
 } > "$body_file"
 
-scripts/upsert-comment.sh "$REPO" "$pr" "$MARKER" "$body_file"
+scripts/upsert-comment.sh "$GITHUB_REPOSITORY" "$pr" "$MARKER" "$body_file"
 echo "commented on #${pr}"

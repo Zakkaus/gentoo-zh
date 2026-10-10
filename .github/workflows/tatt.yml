@@ -31,7 +31,8 @@ jobs:
       image: ${{ steps.image.outputs.ref }}
 
     steps:
-    - uses: actions/checkout@v7
+    - name: checkout
+      uses: actions/checkout@v7
       with:
         repository: ${{ github.event.pull_request.head.repo.full_name }}
         ref: ${{ github.event.pull_request.head.sha }}
@@ -47,16 +48,14 @@ jobs:
         targets=$(scripts/tatt-targets.sh "$PR" "$BASE" "$LABELED")
         echo "targets=$targets" >> "$GITHUB_OUTPUT"
 
-    - name: image name
+    - name: set image name
       id: image
-      env:
-        OWNER: ${{ github.repository_owner }}
-      run: echo "ref=ghcr.io/$(printf '%s' "$OWNER" | tr 'A-Z' 'a-z')/stage3:amd64-desktop-systemd" >> "$GITHUB_OUTPUT"
+      run: echo "ref=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/stage3:amd64-desktop-systemd" >> "$GITHUB_OUTPUT"
 
   tatt:
     name: tatt ${{ matrix.target.atom }}
     needs: scan
-    if: ${{ fromJson(needs.scan.outputs.targets)[0] != null }}
+    if: fromJSON(needs.scan.outputs.targets)[0] != null
     strategy:
       fail-fast: false
       matrix:
@@ -77,7 +76,7 @@ jobs:
       KEYWORD: ${{ matrix.target.keyword }}
 
     steps:
-    - name: fetch repo
+    - name: checkout
       uses: actions/checkout@v7
       with:
         repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -119,7 +118,7 @@ jobs:
         script -qec "bash ./*-useflags.sh" /dev/null
 
     - name: report
-      if: ${{ always() }}
+      if: always()
       run: |
         {
             echo "### tatt $ATOM"

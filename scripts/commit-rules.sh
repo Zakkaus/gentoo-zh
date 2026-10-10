@@ -3,7 +3,7 @@
 # prints the commits of the pull request that break the commit rules in CONTRIBUTING.en.md
 set -euo pipefail
 # shellcheck disable=SC2016 # jq, not shell, expands these
-gh api "repos/$REPO/pulls/${1:?pull request number}/commits?per_page=100" --paginate --jq '
+gh api "repos/$GITHUB_REPOSITORY/pulls/${1:?pull request number}/commits?per_page=100" --paginate --jq '
   .[] | (.commit.message | split("\n")[0]) as $s
   | if (.parents | length) > 1 then ["It is a merge commit"]
     else [ if ($s | test("^(Revert \"|[^\\s:][^:]*: \\S)")) then empty else "The subject does not start with what it changes" end,
