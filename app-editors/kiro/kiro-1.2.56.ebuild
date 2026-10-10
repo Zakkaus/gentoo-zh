@@ -43,6 +43,7 @@ RDEPEND="
 	media-libs/mesa
 	net-misc/curl
 	net-print/cups
+	sys-apps/bubblewrap
 	sys-apps/dbus
 	sys-libs/glibc
 	sys-libs/libcap
