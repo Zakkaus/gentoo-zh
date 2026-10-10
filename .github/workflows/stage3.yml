@@ -1,9 +1,7 @@
 name: stage3
 
 on:
-  # scheduled runs start 5-8 hours late here; 21:17 still finishes before nvchecker's 09:00 run
-  schedule:
-    - cron: '17 21 * * *'
+  workflow_call:
   workflow_dispatch:
 
 concurrency:

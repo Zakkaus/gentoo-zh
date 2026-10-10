@@ -1,9 +1,8 @@
 name: nvchecker
 
 on:
+  workflow_call:
   workflow_dispatch:
-  schedule:
-    - cron: '0 09 * * *'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

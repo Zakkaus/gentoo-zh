@@ -2,13 +2,11 @@ name: autobump
 run-name: "${{ inputs.issues && format('autobump issues: {0}', inputs.issues) || 'autobump' }}"
 
 on:
-  # Scheduled runs can start hours late, so chain from nvchecker.
+  # daily starts the round; nvchecker on its own is a manual run
   workflow_run:
-    workflows: [nvchecker]
+    workflows: [daily, nvchecker]
     types: [completed]
     branches: [master]
-  schedule:
-    - cron: '0 11 * * *'
   workflow_dispatch:
     inputs:
       issues:
