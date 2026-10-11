@@ -10,13 +10,13 @@ CRATES="
 
 declare -A GIT_CRATES=(
 	[clash_verge_service_ipc]='https://github.com/clash-verge-rev/clash-verge-service-ipc;b2a7427d6681c8d3780ab83a73f4dc21da2f22d6;clash-verge-service-ipc-%commit%'
+	[muda]='https://github.com/wonfen/muda;547de49352791653fbdfa785f20f3c7ece8468e2;muda-%commit%'
 	[sysproxy]='https://github.com/clash-verge-rev/sysproxy-rs;89ad876a0942c049ae72e1472f9fc3ed62023c5e;sysproxy-rs-%commit%'
-	[tauri-plugin-mihomo]='https://github.com/clash-verge-rev/tauri-plugin-mihomo;ba8434c08c869916b8041d707ad66599bb5230b2;tauri-plugin-mihomo-%commit%'
+	[tauri-plugin-mihomo]='https://github.com/clash-verge-rev/tauri-plugin-mihomo;7a03d16f4d39b1bb885b7babe66b9e153e34b615;tauri-plugin-mihomo-%commit%'
 	[tracing-estuary]='https://github.com/Tunglies/tracing-estuary;dbfce033fa4cff8f936f3e7c2282af1277546f3c;tracing-estuary-%commit%'
-	[tray-icon]='https://github.com/Tunglies/tray-icon;5750c67d02d32f2af100e120ad665959d4268cef;tray-icon-%commit%'
 )
 
-RUST_MIN_VER="1.95"
+RUST_MIN_VER="1.99"
 inherit cargo desktop dot-a xdg
 
 DESCRIPTION="GUI client based on Tauri for tailored proxy experience"
@@ -75,14 +75,14 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}"/${P}-openrc-detection.patch
+	"${FILESDIR}"/${PN}-2.5.7-openrc-detection.patch
 )
 
 src_prepare() {
 	default
 
 	pushd "${WORKDIR}/${SERVICE_P}" >/dev/null || die
-	eapply "${FILESDIR}"/${P}-openrc-installer.patch
+	eapply "${FILESDIR}"/${PN}-2.5.7-openrc-installer.patch
 	popd >/dev/null || die
 
 	# FIXME: tempfile or moreutils?
@@ -98,10 +98,12 @@ src_prepare() {
 	sed -i "s|^sysproxy = { git = .*|sysproxy = { path = \"${sysproxy}\", default-features = false }|" \
 		"${WORKDIR}/${SERVICE_P}/Cargo.toml" || die
 
-	# replace upstream's tray-icon crate substitution with ours
+	# replace upstream's muda crate substitution with ours; the tray-icon
+	# substitution is unused and would make cargo fetch its git source
 	local dep
-	dep=$(grep "^tray-icon" "${ECARGO_HOME}"/config.toml || die)
-	sed -i -e "/\[patch\.crates-io\]/,\$s;^tray-icon.*$;${dep};" Cargo.toml || die
+	dep=$(grep "^muda" "${ECARGO_HOME}"/config.toml || die)
+	sed -i -e "/\[patch\.crates-io\]/,\$s;^muda.*$;${dep};" \
+		-e "/\[patch\.crates-io\]/,\${/^tray-icon/d}" Cargo.toml || die
 }
 
 src_compile() {
