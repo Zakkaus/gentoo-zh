@@ -13,9 +13,9 @@ DESCRIPTION="WPS Office (WPS 365 edition), the Chinese office productivity suite
 HOMEPAGE="https://www.wps.cn/product/wpslinux/"
 
 SRC_URI="
-	amd64? ( https://pubwps-wps365-obs.wpscdn.cn/download/Linux/${MY_PV}/wps-office_${PV}.AK.preread.sw.indep365_763371_amd64.deb -> ${PN}_${PV}_amd64.deb )
-	arm64? ( https://pubwps-wps365-obs.wpscdn.cn/download/Linux/${MY_PV}/wps-office_${PV}.AK.preread.sw.indep365_763373_arm64.deb -> ${PN}_${PV}_arm64.deb )
-	loong? ( https://pubwps-wps365-obs.wpscdn.cn/download/Linux/${MY_PV}/wps-office_${PV}.AK.preread.sw.indep365_763378_loongarch64.deb -> ${PN}_${PV}_loongarch64.deb )
+	amd64? ( https://pubwps-wps365-obs.wpscdn.cn/download/Linux/${MY_PV}/wps-office_${PV}.AK.preread.sw.365_807309_amd64.deb -> ${PN}_${PV}_amd64.deb )
+	arm64? ( https://pubwps-wps365-obs.wpscdn.cn/download/Linux/${MY_PV}/wps-office_${PV}.AK.preread.sw.365_807310_arm64.deb -> ${PN}_${PV}_arm64.deb )
+	loong? ( https://pubwps-wps365-obs.wpscdn.cn/download/Linux/${MY_PV}/wps-office_${PV}.AK.preread.sw.365_807316_loongarch64.deb -> ${PN}_${PV}_loongarch64.deb )
 "
 
 S="${WORKDIR}"
@@ -54,7 +54,7 @@ RDEPEND="
 	media-libs/libglvnd
 	media-libs/libpulse
 	media-libs/mesa[gbm(+)]
-	arm64? ( media-libs/libva:0[X] )
+	media-libs/libva:0[X]
 	net-print/cups
 	sys-apps/dbus
 	sys-apps/util-linux
@@ -79,7 +79,10 @@ RDEPEND="
 	x11-libs/libxcb
 	x11-libs/libxkbcommon[X]
 	x11-libs/pango
+	arm64? ( dev-db/sqlite:3 )
 	loong? (
+		dev-db/sqlite:3
+		dev-libs/gmp
 		virtual/loong-ow-compat
 	)
 "
@@ -119,17 +122,24 @@ src_prepare() {
 	#  - KPacketInstall is a .deb self-installer wanting system Qt5
 	#  - libFontWatermark.so needs libmysqlclient.so.18
 	#  - lib{et,wpp,wps}uofrw.so are stale UOF read/write shims with no consumers
+	#  - libksai{engine,toolkits}.so need libksailite.so, which is not shipped
 	rm -f "${off}"/libpeony-wpsprint-menu-plugin.so || die
 	rm -f "${off}"/KPacketInstall || die
 	rm -f "${off}"/libFontWatermark.so || die
 	rm -f "${off}"/lib{et,wpp,wps}uofrw.so || die
+	rm -f "${off}"/libksai{engine.so*,toolkits.so} || die
+
+	# The .365 build also ships the Electron WPS Xiezuo client under /opt/xiezuo,
+	# which is not installed; drop its menu entry and icons.
+	rm -f "${S}"/usr/share/applications/xiezuo.desktop \
+		"${S}"/usr/share/icons/hicolor/*/apps/xiezuo.png || die
 
 	# librpc{et,wpp,wps}api_sysqt5.so link the system Qt5 stack (libQt5Core / Gui
 	# / Network / Widgets / Xml.so.5); keeping them would fail the unresolved-
 	# soname QA check or force the whole dev-qt Qt5 stack into RDEPEND. Drop them:
 	# nothing loads them at runtime (only cfgs/wpsupgrade/ lists them), and the
 	# default librpc*api.so (bundled Qt4) and librpc*api_wpsqt.so (bundled Qt5)
-	# variants provide the same RPC API. (amd64-only .deb; rm -f no-ops elsewhere.)
+	# variants provide the same RPC API.
 	rm -f "${off}"/librpc{et,wpp,wps}api_sysqt5.so || die
 
 	# Use the system C++ runtime instead of the bundled one.
@@ -181,13 +191,11 @@ src_install() {
 pkg_postinst() {
 	xdg_pkg_postinst
 	elog "WPS 365 opens a sign-in dialog on first launch that has no close"
-	elog "button; press Esc to dismiss it. WPS 365 may require an account, so"
-	elog "some features may be unavailable without signing in. If you do not"
-	elog "want to sign in at all, app-office/wps-office365-edu (the education"
-	elog "edition) works fully without an account."
+	elog "button; press Esc to dismiss it. Some features may require an account."
+	elog "app-office/wps-office365-edu (the education edition) works fully"
+	elog "without an account and is recommended unless you need WPS 365 features."
 	elog ""
-	elog "WPS 365 首次启动会弹出登入框且无关闭按钮，按 Esc 可关闭；"
-	elog "但 WPS 365 可能强制要求登入，未登入可能无法使用部分功能。"
-	elog "完全不想登入的话，可以改用 app-office/wps-office365-edu（教育版），"
-	elog "教育版不需要登入即可正常使用。"
+	elog "WPS 365 首次启动会弹出登录框且没有关闭按钮，按 Esc 可关闭。"
+	elog "部分功能可能需要登录账号。app-office/wps-office365-edu（教育版）"
+	elog "不需要登录即可完整使用，除非需要 WPS 365 的功能，建议改用教育版。"
 }
