@@ -7,10 +7,10 @@ CRATES="
 "
 
 declare -A GIT_CRATES=(
-	[mpd]='https://github.com/htkhiem/rust-mpd;218e1af6c44e08101b3c99f0df0fe1d10c3702b4;rust-mpd-%commit%'
+	[mpd]='https://github.com/htkhiem/rust-mpd;0bb8342c47244548724a5b1bcc523d9ffe3ca47f;rust-mpd-%commit%'
 )
 
-MY_PV="${PV}-beta-1"
+MY_PV="${PV}-beta"
 RUST_MIN_VER="1.92.0"
 
 inherit cargo meson gnome2-utils xdg
@@ -39,6 +39,7 @@ RDEPEND="
 	>=gui-libs/libadwaita-1.9
 	>=sys-devel/gettext-0.23
 	>=media-sound/mpd-0.24
+	media-libs/alsa-lib
 	dev-db/sqlite
 	sys-apps/xdg-desktop-portal
 "
