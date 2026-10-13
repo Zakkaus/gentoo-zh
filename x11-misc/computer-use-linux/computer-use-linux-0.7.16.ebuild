@@ -291,11 +291,13 @@ src_test() {
 	# These bind Unix sockets under a temp dir whose name exceeds sun_path
 	# when TMPDIR is as long as portage's.
 	local CARGO_SKIP_TESTS=(
+		cosmic_focus_protocol_regressions
 		diagnostics_impl::tests::ydotool_socket_check_accepts_datagram_socket
 		diagnostics_impl::tests::ydotool_socket_check_rejects_legacy_stream_socket
 		indicator::tests::capture_release_unlocks_an_inherited_descriptor
 		indicator::tests::captures_fail_when_a_running_overlay_does_not_reply
 		indicator::tests::captures_fail_while_a_stalled_overlay_cannot_be_told_to_hide
+		indicator::tests::captures_hold_the_lock_without_an_overlay
 		indicator::tests::captures_wait_only_while_the_overlay_was_on_screen
 		indicator::tests::concurrent_captures_do_not_consume_each_others_replies
 		indicator::tests::disabled_servers_still_hold_captures
