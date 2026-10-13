@@ -73,7 +73,6 @@ QA_PREBUILT="
 	opt/${PN}/resources/app.asar.unpacked/node_modules/node-pty/build/Release/pty.node
 	opt/${PN}/resources/app.asar.unpacked/node_modules/node-pty/bin/linux-*/node-pty.node
 	opt/${PN}/resources/app.asar.unpacked/node_modules/node-pty/prebuilds/linux-*/pty.node
-	opt/${PN}/resources/app.asar.unpacked/node_modules/@msgpackr-extract/msgpackr-extract-linux-*/*.glibc.node
 "
 
 src_unpack() {
@@ -93,15 +92,8 @@ src_unpack() {
 src_prepare() {
 	default
 
-	local modules="resources/app.asar.unpacked/node_modules" arch=x64 foreign=arm64
-	if use arm64; then
-		arch=arm64
-		foreign=x64
-	fi
-
-	# Electron uses node-pty, not Bun; musl and foreign prebuilds are never loaded.
-	rm -r "${modules}"/bun-pty "${modules}"/node-pty/prebuilds/{darwin-*,win32-*,linux-${foreign}} || die
-	rm "${modules}"/@msgpackr-extract/msgpackr-extract-linux-${arch}/*.musl.node || die
+	local modules="resources/app.asar.unpacked/node_modules" arch=x64
+	use arm64 && arch=arm64
 
 	# The addon needs its sibling libraries, not the upstream CI directory or cwd.
 	patchelf --set-rpath '$ORIGIN' "${modules}/sherpa-onnx-linux-${arch}/sherpa-onnx.node" || die
@@ -113,7 +105,7 @@ src_prepare() {
 src_install() {
 	dodoc LICENSE.electron.txt LICENSES.chromium.html
 	domenu "${MY_PN}.desktop"
-	doicon -s scalable "usr/share/icons/hicolor/scalable/${MY_PN}.svg"
+	doicon -s 512 "usr/share/icons/hicolor/512x512/apps/${MY_PN}.png"
 
 	dodir /opt/${PN}
 	cp -r "${MY_PN}" chrome-sandbox chrome_crashpad_handler \
