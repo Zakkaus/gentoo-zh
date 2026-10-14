@@ -1,6 +1,6 @@
 Build libghostty-vt separately so Gentoo Zig flags and offline inputs apply.
 Avoid initializing unused Ghostty GUI build steps in lib-vt mode.
-Applies to Herdr 0.9.3.
+Applies to Herdr 0.9.4.
 
 --- a/crates/ghostty-vt/build.rs
 +++ b/crates/ghostty-vt/build.rs

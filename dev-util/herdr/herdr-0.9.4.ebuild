@@ -27,14 +27,14 @@ CRATES="
 	block2@0.6.2
 	bumpalo@3.20.2
 	bytemuck@1.25.0
-	bytes@1.11.1
+	bytes@1.12.1
 	castaway@0.2.4
 	cfg-if@1.0.4
 	cfg_aliases@0.1.1
 	cfg_aliases@0.2.1
-	clap@4.6.1
-	clap_builder@4.6.0
-	clap_complete@4.6.5
+	clap@4.6.7
+	clap_builder@4.6.7
+	clap_complete@4.6.11
 	clap_lex@1.1.0
 	compact_str@0.9.0
 	convert_case@0.10.0
@@ -77,15 +77,15 @@ CRATES="
 	fnv@1.0.7
 	foldhash@0.1.5
 	foldhash@0.2.0
-	futures-channel@0.3.33
-	futures-core@0.3.33
+	futures-channel@0.3.34
+	futures-core@0.3.34
 	futures-executor@0.3.33
-	futures-io@0.3.33
+	futures-io@0.3.34
 	futures-lite@2.6.1
-	futures-macro@0.3.33
-	futures-sink@0.3.33
-	futures-task@0.3.33
-	futures-util@0.3.33
+	futures-macro@0.3.34
+	futures-sink@0.3.34
+	futures-task@0.3.34
+	futures-util@0.3.34
 	futures@0.3.33
 	generic-array@0.14.7
 	getrandom@0.3.4
@@ -99,7 +99,7 @@ CRATES="
 	indexmap@2.13.0
 	indoc@2.0.7
 	instability@0.3.12
-	interprocess@2.4.2
+	interprocess@2.4.4
 	itertools@0.14.0
 	itoa@1.0.18
 	js-sys@0.3.91
@@ -108,7 +108,7 @@ CRATES="
 	lab@0.11.0
 	lazy_static@1.5.0
 	leb128fmt@0.1.0
-	libc@0.2.183
+	libc@0.2.190
 	line-clipping@0.3.5
 	linux-raw-sys@0.12.1
 	litrs@1.0.0
@@ -128,7 +128,7 @@ CRATES="
 	nix@0.31.2
 	nom@7.1.3
 	nu-ansi-term@0.50.3
-	num-conv@0.2.1
+	num-conv@0.2.2
 	num-derive@0.4.2
 	num-traits@0.2.19
 	num_threads@0.1.7
@@ -171,23 +171,23 @@ CRATES="
 	redox_syscall@0.5.18
 	ref-cast-impl@1.0.25
 	ref-cast@1.0.25
-	regex-automata@0.4.14
-	regex-syntax@0.8.10
-	regex@1.12.3
+	regex-automata@0.4.18
+	regex-syntax@0.8.11
+	regex@1.13.1
 	rustc_version@0.4.1
 	rustix@1.1.4
 	rustversion@1.0.22
 	ryu@1.0.23
-	schemars@1.2.1
-	schemars_derive@1.2.1
+	schemars@1.2.2
+	schemars_derive@1.2.2
 	scopeguard@1.2.0
 	semver@1.0.27
-	serde@1.0.228
-	serde_core@1.0.228
-	serde_derive@1.0.228
-	serde_derive_internals@0.29.1
+	serde@1.0.229
+	serde_core@1.0.229
+	serde_derive@1.0.229
+	serde_derive_internals@0.30.0
 	serde_ignored@0.1.14
-	serde_json@1.0.149
+	serde_json@1.0.151
 	serde_repr@0.1.21
 	serde_spanned@0.6.9
 	serial2@0.2.34
@@ -218,9 +218,9 @@ CRATES="
 	thiserror@1.0.69
 	thiserror@2.0.18
 	thread_local@1.1.9
-	time-core@0.1.8
-	time-macros@0.2.27
-	time@0.3.47
+	time-core@0.1.9
+	time-macros@0.2.32
+	time@0.3.55
 	tokio-macros@2.6.1
 	tokio@1.50.0
 	toml@0.8.23
@@ -239,7 +239,7 @@ CRATES="
 	ucd-trie@0.1.7
 	uds_windows@1.2.1
 	unicode-ident@1.0.24
-	unicode-segmentation@1.13.1
+	unicode-segmentation@1.13.3
 	unicode-truncate@2.0.1
 	unicode-width@0.2.2
 	unicode-xid@0.2.6
@@ -320,12 +320,7 @@ DESCRIPTION="Terminal workspace manager for AI coding agents"
 HOMEPAGE="https://herdr.dev https://github.com/herdrdev/herdr"
 SRC_URI="
 	https://github.com/herdrdev/herdr/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
-	https://github.com/xz-dev/herdr/commit/dbaac8e0f73a0f16ddc125d6c05bf8a5453fcb17.patch
-		-> ${P}-wide-grapheme-popup-edges-dbaac8e0.patch
-	https://github.com/xz-dev/herdr/commit/b12243687d0ade025986ef636a2ebd0340a78c68.patch
-		-> ${P}-overlay-style-isolation-b1224368.patch
-	https://github.com/xz-dev/herdr/commit/526ec7c904be0c5c253e0918a12968cc7548835b.patch
-		-> ${P}-empty-cell-background-526ec7c9.patch
+	https://github.com/gentoo-zh-drafts/herdr/releases/download/v${PV}/${P}-patches.tar.xz
 	${ZBS_DEPENDENCIES_SRC_URI}
 	${CARGO_CRATE_URIS}
 "
@@ -355,11 +350,12 @@ IUSE="test"
 RESTRICT="!test? ( test )"
 
 PATCHES=(
-	"${DISTDIR}/${P}-wide-grapheme-popup-edges-dbaac8e0.patch"
+	"${WORKDIR}/${P}-patches/wide-grapheme-popup-edges.patch"
 	"${FILESDIR}/${P}-build.patch"
 	"${FILESDIR}/${P}-test-socket-paths.patch"
-	"${DISTDIR}/${P}-overlay-style-isolation-b1224368.patch"
-	"${DISTDIR}/${P}-empty-cell-background-526ec7c9.patch"
+	"${WORKDIR}/${P}-patches/overlay-style-isolation.patch"
+	"${WORKDIR}/${P}-patches/empty-cell-background.patch"
+	"${WORKDIR}/${P}-patches/virtual-render-buffer.patch"
 )
 
 pkg_setup() {
@@ -406,7 +402,10 @@ src_test() {
 	done
 	local test_home="${T}/test-home"
 	mkdir -p "${test_home}" || die
-	HOME="${test_home}" LC_ALL=C cargo_env cargo nextest run --locked --offline || die "tests failed"
+	# Without XDG_RUNTIME_DIR the pane-graphics store falls back to /var/tmp.
+	install -d -m 0700 "${T}/runtime" || die
+	HOME="${test_home}" XDG_RUNTIME_DIR="${T}/runtime" LC_ALL=C \
+		cargo_env cargo nextest run --locked --offline || die "tests failed"
 }
 
 src_install() {

@@ -1,5 +1,5 @@
 Shorten test socket paths to fit sockaddr_un under PORTAGE_TMPDIR.
-Applies to Herdr 0.9.3.
+Applies to Herdr 0.9.4.
 
 --- a/src/api/server.rs
 +++ b/src/api/server.rs
