@@ -12,11 +12,6 @@ app-misc/copilot
 # Removal on 2026-10-29.
 net-misc/motrix-next-bin
 
-# Zakk <zakk@gentoozh.org> (2026-09-11)
-# Superseded by net-im/wechat[bwrap].
-# Removal on 2026-10-11.
-net-im/wechat-universal-bwrap
-
 # Zakk <zakk@gentoozh.org> (2026-08-12)
 # This legacy release is no longer updated. arm64 and loong users should use
 # app-office/wps-office365-edu, which supports offline use.
