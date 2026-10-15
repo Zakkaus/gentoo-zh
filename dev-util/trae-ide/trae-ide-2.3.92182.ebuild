@@ -96,4 +96,5 @@ src_install() {
 	find "${ED}"/usr/share/trae-cn -perm /022 -exec chmod go-w {} + || die
 	fperms 0755 /usr/share/trae-cn/trae-cn
 	fperms 0755 /usr/share/trae-cn/chrome_crashpad_handler
+	dosym -r /usr/share/trae-cn/bin/trae-cn /usr/bin/trae-cn
 }
