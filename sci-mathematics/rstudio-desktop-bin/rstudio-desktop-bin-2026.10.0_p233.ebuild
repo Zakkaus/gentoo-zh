@@ -30,6 +30,7 @@ RDEPEND="
 	media-libs/alsa-lib
 	media-libs/mesa
 	net-print/cups
+	sys-apps/acl
 	sys-apps/dbus
 	virtual/libudev
 	x11-libs/cairo
@@ -55,16 +56,8 @@ src_prepare() {
 	# trip the unresolved-soname QA check.
 	local cop="usr/lib/rstudio/resources/app/bin/copilot-language-server-js"
 	if [[ -d ${cop} ]]; then
-		rm -r "${cop}"/compiled/darwin "${cop}"/compiled/win32 \
-			"${cop}"/compiled/linux/arm64 \
-			"${cop}"/bin/darwin "${cop}"/bin/win32 "${cop}"/bin/linux/arm64 \
-			"${cop}"/policy-templates/darwin "${cop}"/policy-templates/win32 || die
-		rm -r "${cop}"/node_modules/@github/copilot-darwin-{arm64,x64} \
-			"${cop}"/node_modules/@github/copilot-linux-arm64 \
-			"${cop}"/node_modules/@github/copilot-win32-{arm64,x64} || die
-		rm -r "${cop}"/node_modules/@microsoft/mxc-sdk/bin/arm64 || die
-		rm "${cop}"/node_modules/@microsoft/mxc-sdk/bin/x64/*.exe || die
-		rm -f "${cop}"/crypt32*.node || die
+		rm -r "${cop}"/policy-templates/darwin "${cop}"/policy-templates/win32 || die
+		rm -r "${cop}"/node_modules/@github/copilot-sdk-{darwin-arm64,darwin-x64,linux-arm64,win32-arm64,win32-x64} || die
 	fi
 }
 
