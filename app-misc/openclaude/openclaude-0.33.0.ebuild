@@ -4,12 +4,12 @@
 EAPI=8
 
 DESCRIPTION="Open-source coding-agent CLI for cloud and local LLM providers"
-HOMEPAGE="https://github.com/Gitlawb/openclaude"
-# Scoped npm package: @gitlawb/openclaude
+HOMEPAGE="https://github.com/Twigpine/openclaude"
+# Scoped npm package: @twigpine/openclaude
 # Bundled dist/cli.mjs still has dynamic imports requiring node_modules at runtime.
 # Vendor tarball with production node_modules is hosted on gentoo-zh-drafts.
 SRC_URI="
-	https://registry.npmjs.org/@gitlawb/${PN}/-/${P}.tgz
+	https://registry.npmjs.org/@twigpine/${PN}/-/${P}.tgz
 	https://github.com/gentoo-zh-drafts/openclaude/releases/download/v${PV}/${P}-node_modules.tar.gz
 "
 S="${WORKDIR}/package"
@@ -20,8 +20,8 @@ KEYWORDS="~amd64"
 RESTRICT="bindist mirror strip"
 
 QA_PREBUILT="
-	usr/lib/node_modules/@gitlawb/${PN}/node_modules/*
-	usr/lib64/node_modules/@gitlawb/${PN}/node_modules/*
+	usr/lib/node_modules/@twigpine/${PN}/node_modules/*
+	usr/lib64/node_modules/@twigpine/${PN}/node_modules/*
 "
 
 RDEPEND="
@@ -31,7 +31,7 @@ RDEPEND="
 "
 
 src_install() {
-	local install_dir="/usr/$(get_libdir)/node_modules/@gitlawb/${PN}"
+	local install_dir="/usr/$(get_libdir)/node_modules/@twigpine/${PN}"
 
 	insinto "${install_dir#${EPREFIX}}"
 	doins -r "${S}"/*
@@ -43,5 +43,5 @@ src_install() {
 	fperms +x "${install_dir}/node_modules/@anthropic-ai/sandbox-runtime/dist/vendor/seccomp/x64/apply-seccomp"
 	fperms +x "${install_dir}/node_modules/@anthropic-ai/sandbox-runtime/vendor/seccomp/x64/apply-seccomp"
 
-	dosym "../$(get_libdir)/node_modules/@gitlawb/${PN}/bin/openclaude" "/usr/bin/openclaude"
+	dosym "../$(get_libdir)/node_modules/@twigpine/${PN}/bin/openclaude" "/usr/bin/openclaude"
 }

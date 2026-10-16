@@ -6,6 +6,6 @@
     <name>Zakk</name>
   </maintainer>
   <upstream>
-    <remote-id type="github">Gitlawb/openclaude</remote-id>
+    <remote-id type="github">Twigpine/openclaude</remote-id>
   </upstream>
 </pkgmetadata>
