@@ -57,11 +57,12 @@ QA_PREBUILT="
 	opt/${PN}/resources/kde-capture/t3-kde-snap-shot
 	opt/${PN}/resources/resource-monitor/t3-resource-monitor
 	opt/${PN}/resources/app.asar.unpacked/node_modules/*
+	opt/${PN}/resources/node_modules/*
 "
 
 src_prepare() {
 	default
-	local app="opt/T3 Code (Alpha)" modules="opt/T3 Code (Alpha)/resources/app.asar.unpacked/node_modules"
+	local app="opt/T3 Code (Beta)" modules="opt/T3 Code (Beta)/resources/app.asar.unpacked/node_modules"
 	# Electron requires glibc; these musl libraries and foreign prebuilds are never loaded.
 	rm -r "${modules}"/@ff-labs/fff-bin-linux-*-musl || die
 	if use amd64; then
@@ -77,7 +78,7 @@ src_prepare() {
 
 src_install() {
 	dodir /opt/${PN}
-	cp -r "opt/T3 Code (Alpha)/." "${ED}/opt/${PN}/" || die
+	cp -r "opt/T3 Code (Beta)/." "${ED}/opt/${PN}/" || die
 	fperms 4711 /opt/${PN}/chrome-sandbox
 
 	printf '#!/bin/sh\nexport T3CODE_DISABLE_AUTO_UPDATE=true\nexec "%s/opt/%s/t3code" "$@"\n' \
