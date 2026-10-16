@@ -1,0 +1,95 @@
+https://github.com/wezterm/wezterm/pull/8206
+
+diff --git a/wezterm-gui/src/termwindow/webgpu.rs b/wezterm-gui/src/termwindow/webgpu.rs
+index 0be54acc72a..39f251dcd28 100644
+--- a/wezterm-gui/src/termwindow/webgpu.rs
++++ b/wezterm-gui/src/termwindow/webgpu.rs
+@@ -21,6 +21,15 @@ pub struct ShaderUniform {
+     // sampler2D atlas_linear_sampler;
+ }
+ 
++lazy_static::lazy_static! {
++    // Shared by all windows and never dropped: destroying the instance
++    // of a closed window crashes the remaining windows on NVIDIA/Wayland.
++    static ref INSTANCE: wgpu::Instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
++        backends: wgpu::Backends::all(),
++        ..Default::default()
++    });
++}
++
+ pub struct WebGpuState {
+     pub adapter_info: wgpu::AdapterInfo,
+     pub downlevel_caps: wgpu::DownlevelCapabilities,
+@@ -224,10 +233,7 @@ impl WebGpuState {
+         config: &ConfigHandle,
+     ) -> anyhow::Result<Self> {
+         let backends = wgpu::Backends::all();
+-        let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
+-            backends,
+-            ..Default::default()
+-        });
++        let instance = INSTANCE.clone();
+         let surface = unsafe {
+             instance.create_surface_unsafe(wgpu::SurfaceTargetUnsafe::from_window(&handle)?)?
+         };
+diff --git a/window/src/os/wayland/pointer.rs b/window/src/os/wayland/pointer.rs
+index 136f5f18b2a..ca4378a8d0e 100644
+--- a/window/src/os/wayland/pointer.rs
++++ b/window/src/os/wayland/pointer.rs
+@@ -213,7 +213,10 @@ impl WaylandState {
+                 };
+ 
+                 let wid = SurfaceUserData::from_wl(parent_surface).window_id;
+-                let mut inner = windows.get(&wid).unwrap().borrow_mut();
++                let mut inner = match windows.get(&wid) {
++                    Some(inner) => inner.borrow_mut(),
++                    None => continue,
++                };
+ 
+                 match evt.kind {
+                     PointerEventKind::Enter { .. } => {
+diff --git a/window/src/os/wayland/window.rs b/window/src/os/wayland/window.rs
+index d7ffc62b149..53fbc36856b 100644
+--- a/window/src/os/wayland/window.rs
++++ b/window/src/os/wayland/window.rs
+@@ -399,8 +399,17 @@ impl WindowOps for WaylandWindow {
+     }
+ 
+     fn close(&self) {
+-        WaylandConnection::with_window_inner(self.0, |inner| {
++        let window_id = self.0;
++        WaylandConnection::with_window_inner(window_id, move |inner| {
+             inner.close();
++            // Remove the window from the maps, otherwise it, and the
++            // TermWindow and GPU resources that it owns, are never dropped.
++            let conn = WaylandConnection::get().unwrap().wayland();
++            let mut state = conn.wayland_state.borrow_mut();
++            if let Some(window) = inner.window.as_ref() {
++                state.surface_to_pending.remove(&window.wl_surface().id());
++            }
++            state.windows.borrow_mut().remove(&window_id);
+             Ok(())
+         });
+     }
+@@ -616,10 +625,20 @@ pub struct WaylandWindowInner {
+     ext_background_effect_surface: Option<ExtBackgroundEffectSurfaceV1>,
+ }
+ 
++impl Drop for WaylandWindowInner {
++    fn drop(&mut self) {
++        // The GPU surface of the TermWindow owned by events, and the
++        // GL surface, render to the wl_surface of window, so they
++        // must be dropped before it.
++        self.events = WindowEventSender::new(|_, _| {});
++        self.wegl_surface.take();
++        self.gl_state.take();
++    }
++}
++
+ impl WaylandWindowInner {
+     fn close(&mut self) {
+         self.events.dispatch(WindowEvent::Destroyed);
+-        self.window.take();
+     }
+ 
+     fn show(&mut self) {

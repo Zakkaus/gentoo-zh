@@ -55,6 +55,11 @@ BDEPEND="
 
 QA_FLAGS_IGNORED="usr/bin/.*"
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-mux-server-closed-client-channels.patch
+	"${FILESDIR}"/${PN}-wayland-closed-windows.patch
+)
+
 src_unpack() {
 	git-r3_src_unpack
 	cargo_live_src_unpack
