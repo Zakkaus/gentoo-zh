@@ -39,6 +39,7 @@ RDEPEND="
 	x11-libs/libdrm
 	x11-libs/libXinerama
 	x11-libs/libXScrnSaver
+	x11-libs/libXtst
 	x11-libs/libxkbcommon[X]
 	x11-libs/xcb-util-image
 	x11-libs/xcb-util-keysyms
