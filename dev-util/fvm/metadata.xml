@@ -6,6 +6,6 @@
 		<name>jinqiang zhang</name>
 	</maintainer>
 	<upstream>
-		<remote-id type="github">leoafarias/fvm</remote-id>
+		<remote-id type="github">btwld/fvm</remote-id>
 	</upstream>
 </pkgmetadata>
