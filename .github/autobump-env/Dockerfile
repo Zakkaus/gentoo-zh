@@ -20,5 +20,5 @@ RUN emerge-webrsync --no-pgp-verify \
  && emerge --quiet --getbinpkg --autounmask=y --autounmask-write=y --autounmask-continue=y \
       dev-lang/ruby dev-vcs/git dev-util/pkgdev dev-util/pkgcheck app-portage/portage-utils \
       app-portage/iwdevtools dev-util/github-cli app-misc/jq net-misc/curl \
-      app-portage/cpuid2cpuflags x11-base/xorg-server \
+      app-portage/cpuid2cpuflags sys-fs/squashfs-tools x11-base/xorg-server \
  && rm -rf /var/db/repos/gentoo /var/cache/distfiles/* /var/cache/binpkgs/*
