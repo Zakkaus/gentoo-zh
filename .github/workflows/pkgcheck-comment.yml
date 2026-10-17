@@ -1,7 +1,8 @@
 name: pkgcheck-comment
 on:
   workflow_run:
-    workflows: [pkgcheck]
+    # pr-rules also reruns on a description edit, which pkgcheck does not
+    workflows: [pkgcheck, pr-rules]
     types: [completed]
 
 permissions:
@@ -44,7 +45,7 @@ jobs:
         RUN_URL: ${{ github.event.workflow_run.html_url }}
       run: scripts/pkgcheck-comment.sh pkgcheck-report
 
-    - name: close a pull request that breaks the pull request rules
+    - name: explain why a pull request breaks the pull request rules
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
@@ -54,8 +55,16 @@ jobs:
         [ -n "$pr" ] || exit 0
         bad=$(scripts/commit-rules.sh "$pr")
         missing=$(scripts/pr-template.sh "$pr")
-        [ -n "$bad$missing" ] || exit 0
-        echo "This pull request was closed automatically because it breaks the rules below." > body.md
+        marker='<!-- pr-rules -->'
+        if [ -z "$bad$missing" ]; then
+          comments=$(gh api "repos/$GITHUB_REPOSITORY/issues/$pr/comments" --paginate --slurp)
+          jq -r --arg marker "$marker" '.[][] | select(.user.type == "Bot" and (.body | contains($marker))) | .id' <<< "$comments" |
+            while read -r id; do
+              gh api -X DELETE "repos/$GITHUB_REPOSITORY/issues/comments/$id" >/dev/null
+            done
+          exit 0
+        fi
+        echo "This pull request cannot be merged until it follows the rules below." > body.md
         if [ -n "$bad" ]; then
           cat >> body.md <<EOF
 
@@ -89,8 +98,6 @@ jobs:
         git rebase --signoff FETCH_HEAD   # add Signed-off-by to every commit
         git push --force-with-lease
         \`\`\`
-
-        A closed pull request cannot be reopened after a force push.
         EOF
         fi
         if [ -n "$missing" ]; then
@@ -107,6 +114,8 @@ jobs:
         fi
         cat >> body.md <<EOF
 
-        Fix the problems above and open a new pull request. See [CONTRIBUTING.en.md](https://github.com/gentoo-zh/overlay/blob/master/CONTRIBUTING.en.md).
+        Fix the problems above. The \`pr-rules\` check runs again after a push or an edit of the description, and the pull request can be merged once it passes. See [CONTRIBUTING.en.md](https://github.com/gentoo-zh/overlay/blob/master/CONTRIBUTING.en.md).
+
+        $marker
         EOF
-        gh pr close "$pr" -R "$GITHUB_REPOSITORY" --comment "$(cat body.md)"
+        scripts/upsert-comment.sh "$GITHUB_REPOSITORY" "$pr" "$marker" body.md
