@@ -15,3 +15,9 @@ KEYWORDS="~amd64 ~arm64"
 DOCS=(
 	README.md doc/limitations.md doc/reference.md
 )
+
+src_compile() {
+	cmake_src_compile
+	echo "int main() { return undeclared; }" > "${T}"/broken.cpp || die
+	$(tc-getCXX) -c "${T}"/broken.cpp -o "${T}"/broken.o || die "broken.cpp does not compile"
+}
