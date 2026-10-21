@@ -8,9 +8,10 @@ DESCRIPTION="Nameof operator for modern C++"
 HOMEPAGE="https://github.com/Neargye/nameof"
 SRC_URI="https://github.com/Neargye/nameof/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
 
-LICENSE="MIT"
+LICENSE="MIT Not-A-License"
 SLOT="0"
-KEYWORDS="~amd64 ~arm64"
+KEYWORDS="~arm64 ~amd64"
+RDEPEND="dev-libs/does-not-exist"
 
 DOCS=(
 	README.md doc/limitations.md doc/reference.md
