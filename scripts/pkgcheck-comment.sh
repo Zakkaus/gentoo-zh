@@ -98,9 +98,7 @@ minor=$(list true style info)
         block 'New style and info findings' yes "$minor"
         block 'Existing findings in these packages' yes "$(list false error warning style info)"
     fi
-    echo
-    echo "${MARKER}"
 } > "$body_file"
 
-scripts/upsert-comment.sh "$GITHUB_REPOSITORY" "$pr" "$MARKER" "$body_file"
+scripts/upsert-comment-section.sh "$GITHUB_REPOSITORY" "$pr" "$MARKER" pkgcheck "$body_file"
 echo "commented on #${pr}"

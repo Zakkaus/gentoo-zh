@@ -2,8 +2,15 @@ name: pkgcheck-comment
 on:
   workflow_run:
     # pr-rules also reruns on a description edit, which pkgcheck does not
-    workflows: [pkgcheck, pr-rules]
+    workflows: [pkgcheck, pr-rules, emerge-on-pr]
     types: [completed]
+
+# pkgcheck and emerge-on-pr each rewrite one section of the same comment, so
+# their runs queue. A group keeps only one pending run and a third run would
+# replace it, so pr-rules runs use their own group.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.name == 'pr-rules' && 'pr-rules' || 'report' }}-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -12,7 +19,9 @@ permissions:
 
 jobs:
   comment:
-    if: github.event.workflow_run.event == 'pull_request'
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      !(github.event.workflow_run.name == 'emerge-on-pr' && github.event.workflow_run.conclusion == 'cancelled')
     runs-on: ubuntu-latest
     steps:
     - name: checkout
@@ -27,6 +36,8 @@ jobs:
         artifacts=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID/artifacts" --paginate --slurp)
         available=$(jq 'any(.[] | .artifacts[]; .name == "pkgcheck-report")' <<< "$artifacts")
         echo "available=$available" >> "$GITHUB_OUTPUT"
+        elog=$(jq 'any(.[] | .artifacts[]; .name | startswith("elog-"))' <<< "$artifacts")
+        echo "elog=$elog" >> "$GITHUB_OUTPUT"
 
     - name: download the report
       if: steps.report.outputs.available == 'true'
@@ -45,7 +56,26 @@ jobs:
         RUN_URL: ${{ github.event.workflow_run.html_url }}
       run: scripts/pkgcheck-comment.sh pkgcheck-report
 
+    - name: download the elog
+      if: steps.report.outputs.elog == 'true'
+      uses: actions/download-artifact@v8
+      with:
+        pattern: elog-*
+        path: elog
+        run-id: ${{ github.event.workflow_run.id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: post the elog
+      if: steps.report.outputs.elog == 'true'
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        RUN_URL: ${{ github.event.workflow_run.html_url }}
+      run: scripts/emerge-elog-comment.sh elog
+
+    # pkgcheck and pr-rules runs of the same commit already check these
     - name: explain why a pull request breaks the pull request rules
+      if: github.event.workflow_run.name != 'emerge-on-pr'
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         HEAD_SHA: ${{ github.event.workflow_run.head_sha }}

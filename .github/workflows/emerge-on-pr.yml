@@ -92,15 +92,45 @@ jobs:
         rm -rf /var/log/portage/elog/*
 
     - name: emerge packages
+      id: emerge
       env:
         ATOM: ${{ matrix.target.package }}
       run: emerge --verbose --autounmask=y --autounmask-write=y --autounmask-continue=y "$ATOM"
 
+    - name: save portage elog
+      if: ${{ !cancelled() }}
+      env:
+        ATOM: ${{ matrix.target.package }}
+        PROFILE: ${{ matrix.target.profile }}
+        OUTCOME: ${{ steps.emerge.outcome }}
+      run: |
+        mkdir -p elog-report
+        echo "$ATOM" > elog-report/atom
+        echo "$PROFILE" > elog-report/profile
+        echo "$OUTCOME" > elog-report/outcome
+        # the onlydeps elog is left over when that step fails
+        [ "$OUTCOME" != skipped ] || exit 0
+        for file in /var/log/portage/elog/*; do
+          [ -f "$file" ] || continue
+          name=${file##*/}
+          name=${name%:*}
+          echo ">>> ${name/://}"
+          cat "$file"
+        done > elog-report/elog
+
+    - name: upload portage elog
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: elog-${{ strategy.job-index }}
+        path: elog-report/
+
+    # warn elog, such as CONFIG_CHECK without kernel sources, only goes to the PR comment
     - name: check portage elog
       run: |
-        if ls /var/log/portage/elog/* 1> /dev/null 2>&1; then
-          echo "Found Portage elog messages:"
-          cat /var/log/portage/elog/*
+        cat elog-report/elog
+        if grep -qE '^(QA|ERROR): [a-z]+$' elog-report/elog; then
+          echo "Found QA or error elog messages."
           exit 1
         fi
-        echo "No elog messages found."
+        echo "No QA or error elog messages found."
