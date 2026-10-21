@@ -85,22 +85,60 @@ jobs:
         fi
 
     - name: emerge --onlydeps packages
+      id: deps
+      shell: bash
       env:
         ATOM: ${{ matrix.target.package }}
       run: |
-        FEATURES="getbinpkg" emerge --onlydeps --jobs 2 --quiet --verbose --autounmask=y --autounmask-write=y --autounmask-continue=y "$ATOM"
+        FEATURES="getbinpkg" emerge --onlydeps --jobs 2 --quiet --verbose --autounmask=y --autounmask-write=y --autounmask-continue=y "$ATOM" 2>&1 | tee /var/tmp/deps.log
         rm -rf /var/log/portage/elog/*
 
     - name: emerge packages
+      id: emerge
+      shell: bash
       env:
         ATOM: ${{ matrix.target.package }}
-      run: emerge --verbose --autounmask=y --autounmask-write=y --autounmask-continue=y "$ATOM"
+      run: emerge --verbose --autounmask=y --autounmask-write=y --autounmask-continue=y "$ATOM" 2>&1 | tee /var/tmp/emerge.log
 
+    - name: save portage elog
+      if: ${{ !cancelled() }}
+      env:
+        ATOM: ${{ matrix.target.package }}
+        PROFILE: ${{ matrix.target.profile }}
+        DEPS: ${{ steps.deps.outcome }}
+        OUTCOME: ${{ steps.emerge.outcome }}
+      run: |
+        mkdir -p elog-report
+        echo "$ATOM" > elog-report/atom
+        echo "$PROFILE" > elog-report/profile
+        echo "$DEPS" > elog-report/deps
+        echo "$OUTCOME" > elog-report/outcome
+        [ "$DEPS" != failure ] || tail -n 40 /var/tmp/deps.log > elog-report/output
+        [ "$OUTCOME" != failure ] || tail -n 40 /var/tmp/emerge.log > elog-report/output
+        # the onlydeps elog is left over when that step fails
+        [ "$OUTCOME" != skipped ] || exit 0
+        for file in /var/log/portage/elog/*; do
+          [ -f "$file" ] || continue
+          # category:pf:date.log -> category/pf
+          pkg=${file##*/}
+          pkg=${pkg%:*}
+          echo ">>> ${pkg/://}"
+          cat "$file"
+        done > elog-report/elog
+
+    - name: upload portage elog
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: elog-${{ strategy.job-index }}
+        path: elog-report/
+
+    # warn elog, such as CONFIG_CHECK without kernel sources, only goes to the PR comment
     - name: check portage elog
       run: |
-        if ls /var/log/portage/elog/* 1> /dev/null 2>&1; then
-          echo "Found Portage elog messages:"
-          cat /var/log/portage/elog/*
+        cat elog-report/elog
+        if grep -qE '^(QA|ERROR): [a-z]+$' elog-report/elog; then
+          echo "Found QA or error elog messages."
           exit 1
         fi
-        echo "No elog messages found."
+        echo "No QA or error elog messages found."
