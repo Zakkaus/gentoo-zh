@@ -42,3 +42,7 @@ pkg_pretend() {
 src_install() {
 	dobin pwru
 }
+
+pkg_postinst() {
+	eerror "stage f: eerror without die"
+}

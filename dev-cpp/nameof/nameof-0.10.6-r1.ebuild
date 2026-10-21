@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-inherit cmake
+inherit cmake linux-info
 
 DESCRIPTION="Nameof operator for modern C++"
 HOMEPAGE="https://github.com/Neargye/nameof"
@@ -11,6 +11,8 @@ SRC_URI="https://github.com/Neargye/nameof/archive/refs/tags/v${PV}.tar.gz -> ${
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
+
+CONFIG_CHECK="USER_NS"
 
 DOCS=(
 	README.md doc/limitations.md doc/reference.md
