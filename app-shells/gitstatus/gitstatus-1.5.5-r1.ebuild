@@ -30,9 +30,6 @@ src_unpack() {
 }
 
 src_prepare() {
-	# ensure cmake_minimum_required >=3.10 (Bug: 964405)
-	sed -e '/CMAKE_MINIMUM_REQUIRED/s/3\.5\.1/3.10/' \
-		-i "${CMAKE_USE_DIR}"/CMakeLists.txt || die
 	cmake_src_prepare
 }
 

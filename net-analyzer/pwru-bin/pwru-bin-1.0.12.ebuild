@@ -42,3 +42,4 @@ pkg_pretend() {
 src_install() {
 	dobin pwru
 }
+# ci test: warn only

@@ -29,3 +29,4 @@ pkg_postinst() {
 	elog "--------------------------------------------------------------------"
 	elog "see https://github.com/PhrozenByte/rmtrash for more information"
 }
+# ci test: clean
