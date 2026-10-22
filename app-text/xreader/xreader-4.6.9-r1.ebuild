@@ -16,6 +16,7 @@ IUSE="cups djvu dvi +introspection keyring +postscript t1lib tiff xps"
 REQUIRED_USE="t1lib? ( dvi )"
 
 DEPEND="
+	app-accessibility/at-spi2-core:2
 	>=app-arch/libarchive-3.6.0:=
 	app-text/poppler:=[cairo]
 	>=dev-libs/glib-2.36.0:2
@@ -26,16 +27,17 @@ DEPEND="
 	>=x11-libs/gtk+-3.22.0:3[X,cups?,introspection?]
 	x11-libs/libICE
 	x11-libs/libSM
+	x11-libs/pango
 	>=x11-libs/xapp-2.5.0
 	djvu? ( >=app-text/djvu-3.5.17:= )
 	dvi? (
-		>=app-text/libspectre-0.2:=
+		>=app-text/libspectre-0.2
 		dev-libs/kpathsea:=
 		t1lib? ( media-libs/t1lib:5 )
 	)
 	introspection? ( dev-libs/gobject-introspection:= )
 	keyring? ( >=app-crypt/libsecret-0.5 )
-	postscript? ( >=app-text/libspectre-0.2:= )
+	postscript? ( >=app-text/libspectre-0.2 )
 	tiff? ( media-libs/tiff:= )
 	xps? ( >=app-text/libgxps-0.2.1:= )
 "
