@@ -38,6 +38,11 @@ RDEPEND="
 
 RESTRICT="strip"
 
+QA_PREBUILT="
+	opt/spotube/spotube
+	opt/spotube/lib/*
+"
+
 src_install() {
 	insinto /opt/spotube/
 	doins -r data lib
