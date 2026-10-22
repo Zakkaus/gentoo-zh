@@ -17,7 +17,7 @@ RESTRICT="!test? ( test )"
 
 DEPEND="
 	>=app-i18n/libime-1.1.3:5
-	app-arch/zstd
+	app-arch/zstd:=
 	>=dev-libs/boost-1.61:=
 	dev-libs/libfmt
 	doc? (
