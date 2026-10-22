@@ -23,7 +23,8 @@ PATCHES=(
 
 DEPEND="
 	>=app-i18n/fcitx-5.1.13:5
-	app-i18n/libpinyin
+	app-i18n/libpinyin:=
+	dev-libs/glib:2
 "
 RDEPEND="${DEPEND}"
 BDEPEND="
