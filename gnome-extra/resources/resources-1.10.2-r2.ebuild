@@ -237,7 +237,7 @@ src_compile () {
 	export CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1
 	export CARGO_PROFILE_RELEASE_DEBUG=2
 	export CARGO_PROFILE_RELEASE_STRIP=false
-	meson_src_compile
+	cargo_env meson_src_compile
 }
 
 #src_test () {
