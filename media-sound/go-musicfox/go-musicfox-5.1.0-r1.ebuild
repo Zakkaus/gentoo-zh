@@ -15,7 +15,7 @@ KEYWORDS="~amd64 ~arm64 ~loong"
 IUSE="clang"
 
 DEPEND="
-	media-libs/flac
+	media-libs/flac:=
 	media-libs/alsa-lib
 "
 RDEPEND="${DEPEND}"
