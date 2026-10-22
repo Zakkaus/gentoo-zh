@@ -36,13 +36,18 @@ IUSE="clang"
 QA_PRESTRIPPED="/usr/bin/tsukimi"
 
 RDEPEND="
-	>=gui-libs/gtk-4.22
-	>=gui-libs/libadwaita-1.9
+	dev-libs/glib:2
+	>=gui-libs/gtk-4.22:4
+	>=gui-libs/libadwaita-1.9:1
+	media-libs/fontconfig
 	media-libs/glycin-loaders:2=
+	media-libs/graphene
 	media-libs/gst-plugins-base:1.0
-	media-libs/gstreamer
-	media-video/mpv
+	media-libs/gstreamer:1.0
+	media-libs/lcms:2
+	media-video/mpv:=
 	sys-libs/libseccomp
+	x11-libs/pango
 "
 
 DEPEND="
@@ -81,6 +86,10 @@ src_configure () {
 	)
 	meson_src_configure
 	ln -s "${CARGO_HOME}" "${S}/cargo" || die
+}
+
+src_compile() {
+	cargo_env meson_src_compile
 }
 
 pkg_postinst() {
