@@ -20,8 +20,14 @@ PATCHES=(
 )
 
 RDEPEND="
-	net-misc/curl:=[ssl]
+	app-accessibility/at-spi2-core:2
+	dev-libs/glib:2
+	media-libs/harfbuzz:=
+	net-misc/curl[ssl]
+	x11-libs/cairo
+	x11-libs/gdk-pixbuf:2
 	x11-libs/gtk+:3
+	x11-libs/pango
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
