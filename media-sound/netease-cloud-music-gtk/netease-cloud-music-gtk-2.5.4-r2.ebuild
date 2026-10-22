@@ -35,7 +35,7 @@ KEYWORDS="~amd64 ~arm64"
 
 DEPEND="
 	dev-libs/glib:2
-	dev-libs/openssl:*
+	dev-libs/openssl:=
 	gui-libs/gtk:4
 	gui-libs/libadwaita:1
 	media-libs/gst-plugins-bad:1.0
