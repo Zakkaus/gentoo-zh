@@ -20,6 +20,8 @@ KEYWORDS="-* ~amd64 ~arm64"
 
 RESTRICT="strip"
 
+QA_PREBUILT="opt/IPTVnator/*"
+
 RDEPEND="
 	app-accessibility/at-spi2-core:2
 	dev-libs/expat
