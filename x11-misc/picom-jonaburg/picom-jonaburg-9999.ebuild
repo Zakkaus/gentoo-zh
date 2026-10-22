@@ -16,7 +16,7 @@ IUSE="+config-file dbus +doc +drm opengl pcre"
 RDEPEND="dev-libs/libev
 	dev-libs/uthash
 	x11-libs/libX11
-	x11-libs/libxcb
+	x11-libs/libxcb:=
 	x11-libs/libXext
 	x11-libs/pixman
 	x11-libs/xcb-util-image
