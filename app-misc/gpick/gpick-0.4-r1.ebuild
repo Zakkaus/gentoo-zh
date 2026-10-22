@@ -17,6 +17,10 @@ RDEPEND="
 	>=dev-lang/lua-5.2:=
 	dev-libs/boost:=
 	dev-libs/expat
+	dev-libs/glib:2
+	x11-libs/cairo
+	x11-libs/gdk-pixbuf:2
+	x11-libs/pango
 	dev-util/ragel
 	nls? ( sys-devel/gettext )
 	gtk3? ( x11-libs/gtk+:3 )
