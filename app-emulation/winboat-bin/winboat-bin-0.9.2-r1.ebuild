@@ -16,6 +16,8 @@ KEYWORDS="~amd64"
 
 RESTRICT="strip"
 
+QA_PREBUILT="opt/winboat/*"
+
 RDEPEND="
 	app-accessibility/at-spi2-core:2
 	app-containers/docker
