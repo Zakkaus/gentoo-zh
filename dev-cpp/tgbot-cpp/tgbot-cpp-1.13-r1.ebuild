@@ -18,7 +18,7 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	>=dev-cpp/nlohmann_json-3.7.3
 	>=dev-libs/boost-1.65.1
-	>=net-misc/curl-7.58.0:="
+	>=net-misc/curl-7.58.0"
 DEPEND="${RDEPEND}
 	test? ( dev-cpp/gtest )"
 BDEPEND="doc? ( app-text/doxygen[dot] )"
