@@ -170,10 +170,8 @@ BDEPEND="
 	')
 "
 
-QA_PRESTRIPPED="
-	/usr/share/${PN}/${PN}
-	/usr/share/${PN}/libsciter-gtk.so
-"
+QA_PRESTRIPPED="/usr/share/${PN}/${PN}"
+QA_PREBUILT="usr/share/${PN}/libsciter-gtk.so"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.5.0-disable-check-x11.patch
