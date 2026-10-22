@@ -16,6 +16,8 @@ KEYWORDS="-* ~amd64"
 
 RESTRICT="bindist mirror strip"
 
+QA_PREBUILT="usr/bin/Stirling-PDF usr/lib/Stirling*"
+
 RDEPEND="
 	dev-libs/glib:2
 	media-libs/alsa-lib
