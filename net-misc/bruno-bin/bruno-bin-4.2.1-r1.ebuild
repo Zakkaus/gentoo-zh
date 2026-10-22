@@ -43,6 +43,8 @@ RDEPEND="
 
 RESTRICT="strip"
 
+QA_PREBUILT="opt/Bruno/*"
+
 src_install() {
 	insinto /opt/Bruno
 	doins -r "${S}"/opt/Bruno/.
