@@ -19,10 +19,10 @@ RDEPEND="
 	virtual/zlib
 	app-arch/lzma
 	app-arch/xz-utils
-	app-arch/zstd
-	>=dev-libs/icu-76
+	app-arch/zstd:=
+	>=dev-libs/icu-76:=
 	test? ( dev-cpp/gtest )
-	xapian? ( >=dev-libs/xapian-1.4.12 )
+	xapian? ( >=dev-libs/xapian-1.4.12:= )
 "
 
 DEPEND="${RDEPEND}"
