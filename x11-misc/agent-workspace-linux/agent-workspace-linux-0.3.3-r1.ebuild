@@ -64,7 +64,7 @@ RDEPEND="
 	x11-apps/xauth
 	x11-apps/xdpyinfo
 	x11-apps/xprop
-	x11-libs/libxcb
+	x11-libs/libxcb:=
 	x11-libs/libxkbcommon[X]
 	x11-misc/xdotool
 	x11-base/xorg-server[xvfb]
