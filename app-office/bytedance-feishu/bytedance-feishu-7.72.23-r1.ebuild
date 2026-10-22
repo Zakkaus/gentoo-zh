@@ -19,6 +19,8 @@ KEYWORDS="~amd64 ~arm64"
 
 RESTRICT="strip mirror bindist"
 
+QA_PREBUILT="opt/bytedance/feishu/*"
+
 DEPEND="
 	app-misc/ca-certificates
 	dev-libs/nss
