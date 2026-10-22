@@ -218,9 +218,11 @@ RUST_MIN_VER="1.85.0"
 
 RDEPEND="
 	sys-auth/polkit
-	dev-libs/glib
-	gui-libs/gtk
-	>=gui-libs/libadwaita-1.8.2
+	dev-libs/glib:2
+	gui-libs/gtk:4
+	media-libs/graphene
+	x11-libs/cairo
+	>=gui-libs/libadwaita-1.8.2:1
 "
 DEPEND="${RDEPEND}"
 
