@@ -21,11 +21,22 @@ BDEPEND="
 		dev-util/patchelf
 "
 RDEPEND="
+		app-accessibility/at-spi2-core:2
+		app-crypt/libsecret
+		dev-libs/glib:2
 		dev-libs/libayatana-appindicator
+		dev-libs/libdbusmenu
+		media-libs/fontconfig
+		media-libs/harfbuzz
+		media-libs/libepoxy
 		media-video/mpv
 		net-libs/libsoup:3.0
 		net-libs/webkit-gtk:4.1
+		x11-libs/cairo
+		x11-libs/gdk-pixbuf:2
+		x11-libs/gtk+:3
 		x11-libs/libnotify
+		x11-libs/pango
 "
 
 RESTRICT="strip"
