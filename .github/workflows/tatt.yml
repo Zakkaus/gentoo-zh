@@ -29,6 +29,7 @@ jobs:
     outputs:
       targets: ${{ steps.targets.outputs.targets }}
       image: ${{ steps.image.outputs.ref }}
+      webrsync: ${{ steps.webrsync.outputs.labeled }}
 
     steps:
     - name: checkout
@@ -47,6 +48,16 @@ jobs:
       run: |
         targets=$(scripts/tatt-targets.sh "$PR" "$BASE" "$LABELED")
         echo "targets=$targets" >> "$GITHUB_OUTPUT"
+
+    # read when the job runs, so adding the label and re-running all jobs takes effect
+    - name: check the webrsync label
+      id: webrsync
+      env:
+        GH_TOKEN: ${{ github.token }}
+        PR: ${{ github.event.pull_request.number }}
+      run: |
+        labeled=$(gh pr view "$PR" -R "$GITHUB_REPOSITORY" --json labels --jq 'any(.labels[]; .name == "webrsync")')
+        echo "labeled=$labeled" >> "$GITHUB_OUTPUT"
 
     - name: set image name
       id: image
@@ -85,6 +96,8 @@ jobs:
 
     - name: setup portage config
       uses: ./.github/actions/setup-gentoo
+      with:
+        webrsync: ${{ needs.scan.outputs.webrsync }}
 
     - name: setup repo
       run: |
