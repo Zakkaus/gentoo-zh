@@ -17,16 +17,16 @@ IUSE="doc"
 RESTRICT="test"
 
 RDEPEND="
-	virtual/zlib
-	app-arch/zstd
-	media-libs/libjpeg-turbo
-	media-libs/libpng
-	media-libs/openjpeg:2
-	media-libs/tiff
-	dev-libs/glib
+	virtual/zlib:=
+	app-arch/zstd:=
+	media-libs/libjpeg-turbo:=
+	media-libs/libpng:=
+	media-libs/openjpeg:2=
+	media-libs/tiff:=
+	dev-libs/glib:2
 	x11-libs/cairo
 	x11-libs/gdk-pixbuf
-	dev-libs/libxml2
+	dev-libs/libxml2:=
 	dev-db/sqlite:3
 	media-libs/libdicom
 	doc? ( app-text/doxygen )
