@@ -15,6 +15,8 @@ SLOT="0"
 KEYWORDS="~amd64"
 RESTRICT="bindist mirror strip"
 
+QA_PREBUILT="opt/MaixVision/*"
+
 RDEPEND="
 	app-accessibility/at-spi2-core:2
 	app-crypt/libsecret
