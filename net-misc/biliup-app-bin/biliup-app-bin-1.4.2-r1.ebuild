@@ -32,6 +32,8 @@ RDEPEND="
 	x11-libs/pango
 "
 
+QA_PREBUILT="usr/bin/biliup-app"
+
 src_install() {
 	insinto /
 	doins -r .
