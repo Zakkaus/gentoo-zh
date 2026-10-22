@@ -24,8 +24,15 @@ RESTRICT="bindist mirror"
 QA_PRESTRIPPED="usr/share/harmonoid/lib/libapp.so"
 
 DEPEND="
-	app-accessibility/at-spi2-core
+	app-accessibility/at-spi2-core:2
+	dev-libs/glib:2
+	media-libs/fontconfig
+	media-libs/harfbuzz
+	media-libs/libepoxy
+	x11-libs/cairo
+	x11-libs/gdk-pixbuf:2
 	x11-libs/gtk+:3
+	x11-libs/pango
 "
 RDEPEND="${DEPEND}"
 
