@@ -71,7 +71,7 @@ REQUIRED_USE="
 
 CDEPEND="
 	!sci-ml/ggml
-	dev-libs/openssl
+	dev-libs/openssl:=
 	openmp? ( llvm-runtimes/openmp:= )
 	openblas? ( sci-libs/openblas )
 	blis? ( sci-libs/blis:= )
