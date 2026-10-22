@@ -22,7 +22,7 @@ IUSE="
 DEPEND="
 	acct-user/n2n
 	acct-group/n2n
-	openssl? ( dev-libs/openssl )
+	openssl? ( dev-libs/openssl:= )
 	caps? ( sys-libs/libcap )
 	pcap? ( net-libs/libpcap )
 	zstd? ( app-arch/zstd )
