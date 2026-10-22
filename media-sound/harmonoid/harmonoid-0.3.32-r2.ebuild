@@ -21,7 +21,7 @@ SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 RESTRICT="bindist mirror"
 
-QA_PRESTRIPPED="usr/share/harmonoid/lib/libapp.so"
+QA_PREBUILT="usr/share/harmonoid/*"
 
 DEPEND="
 	app-accessibility/at-spi2-core:2
