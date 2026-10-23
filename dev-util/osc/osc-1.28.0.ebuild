@@ -11,7 +11,7 @@ DESCRIPTION="The Command Line Interface to work with an Open Build Service"
 HOMEPAGE="https://github.com/openSUSE/osc"
 SRC_URI="https://github.com/openSUSE/osc/archive/refs/tags/${PV}.tar.gz -> ${P}.tar.gz"
 
-LICENSE="GPL-2"
+LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 
