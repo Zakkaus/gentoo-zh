@@ -8,7 +8,7 @@ DESCRIPTION="A Layer Two Peer-to-Peer VPN"
 inherit autotools git-r3 systemd
 
 HOMEPAGE="https://github.com/ntop/n2n"
-LICENSE="GPL-3"
+LICENSE="GPL-3+"
 SLOT="0"
 IUSE="
 	+openssl
