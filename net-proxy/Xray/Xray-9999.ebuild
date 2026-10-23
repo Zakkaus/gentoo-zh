@@ -17,7 +17,7 @@ KEYWORDS=""
 DEPEND="app-alternatives/v2ray-geoip
 	app-alternatives/v2ray-geosite"
 RDEPEND="${DEPEND}"
-BDEPEND=">=dev-lang/go-1.26.0"
+BDEPEND=">=dev-lang/go-1.27.0"
 
 src_unpack() {
 	git-r3_src_unpack
@@ -29,7 +29,7 @@ src_unpack() {
 
 src_compile() {
 	ego build -mod vendor -o xray -gcflags="all=-l=4" \
-		-ldflags "-X github.com/XTLS/Xray-core/core.build=${PV}" ./main
+		-ldflags "-X github.com/xtls/xray-core/core.build=${PV}" ./main
 }
 
 src_install() {
