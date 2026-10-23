@@ -81,6 +81,8 @@ RDEPEND="
 	x11-misc/xdg-utils
 "
 
+QA_PREBUILT="opt/QQ/*"
+
 src_unpack() {
 	:
 }
