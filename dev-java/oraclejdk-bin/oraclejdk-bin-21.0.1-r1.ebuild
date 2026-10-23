@@ -24,6 +24,7 @@ RDEPEND="(
 	media-libs/fontconfig:1.0
 	media-libs/freetype:2
 	media-libs/harfbuzz
+	virtual/zlib
 	!headless-awt? (
 		x11-libs/libX11
 		x11-libs/libXext
