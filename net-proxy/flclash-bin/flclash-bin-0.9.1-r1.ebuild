@@ -20,12 +20,25 @@ KEYWORDS="-* ~amd64 ~arm64"
 BDEPEND="dev-util/patchelf"
 
 RDEPEND="
+	app-accessibility/at-spi2-core:2
+	dev-libs/ayatana-ido
+	dev-libs/glib:2
 	dev-libs/libayatana-appindicator
+	dev-libs/libayatana-indicator:3
+	dev-libs/libdbusmenu
+	media-libs/harfbuzz
+	media-libs/libepoxy
 	sys-auth/polkit
 	x11-apps/xmessage
+	x11-libs/cairo
+	x11-libs/gdk-pixbuf:2
+	x11-libs/gtk+:3
 	x11-libs/libX11
 	x11-libs/libXmu
+	x11-libs/pango
 	virtual/jdk
+	amd64? ( media-libs/fontconfig )
+	arm64? ( virtual/zlib )
 "
 
 QA_PRESTRIPPED="
