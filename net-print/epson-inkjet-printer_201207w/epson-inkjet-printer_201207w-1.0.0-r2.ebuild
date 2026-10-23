@@ -36,6 +36,7 @@ PATCHES=( "${FILESDIR}/${P}-modern-c.patch" )
 
 src_prepare() {
 	default
+	sed -i "s/ -ljpeg//" configure.ac || die
 	eautoreconf
 	chmod +x configure
 }
