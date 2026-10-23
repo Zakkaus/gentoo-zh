@@ -11,7 +11,7 @@ SRC_URI="
 "
 S="${WORKDIR}"
 
-LICENSE="MIT vim"
+LICENSE="MIT vim OPL"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 RESTRICT="strip"
