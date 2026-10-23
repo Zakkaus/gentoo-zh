@@ -12,6 +12,8 @@ LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64"
 
+RDEPEND="virtual/zlib"
+
 QA_PREBUILT="usr/bin/zprint"
 
 src_install() {
