@@ -16,6 +16,8 @@ KEYWORDS="~amd64"
 IUSE="+appindicator libnotify"
 RESTRICT="bindist mirror strip"
 
+QA_PREBUILT="opt/unityhub/*"
+
 RDEPEND="
 	appindicator? (
 		dev-libs/libdbusmenu
