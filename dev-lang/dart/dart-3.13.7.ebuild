@@ -41,6 +41,8 @@ BDEPEND="
 	)
 "
 
+QA_FLAGS_IGNORED="usr/lib/dart/bin/snapshots/.*\.snapshot"
+
 PATCHES=(
 	"${FILESDIR}/${PN}-3.10.2-fix_toolchain_prefix.patch"
 	"${FILESDIR}/${PN}-3.10.2-use_system_clang.patch"
