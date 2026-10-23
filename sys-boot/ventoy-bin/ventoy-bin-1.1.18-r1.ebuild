@@ -25,7 +25,14 @@ DEPEND="
 "
 RDEPEND="
 	${DEPEND}
-	gtk? ( x11-libs/gtk+:3 )
+	gtk? (
+		app-accessibility/at-spi2-core:2
+		dev-libs/glib:2
+		x11-libs/cairo
+		x11-libs/gdk-pixbuf:2
+		x11-libs/gtk+:3
+		x11-libs/pango
+	)
 "
 
 QA_PREBUILT="*"
