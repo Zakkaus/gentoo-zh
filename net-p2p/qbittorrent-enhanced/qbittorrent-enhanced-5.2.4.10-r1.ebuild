@@ -13,7 +13,7 @@ HOMEPAGE="https://github.com/c0re100/qBittorrent-Enhanced-Edition"
 SRC_URI="https://github.com/c0re100/qBittorrent-Enhanced-Edition/archive/release-${PV}.tar.gz -> ${P}.tar.gz"
 S="${WORKDIR}/qBittorrent-Enhanced-Edition-release-${PV}"
 
-LICENSE="GPL-2"
+LICENSE="GPL-2+-with-openssl-exception GPL-3+-with-openssl-exception"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64 ~x86"
 IUSE="+dbus webui +gui"
