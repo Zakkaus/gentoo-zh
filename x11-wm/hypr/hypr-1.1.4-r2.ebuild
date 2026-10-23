@@ -15,6 +15,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm64"
 
 RDEPEND="
+	dev-cpp/glibmm:2
 	dev-cpp/gtkmm:3.0
 	dev-libs/glib:2
 	media-libs/harfbuzz:=
