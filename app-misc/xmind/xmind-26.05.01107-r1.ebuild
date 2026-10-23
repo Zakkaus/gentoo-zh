@@ -18,7 +18,7 @@ RESTRICT="bindist mirror strip"
 
 QA_PREBUILT="opt/Xmind/*"
 
-DEPEND="
+RDEPEND="
 	app-accessibility/at-spi2-core:2
 	dev-libs/expat
 	dev-libs/glib:2
@@ -42,7 +42,6 @@ DEPEND="
 	x11-libs/libXrandr
 	x11-libs/pango
 "
-RDEPEND="${DEPEND}"
 
 src_install() {
 	insinto /opt
