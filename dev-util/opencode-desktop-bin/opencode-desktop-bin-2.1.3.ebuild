@@ -17,7 +17,7 @@ S="${WORKDIR}"
 LICENSE="0BSD Apache-2.0 BSD BSD-2 BlueOak-1.0.0 ISC LGPL-2.1+ MIT MPL-2.0 PSF-2"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
-RESTRICT="bindist mirror strip"
+RESTRICT="strip"
 
 RDEPEND="
 	app-accessibility/at-spi2-core:2
