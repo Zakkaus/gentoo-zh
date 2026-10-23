@@ -20,6 +20,11 @@ KEYWORDS="-* ~amd64 ~arm64"
 
 RESTRICT="strip"
 
+RDEPEND="
+	dev-libs/gmp
+	virtual/zlib
+"
+
 src_install() {
 	dobin "${S}/bin/koka"
 	insinto /usr/lib/koka/v${PV}
