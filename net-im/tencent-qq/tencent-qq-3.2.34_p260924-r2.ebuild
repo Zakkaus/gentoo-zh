@@ -41,7 +41,6 @@ RDEPEND="
 	dev-libs/expat
 	dev-libs/glib:2
 	dev-libs/gmp
-	dev-libs/libgcrypt
 	dev-libs/nettle
 	dev-libs/nspr
 	dev-libs/nss
@@ -57,6 +56,7 @@ RDEPEND="
 	sys-apps/dbus
 	sys-apps/keyutils
 	system-fdk-aac? ( media-libs/fdk-aac )
+	!system-libssh2? ( dev-libs/libgcrypt )
 	system-libssh2? ( net-libs/libssh2 )
 	system-openh264? ( media-libs/openh264 )
 	system-zlib? ( virtual/zlib )
