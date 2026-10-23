@@ -18,6 +18,8 @@ KEYWORDS="-* ~amd64"
 
 RESTRICT="bindist mirror strip"
 
+QA_PREBUILT="opt/Z-Library/*"
+
 RDEPEND="
 	app-accessibility/at-spi2-core:2
 	dev-libs/expat
