@@ -20,7 +20,11 @@ IUSE="+qt6"
 RDEPEND="
 	>=app-i18n/fcitx-5.1.22:5
 	app-i18n/libkkc
-	qt6? ( app-i18n/fcitx-qt:5[qt6(+)] )
+	dev-libs/glib:2
+	qt6? (
+		app-i18n/fcitx-qt:5[qt6(+)]
+		dev-qt/qtbase:6[gui,widgets]
+	)
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
