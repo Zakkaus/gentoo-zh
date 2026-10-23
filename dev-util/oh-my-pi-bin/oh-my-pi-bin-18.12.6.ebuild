@@ -33,7 +33,7 @@ REQUIRED_USE="
 		cpu_flags_x86_sse4_2 cpu_flags_x86_ssse3
 	)
 "
-RESTRICT="bindist mirror strip"
+RESTRICT="strip"
 
 RDEPEND="
 	dev-vcs/git
