@@ -48,6 +48,12 @@ QA_PRESTRIPPED="
 	/opt/FlClash/lib/libflutter_linux_gtk.so
 "
 
+QA_PREBUILT="
+	opt/FlClash/FlClash
+	opt/FlClash/FlClashHelperService
+	opt/FlClash/lib/*
+"
+
 src_prepare() {
 	default
 
