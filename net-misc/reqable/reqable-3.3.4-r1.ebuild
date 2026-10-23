@@ -16,11 +16,19 @@ SLOT="0"
 KEYWORDS="~amd64"
 
 RDEPEND="
+	app-accessibility/at-spi2-core:2
 	app-arch/lz4
+	dev-libs/glib:2
 	dev-libs/libdbusmenu[gtk3]
 	dev-libs/nspr
 	dev-libs/nss
+	media-libs/fontconfig
+	media-libs/harfbuzz
+	media-libs/libepoxy
+	x11-libs/cairo
+	x11-libs/gdk-pixbuf:2
 	x11-libs/gtk+:3
+	x11-libs/pango
 "
 
 RESTRICT="strip mirror bindist"
