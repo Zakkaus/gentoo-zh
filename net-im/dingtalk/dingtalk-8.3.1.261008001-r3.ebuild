@@ -26,7 +26,6 @@ RDEPEND="
 	app-accessibility/at-spi2-core:2
 	dev-libs/expat
 	dev-libs/glib:2
-	dev-libs/libgcrypt
 	dev-libs/nspr
 	dev-libs/nss
 	dev-libs/wayland
@@ -62,15 +61,12 @@ RDEPEND="
 	x11-libs/libXau
 	x11-libs/libxcb
 	x11-libs/libXcomposite
-	x11-libs/libXcursor
 	x11-libs/libXdamage
 	x11-libs/libXdmcp
 	x11-libs/libXext
 	x11-libs/libXfixes
-	x11-libs/libXi
 	x11-libs/libXinerama
 	x11-libs/libXrandr
-	x11-libs/libXrender
 	x11-libs/libXScrnSaver
 	x11-libs/libXtst
 	x11-libs/libxkbcommon[X]
@@ -84,6 +80,7 @@ RDEPEND="
 		media-libs/gst-plugins-bad:1.0
 		media-libs/gst-plugins-base:1.0[opengl]
 		media-libs/gstreamer:1.0
+		x11-libs/libXrender
 	)
 "
 
@@ -117,6 +114,8 @@ src_install() {
 	rm -f "${dingtalk_dir}"/libcurl.so* || die
 	# use system freetype, fix undefined symbol: FT_Get_Color_Glyph_Layer
 	rm -rf "${dingtalk_dir}"/libfreetype.so* || die
+	# Unused: libcurl is removed above and libgtk-x11-2.0 is not shipped.
+	rm -f "${dingtalk_dir}"/libssh2.so* "${dingtalk_dir}"/libgdk-x11-2.0.so* || die
 	# Drop the obsolete diagnostic tool chain that requires removed PangoX libs.
 	rm -rf "${dingtalk_dir}"/doctor \
 		"${dingtalk_dir}"/doctor_config \
