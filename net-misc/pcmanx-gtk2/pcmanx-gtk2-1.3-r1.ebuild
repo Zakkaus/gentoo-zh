@@ -9,7 +9,7 @@ DESCRIPTION="PCMan is a gtk+ based free BBS client"
 HOMEPAGE="https://github.com/pcman-bbs/pcmanx"
 SRC_URI="https://github.com/pcman-bbs/pcmanx/releases/download/${PV}/${P}.tar.xz"
 
-LICENSE="GPL-2"
+LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
 IUSE="+libnotify +proxy iplookup +wget"
