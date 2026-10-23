@@ -29,7 +29,6 @@ RDEPEND="
 	media-libs/libpulse
 	media-libs/mesa[gbm(+)]
 	media-video/pipewire
-	sys-apps/kmod
 	sys-fs/fuse:0
 	virtual/libudev
 	virtual/zlib
