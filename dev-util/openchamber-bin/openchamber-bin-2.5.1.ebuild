@@ -68,6 +68,7 @@ QA_PREBUILT="
 	opt/${PN}/lib*.so*
 	opt/${PN}/${MY_PN}
 	opt/${PN}/resources/opencode-cli/opencode
+	opt/${PN}/resources/ripgrep/rg
 	opt/${PN}/resources/app.asar.unpacked/node_modules/sherpa-onnx-linux-*/*.so
 	opt/${PN}/resources/app.asar.unpacked/node_modules/sherpa-onnx-linux-*/sherpa-onnx.node
 	opt/${PN}/resources/app.asar.unpacked/node_modules/node-pty/build/Release/pty.node
