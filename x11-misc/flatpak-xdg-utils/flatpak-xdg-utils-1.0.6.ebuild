@@ -9,7 +9,7 @@ DESCRIPTION="Utilities for containerized apps to launch programs outside the con
 HOMEPAGE="https://github.com/flatpak/flatpak-xdg-utils"
 SRC_URI="https://github.com/flatpak/flatpak-xdg-utils/releases/download/${PV}/flatpak-xdg-utils-${PV}.tar.xz"
 
-LICENSE="LGPL-2.1"
+LICENSE="LGPL-2.1+"
 SLOT="0"
 RDEPEND="dev-libs/glib:2"
 DEPEND="${RDEPEND}"
