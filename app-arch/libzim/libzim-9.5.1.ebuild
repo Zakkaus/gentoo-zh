@@ -9,7 +9,7 @@ DESCRIPTION="ZIM file format: an offline storage solution for content coming fro
 HOMEPAGE="https://wiki.openzim.org/wiki/OpenZIM"
 SRC_URI="https://github.com/openzim/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
 
-LICENSE="GPL-2"
+LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="doc examples +xapian static-libs test"
