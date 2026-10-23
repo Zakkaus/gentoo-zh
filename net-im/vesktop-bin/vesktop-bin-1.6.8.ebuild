@@ -19,7 +19,7 @@ SRC_URI="
 "
 S="${WORKDIR}"
 
-LICENSE="GPL-3"
+LICENSE="GPL-3+"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 IUSE="+seccomp wayland"
