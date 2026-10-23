@@ -11,7 +11,7 @@ DESCRIPTION="an ad-hoc single file webserver"
 HOMEPAGE="https://www.home.unix-ag.org/simon/woof.html https://github.com/simon-budig/woof"
 EGIT_REPO_URI="https://github.com/simon-budig/${PN}.git"
 
-LICENSE="GPL-2"
+LICENSE="GPL-2+"
 SLOT="0"
 #KEYWORDS="~amd64 ~x86"
 
