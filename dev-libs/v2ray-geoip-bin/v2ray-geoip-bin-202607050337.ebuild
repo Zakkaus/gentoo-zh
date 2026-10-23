@@ -9,7 +9,7 @@ SRC_URI="https://github.com/v2fly/geoip/releases/download/${PV}/geoip.dat -> ${P
 
 S="${WORKDIR}"
 
-LICENSE="CC-BY-SA-4.0"
+LICENSE="CC-BY-SA-4.0 CC-BY-4.0"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~arm64 ~loong ~riscv ~x86"
 
