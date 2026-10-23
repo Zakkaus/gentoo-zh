@@ -5,7 +5,7 @@ EAPI=8
 
 ROCM_VERSION="6.3"
 
-inherit cmake cuda rocm linux-info
+inherit cmake cuda rocm linux-info toolchain-funcs
 
 TINY_LLAMAS_COMMIT="99dd1a73db5a37100bd4ae633f4cfce6560e1567"
 
@@ -72,7 +72,10 @@ REQUIRED_USE="
 CDEPEND="
 	!sci-ml/ggml
 	dev-libs/openssl:=
-	openmp? ( llvm-runtimes/openmp:= )
+	openmp? ( || (
+		sys-devel/gcc:*[openmp]
+		llvm-runtimes/openmp
+	) )
 	openblas? ( sci-libs/openblas )
 	blis? ( sci-libs/blis:= )
 	flexiblas? ( sci-libs/flexiblas )
@@ -96,6 +99,8 @@ BDEPEND="
 "
 
 pkg_setup() {
+	[[ ${MERGE_TYPE} != binary ]] && use openmp && tc-check-openmp
+
 	if use rocm; then
 		linux-info_pkg_setup
 		if linux-info_get_any_version && linux_config_exists; then
