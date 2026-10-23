@@ -25,6 +25,7 @@ RDEPEND="dev-vcs/git"
 RDEPEND+=" !app-admin/chezmoi"
 
 QA_PRESTRIPPED="/usr/bin/chezmoi"
+QA_PREBUILT="usr/bin/chezmoi"
 
 src_install() {
 	dobin usr/bin/chezmoi
