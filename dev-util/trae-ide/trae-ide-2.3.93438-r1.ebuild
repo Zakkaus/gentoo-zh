@@ -29,15 +29,18 @@ RDEPEND="
 	app-crypt/libsecret
 	dev-libs/expat
 	dev-libs/glib
+	dev-libs/libgcrypt
 	dev-libs/nspr
 	dev-libs/nss
 	media-libs/alsa-lib
 	media-libs/mesa
+	net-libs/gnutls
 	net-libs/libsoup:3.0
 	net-libs/webkit-gtk:4.1
 	net-print/cups
 	sys-apps/dbus
 	sys-apps/util-linux
+	virtual/libudev
 	x11-libs/cairo
 	x11-libs/gdk-pixbuf:2
 	x11-libs/gtk+:3[X]
