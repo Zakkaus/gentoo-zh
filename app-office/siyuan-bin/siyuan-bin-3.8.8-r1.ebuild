@@ -35,6 +35,7 @@ RDEPEND="
 	media-libs/mesa[gbm(+)]
 	net-print/cups
 	sys-apps/dbus
+	virtual/libudev
 	x11-libs/cairo
 	x11-libs/gtk+:3
 	x11-libs/libdrm
