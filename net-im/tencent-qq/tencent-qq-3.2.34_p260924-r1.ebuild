@@ -38,28 +38,46 @@ RDEPEND="
 		sys-apps/bubblewrap
 		x11-misc/flatpak-xdg-utils
 	)
+	dev-libs/expat
+	dev-libs/glib:2
+	dev-libs/gmp
+	dev-libs/libgcrypt
+	dev-libs/nettle
+	dev-libs/nspr
 	dev-libs/nss
 	gnome? ( dev-libs/gjs )
 	loong? ( virtual/loong-ow-compat )
 	media-libs/alsa-lib
+	media-libs/libglvnd
 	media-libs/libpulse
 	media-libs/mesa
 	media-libs/openslide
+	net-libs/gnutls
 	net-print/cups[-openssl]
+	sys-apps/dbus
 	sys-apps/keyutils
+	sys-apps/util-linux
 	system-fdk-aac? ( media-libs/fdk-aac )
 	system-libssh2? ( net-libs/libssh2 )
 	system-openh264? ( media-libs/openh264 )
 	system-zlib? ( virtual/zlib )
 	virtual/krb5
+	virtual/libudev
+	x11-libs/cairo
 	x11-libs/gtk+:3
+	x11-libs/libX11
+	x11-libs/libXext
+	x11-libs/libXfixes
+	x11-libs/libXrandr
 	x11-libs/libnotify
 	x11-libs/libXdamage
 	x11-libs/libXcomposite
 	x11-libs/libXft
 	x11-libs/libXScrnSaver
 	x11-libs/libXtst
+	x11-libs/libxcb
 	x11-libs/libxkbcommon
+	x11-libs/pango
 	x11-misc/xdg-utils
 "
 
