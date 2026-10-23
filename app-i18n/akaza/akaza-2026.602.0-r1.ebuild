@@ -27,6 +27,7 @@ KEYWORDS="~amd64 ~arm64"
 
 DEPEND="
 	app-i18n/ibus
+	dev-libs/glib:2
 	gui-libs/gtk:4
 "
 RDEPEND="${DEPEND}"
