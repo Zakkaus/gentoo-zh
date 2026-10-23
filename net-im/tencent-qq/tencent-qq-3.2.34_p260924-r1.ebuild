@@ -56,7 +56,6 @@ RDEPEND="
 	net-print/cups[-openssl]
 	sys-apps/dbus
 	sys-apps/keyutils
-	sys-apps/util-linux
 	system-fdk-aac? ( media-libs/fdk-aac )
 	system-libssh2? ( net-libs/libssh2 )
 	system-openh264? ( media-libs/openh264 )
