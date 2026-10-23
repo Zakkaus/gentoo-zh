@@ -25,6 +25,8 @@ SLOT="0"
 
 RDEPEND="
 	dev-qt/qtbase:6
+	kde-frameworks/kcoreaddons:6
+	kde-frameworks/ki18n:6
 	>=kde-plasma/kdeplasma-addons-6.7:6
 "
 DEPEND="${RDEPEND}"
