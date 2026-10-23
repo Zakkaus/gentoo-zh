@@ -25,7 +25,6 @@ RDEPEND="
 	systemd? ( sys-apps/systemd	)
 	!systemd? ( sys-auth/elogind )
 	media-libs/libglvnd
-	media-libs/libpng
 	media-libs/libpulse
 	media-libs/mesa[gbm(+)]
 	media-video/pipewire
