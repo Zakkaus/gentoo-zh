@@ -10,7 +10,7 @@ HOMEPAGE="https://github.com/visit1985/mdp"
 
 EGIT_REPO_URI="https://github.com/visit1985/mdp.git"
 
-LICENSE="GPL-3"
+LICENSE="GPL-3+"
 SLOT="0"
 
 RDEPEND="sys-libs/ncurses:="
