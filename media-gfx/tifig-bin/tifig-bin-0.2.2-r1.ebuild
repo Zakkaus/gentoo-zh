@@ -13,6 +13,8 @@ SLOT="0"
 KEYWORDS="~amd64"
 RESTRICT="bindist mirror strip"
 
+QA_PREBUILT="usr/bin/tifig"
+
 src_install(){
 	dobin ${PN%-bin}
 	fperms 0755 "/usr/bin/${PN%-bin}"
