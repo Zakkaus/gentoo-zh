@@ -22,7 +22,6 @@ RDEPEND="
 	x11-libs/gtk+:3[wayland]
 	virtual/glu
 	dev-util/desktop-file-utils
-	x11-libs/libXtst
 	dev-libs/glib:2
 	media-libs/fontconfig
 	media-libs/libglvnd
@@ -34,6 +33,7 @@ RDEPEND="
 	powderplot? (
 		virtual/jdk
 		x11-libs/gtk+:2
+		x11-libs/libXtst
 	)
 	${DEPEND}"
 
