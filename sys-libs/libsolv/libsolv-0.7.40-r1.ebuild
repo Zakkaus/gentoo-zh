@@ -26,9 +26,6 @@ IUSE="static perl python ruby tcl rpm pubkey suse comps helix debian mdk arch cu
 RDEPEND="
 	virtual/zlib:=
 	bzip2? ( app-arch/bzip2:= )
-	lzma? ( app-arch/xz-utils )
-	arch? ( app-arch/xz-utils )
-	debian? ( app-arch/xz-utils )
 	zstd? ( app-arch/zstd:= )
 	zchunk? (
 		app-arch/zchunk
