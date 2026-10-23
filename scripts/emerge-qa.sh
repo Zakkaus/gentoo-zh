@@ -11,6 +11,9 @@ REPORT=elog-report
 # mark LDFLAGS with the symbol Portage checks for in every ELF file
 before() {
     FEATURES=getbinpkg emerge --oneshot --quiet app-portage/iwdevtools
+    # ebuilds do not declare @system members, so qa-vdb must not ask for them
+    python3 -I -c 'import portage; print(*sorted({portage.dep.Atom(a.lstrip("*")).cp for a in portage.settings.packages}), sep="\n")' \
+        >> /etc/iwdevtools/qa-vdb.exclude
     cat >> /etc/portage/bashrc << 'EOF'
 QA_VDB_ARGS="--no-color --no-extra"
 source /usr/share/iwdevtools/qa-vdb.bashrc
