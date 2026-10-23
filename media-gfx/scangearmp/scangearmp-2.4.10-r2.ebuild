@@ -20,8 +20,11 @@ LICENSE="GPL-2 Canon-IJ"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 
-DEPEND=">=x11-libs/gtk+-2.16:2
-virtual/libusb:1"
+DEPEND="
+	dev-libs/glib:2
+	>=x11-libs/gtk+-2.16:2
+	virtual/libusb:1
+"
 RDEPEND="${DEPEND}"
 
 QA_PREBUILT="
@@ -55,7 +58,7 @@ src_prepare()
 src_compile()
 {
 	SHIPPED_LIBS="${WORKDIR}/${MY_P}/com/libs_bin$(usex amd64 64 32)"
-	emake LDFLAGS="-L${SHIPPED_LIBS}"
+	emake LDFLAGS="${LDFLAGS} -L${SHIPPED_LIBS}"
 }
 
 src_install()
