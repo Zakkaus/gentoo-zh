@@ -16,6 +16,8 @@ SLOT="0"
 KEYWORDS="-* ~amd64"
 RESTRICT="bindist mirror strip"
 
+QA_PREBUILT="opt/Xmind/*"
+
 DEPEND="
 	app-accessibility/at-spi2-core:2
 	dev-libs/expat
