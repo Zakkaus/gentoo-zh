@@ -18,7 +18,10 @@ REQUIRED_USE="doc? ( introspection )"
 
 RESTRICT="!test? ( test )"
 
-RDEPEND=">=dev-python/pygobject-2.11.5"
+RDEPEND="
+	dev-libs/glib:2
+	>=dev-python/pygobject-2.11.5
+"
 
 DEPEND="${RDEPEND}
 	dev-util/gdbus-codegen
