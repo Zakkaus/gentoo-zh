@@ -15,7 +15,7 @@ LICENSE="MIT"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 IUSE="+system-fd"
-RESTRICT="bindist strip"
+RESTRICT="strip"
 
 RDEPEND="
 	x11-libs/libxcb
