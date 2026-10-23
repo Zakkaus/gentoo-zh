@@ -10,7 +10,7 @@ inherit distutils-r1 desktop pypi
 DESCRIPTION="A user-friendly and hackable music player"
 HOMEPAGE="https://github.com/feeluown/FeelUOwn"
 
-LICENSE="GPL-3"
+LICENSE="GPL-3+"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="+netease +qqmusic +ytmusic +bilibili +cookies qt6 webengine"
