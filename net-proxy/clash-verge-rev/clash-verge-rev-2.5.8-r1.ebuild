@@ -57,10 +57,16 @@ KEYWORDS="~amd64 ~arm64"
 
 COMMON_DEPEND="
 	!net-proxy/clash-verge-rev-bin
+	dev-libs/glib:2
 	dev-libs/openssl:0/3
 	gnome-base/librsvg:2
+	net-libs/libsoup:3.0
 	net-proxy/mihomo
 	net-libs/webkit-gtk:4.1
+	sys-apps/dbus
+	x11-libs/cairo
+	x11-libs/gdk-pixbuf:2
+	x11-libs/gtk+:3
 "
 RDEPEND="
 	${COMMON_DEPEND}
