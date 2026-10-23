@@ -22,8 +22,16 @@ KEYWORDS="-* ~amd64 ~arm64"
 RESTRICT="bindist mirror strip"
 
 RDEPEND="
+	dev-libs/glib:2
+	media-libs/fontconfig
+	net-libs/libsoup:3.0
 	net-libs/webkit-gtk:4.1
+	sys-apps/dbus
+	virtual/zlib
+	x11-libs/cairo
+	x11-libs/gdk-pixbuf:2
 	x11-libs/gtk+:3
+	x11-libs/pango
 "
 
 src_install() {
