@@ -31,7 +31,15 @@ DEPEND="
 	dev-libs/openssl:0/3
 "
 
-RDEPEND="${DEPEND}"
+RDEPEND="
+	${DEPEND}
+	dev-libs/glib:2
+	net-libs/libsoup:3.0
+	sys-apps/dbus
+	x11-libs/cairo
+	x11-libs/gdk-pixbuf:2
+	x11-libs/gtk+:3
+"
 
 RESTRICT="strip"
 
