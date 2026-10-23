@@ -33,7 +33,7 @@ RDEPEND="
 	media-libs/libepoxy
 	net-libs/libsoup:3.0
 	virtual/zlib
-	x11-libs/cairo
+	x11-libs/cairo[glib]
 	x11-libs/gdk-pixbuf:2
 	x11-libs/gtk+:3
 	x11-libs/pango
