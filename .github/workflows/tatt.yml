@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - master
+      - ci-test-base
     types: [opened, reopened, synchronize, labeled]
     paths-ignore:
       - '.github/**'
