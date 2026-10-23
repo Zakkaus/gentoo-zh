@@ -23,6 +23,7 @@ KEYWORDS="-* ~amd64"
 RESTRICT="strip"
 
 RDEPEND="
+	app-arch/xz-utils
 	dev-libs/glib:2
 	dev-libs/libayatana-appindicator
 	dev-libs/wayland
