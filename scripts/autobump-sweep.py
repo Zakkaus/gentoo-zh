@@ -484,12 +484,17 @@ def evidence_file_excerpt(path):
     return "\n".join(kept), len(kept), len(lines)
 
 
+# Every file of both unpacked trees, tens of thousands of lines that name no failure;
+# tree-added.txt and tree-removed.txt carry what changed between them.
+TREE_LISTINGS = {"tree-new.txt", "tree-old.txt"}
+
+
 def evidence_excerpt(evidence):
     # Every file the engine wrote, not a summary of them: the reason line says what tripped,
     # these say what the tools actually printed. Long files are cut, never paraphrased, and
     # the run artifact holds them whole.
     try:
-        paths = sorted(path for path in evidence.iterdir() if path.is_file())
+        paths = sorted(path for path in evidence.iterdir() if path.is_file() and path.name not in TREE_LISTINGS)
     except OSError:
         return ""
     # the reason first, then the diffs and scan results, then the logs: a log is the bulkiest
