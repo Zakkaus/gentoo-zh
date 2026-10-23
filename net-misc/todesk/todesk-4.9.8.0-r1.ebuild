@@ -17,13 +17,38 @@ IUSE="systemd"
 RESTRICT="strip mirror bindist"
 
 RDEPEND="
+	dev-libs/glib:2
 	dev-libs/nspr
 	dev-libs/nss
 	systemd? ( sys-apps/systemd	)
 	!systemd? ( sys-auth/elogind )
+	media-libs/libglvnd
+	media-libs/libpng
 	media-libs/libpulse
+	media-libs/mesa[gbm(+)]
 	media-video/pipewire
+	sys-apps/kmod
 	sys-fs/fuse:0
+	virtual/libudev
+	virtual/zlib
+	x11-libs/cairo
+	x11-libs/gdk-pixbuf:2
+	x11-libs/gtk+:3
+	x11-libs/libdrm
+	x11-libs/libX11
+	x11-libs/libxcb
+	x11-libs/libXcomposite
+	x11-libs/libXdamage
+	x11-libs/libXext
+	x11-libs/libXfixes
+	x11-libs/libXi
+	x11-libs/libXrandr
+	x11-libs/libXtst
+	x11-libs/libXxf86vm
+	x11-libs/pango
+	x11-libs/xcb-util
+	x11-libs/xcb-util-keysyms
+	x11-libs/xcb-util-wm
 "
 BDEPEND="dev-util/patchelf"
 
