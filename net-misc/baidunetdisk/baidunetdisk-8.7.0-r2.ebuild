@@ -21,8 +21,8 @@ RESTRICT="strip mirror bindist"
 RDEPEND="
 	app-accessibility/at-spi2-core:2
 	app-crypt/p11-kit
-	dev-cpp/atkmm
-	dev-cpp/cairomm
+	dev-cpp/atkmm:0
+	dev-cpp/cairomm:0
 	dev-cpp/glibmm:2
 	dev-cpp/gtkmm:2.4
 	dev-cpp/pangomm:1.4
