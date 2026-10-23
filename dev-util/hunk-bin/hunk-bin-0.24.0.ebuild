@@ -48,7 +48,7 @@ REQUIRED_USE="
 
 RDEPEND=">=sys-libs/glibc-2.17"
 
-RESTRICT="bindist mirror strip"
+RESTRICT="strip"
 QA_PREBUILT="usr/libexec/${MY_PN}/${MY_PN}"
 
 src_install() {
