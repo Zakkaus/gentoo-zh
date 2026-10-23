@@ -26,14 +26,17 @@ RDEPEND="
 	app-arch/brotli
 	app-arch/xz-utils
 	dev-libs/glib:2
+	dev-libs/wayland
 	media-libs/fontconfig
 	media-libs/freetype:2
 	media-libs/libglvnd
 	media-libs/libpulse
+	net-libs/libpsl
 	net-print/cups
 	sys-apps/dbus
 	sys-apps/util-linux
 	virtual/zlib
+	x11-libs/gdk-pixbuf:2
 	x11-libs/gtk+:3
 	x11-libs/libICE
 	x11-libs/libSM
