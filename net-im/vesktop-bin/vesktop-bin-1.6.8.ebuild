@@ -23,7 +23,7 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 IUSE="+seccomp wayland"
-RESTRICT="bindist mirror strip"
+RESTRICT="strip"
 
 RDEPEND="
 	>=app-accessibility/at-spi2-core-2.46.0:2
