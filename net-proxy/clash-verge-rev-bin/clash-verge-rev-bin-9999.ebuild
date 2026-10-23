@@ -43,6 +43,8 @@ RDEPEND="
 
 RESTRICT="strip"
 
+QA_PREBUILT="opt/clash-verge/bin/*"
+
 src_unpack() {
 	if [[ ${PV} == 9999 ]]; then
 		local arch_suffix
