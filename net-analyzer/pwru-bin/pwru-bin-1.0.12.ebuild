@@ -13,7 +13,7 @@ SRC_URI="
 "
 S="${WORKDIR}"
 
-LICENSE="Apache-2.0"
+LICENSE="Apache-2.0 || ( GPL-2 BSD-2 )"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 MINKV="5.18"
