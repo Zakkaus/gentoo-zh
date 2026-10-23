@@ -20,20 +20,18 @@ QA_PREBUILT="usr/bin/Stirling-PDF usr/lib/Stirling*"
 
 RDEPEND="
 	dev-libs/glib:2
-	media-libs/alsa-lib
 	net-libs/libsoup:3.0
 	net-libs/webkit-gtk:4.1
 	x11-libs/cairo
 	x11-libs/gdk-pixbuf:2
 	x11-libs/gtk+:3
-	x11-libs/libX11
-	x11-libs/libXext
-	x11-libs/libXi
-	x11-libs/libXrender
-	x11-libs/libXtst
 "
 
 src_install() {
+	# Spring Boot sets java.awt.headless=true, so the backend never loads
+	# the X11 AWT, splash screen or sound libraries of the bundled JRE.
+	rm -v "usr/lib/Stirling PDF/runtime/jre/lib/"lib*{[jx]awt,splashscreen,jsound}* || die
+
 	insinto /usr/lib
 	doins -r "usr/lib/Stirling PDF"
 	fperms +x \
