@@ -24,8 +24,6 @@ LICENSE="MIT"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 
-RESTRICT="bindist"
-
 RDEPEND="
 	app-accessibility/at-spi2-core:2
 	dev-libs/expat
