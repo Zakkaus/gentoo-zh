@@ -16,7 +16,7 @@ SRC_URI+=" https://github.com/romkatv/libgit2/archive/refs/tags/${LIBGIT2_TAG}.t
 CMAKE_USE_DIR="${S}/deps/libgit2"
 BUILD_DIR="${CMAKE_USE_DIR}_BUILD"
 
-LICENSE="GPL-3"
+LICENSE="GPL-3+"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64 ~x86"
 IUSE="zsh-completion"
