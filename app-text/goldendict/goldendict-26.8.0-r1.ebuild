@@ -18,7 +18,7 @@ SRC_URI="
 "
 S="${WORKDIR}/goldendict-ng-${PV}"
 
-LICENSE="GPL-3"
+LICENSE="GPL-3+"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="epwing +tts +X zim"
