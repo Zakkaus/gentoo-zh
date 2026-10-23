@@ -13,7 +13,7 @@ SRC_URI="
 	arm64? ( ${BASE_URI}_Linux_arm64.tar.gz )
 "
 
-LICENSE="FSL-1.1-MIT"
+LICENSE="FSL-1.1-MIT MIT"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 RESTRICT="strip"
