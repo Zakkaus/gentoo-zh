@@ -6,9 +6,11 @@ EAPI=8
 CRATES="
 "
 
-NODE_SEMVER_COMMIT="1ae976a0023b4dec80b1a5411ccee8343f91320e"
+NODE_SEMVER_COMMIT="3d74d6b7f4de1de2006cf2f7663aac09de65b1f6"
+DASHMAP_COMMIT="4401b5c0b2626266dd5d5a9202677bca8b53e57a"
 declare -A GIT_CRATES=(
 	[node-semver]="https://github.com/pnpm/node-semver-rs;${NODE_SEMVER_COMMIT};node-semver-rs-%commit%"
+	[dashmap]="https://github.com/pnpm/dashmap;${DASHMAP_COMMIT};dashmap-%commit%"
 )
 
 RUST_MIN_VER="1.97.0"
@@ -49,6 +51,10 @@ src_prepare() {
 
 	# upstream overrides crates-io node-semver with its git fork; use the fetched tree
 	sed -i "s|^node-semver = { git = .*|node-semver = { path = \"${WORKDIR}/node-semver-rs-${NODE_SEMVER_COMMIT}\" }|" \
+		Cargo.toml || die
+
+	# upstream patches crates-io dashmap with its git fork; use the fetched tree
+	sed -i "s|^dashmap = { git = .*|dashmap = { path = \"${WORKDIR}/dashmap-${DASHMAP_COMMIT}\" }|" \
 		Cargo.toml || die
 }
 
