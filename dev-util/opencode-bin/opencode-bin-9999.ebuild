@@ -34,7 +34,7 @@ S="${WORKDIR}"
 LICENSE="MIT"
 SLOT="0"
 IUSE="cpu_flags_x86_avx2"
-RESTRICT="mirror strip"
+RESTRICT="strip"
 
 [[ ${PV} == 9999 ]] && BDEPEND+=" net-misc/curl"
 
