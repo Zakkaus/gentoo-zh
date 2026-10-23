@@ -29,6 +29,7 @@ DEPEND="
 	gpg? ( >=app-crypt/gpgme-1.13.0:= )
 	curl? ( net-misc/curl )
 	dev-libs/openssl:0=
+	sys-libs/libseccomp
 	virtual/libiconv
 	virtual/libintl
 "
