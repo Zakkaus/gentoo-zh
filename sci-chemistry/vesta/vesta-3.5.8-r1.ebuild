@@ -23,6 +23,14 @@ RDEPEND="
 	virtual/glu
 	dev-util/desktop-file-utils
 	x11-libs/libXtst
+	dev-libs/glib:2
+	media-libs/fontconfig
+	media-libs/libglvnd
+	x11-libs/cairo
+	x11-libs/gdk-pixbuf:2
+	x11-libs/libX11
+	x11-libs/libXxf86vm
+	x11-libs/pango
 	powderplot? (
 		virtual/jdk
 		x11-libs/gtk+:2
