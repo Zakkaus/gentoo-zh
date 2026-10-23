@@ -46,7 +46,7 @@ RDEPEND="
 		x11-misc/xdg-utils
 "
 
-RESTRICT="mirror strip"
+RESTRICT="strip"
 
 QA_PREBUILT="
 	/opt/${MY_PN}/chrome-sandbox
