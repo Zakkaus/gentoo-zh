@@ -17,7 +17,7 @@ KEYWORDS="-* ~amd64"
 RESTRICT="strip mirror bindist"
 
 RDEPEND="
-	app-accessibility/at-spi2-core
+	app-accessibility/at-spi2-core:2
 	app-crypt/libsecret
 	dev-db/sqlite:3
 	dev-lang/R
@@ -33,6 +33,7 @@ RDEPEND="
 	sys-apps/acl
 	sys-apps/dbus
 	virtual/libudev
+	virtual/zlib
 	x11-libs/cairo
 	x11-libs/gtk+:3
 	x11-libs/libX11
