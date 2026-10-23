@@ -13,7 +13,7 @@ HOMEPAGE="https://looking-glass.io"
 SRC_URI="https://looking-glass.io/artifact/${MY_PV}/source -> ${P}.tar.gz"
 S="${WORKDIR}/${PN}-${MY_PV}"
 
-LICENSE="GPL-2"
+LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="X wayland pipewire pulseaudio +backtrace gnome host obs"
