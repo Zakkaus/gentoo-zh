@@ -18,7 +18,7 @@ fi
 
 DESCRIPTION="Library for solving packages and reading repositories"
 HOMEPAGE="https://github.com/openSUSE/libsolv"
-LICENSE="GPL-2"
+LICENSE="BSD"
 SLOT="0"
 
 IUSE="static perl python ruby tcl rpm pubkey suse comps helix debian mdk arch cudf conda appdata lzma bzip2 zstd zchunk libxml2"
