@@ -8,7 +8,7 @@ inherit unpacker desktop xdg
 MY_PN="${PN/-bin/}"
 D_PN="youtube-music-desktop-app"
 MY_PR="${PR/r/}"
-MY_P="${D_PN}-${PVR}"
+MY_P="${D_PN}-${PV}"
 
 DESCRIPTION="A Desktop App for YouTube Music"
 HOMEPAGE="https://github.com/ytmdesktop/ytmdesktop"
@@ -33,16 +33,28 @@ KEYWORDS="-* ~amd64 ~arm64"
 RDEPEND="
 		>=app-accessibility/at-spi2-core-2.46.0:2
 		app-crypt/libsecret
+		dev-libs/expat
+		dev-libs/glib:2
+		dev-libs/nspr
 		dev-libs/nss
 		media-libs/alsa-lib
 		media-libs/mesa[gbm(+)]
 		net-print/cups
+		sys-apps/dbus
 		virtual/libudev:=
+		x11-libs/cairo
 		x11-libs/gtk+:3[X]
 		x11-libs/libnotify
+		x11-libs/libX11
 		x11-libs/libxcb
+		x11-libs/libXcomposite
+		x11-libs/libXdamage
+		x11-libs/libXext
+		x11-libs/libXfixes
 		x11-libs/libxkbcommon
+		x11-libs/libXrandr
 		x11-libs/libXtst
+		x11-libs/pango
 		x11-misc/xdg-utils
 "
 
