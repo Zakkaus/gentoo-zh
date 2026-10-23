@@ -25,6 +25,8 @@ RDEPEND="
 	virtual/zlib
 "
 
+QA_PREBUILT="usr/bin/koka"
+
 src_install() {
 	dobin "${S}/bin/koka"
 	insinto /usr/lib/koka/v${PV}
