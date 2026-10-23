@@ -19,7 +19,7 @@ SRC_URI="
 "
 S="${WORKDIR}"
 
-LICENSE="AGPL-3"
+LICENSE="AGPL-3+ MIT"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 IUSE="suid"
