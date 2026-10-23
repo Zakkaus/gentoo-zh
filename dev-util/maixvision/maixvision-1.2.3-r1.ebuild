@@ -28,7 +28,6 @@ RDEPEND="
 	media-libs/mesa
 	net-print/cups
 	sys-apps/dbus
-	sys-apps/util-linux
 	x11-libs/cairo
 	x11-libs/gtk+:3
 	x11-libs/libdrm
