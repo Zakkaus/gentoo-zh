@@ -16,7 +16,7 @@ LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
 
-RESTRICT="mirror strip"
+RESTRICT="strip"
 QA_PREBUILT="usr/bin/waza"
 
 src_install() {
