@@ -56,6 +56,8 @@ BDEPEND="arm64? ( dev-util/patchelf )"
 
 RESTRICT="bindist mirror splitdebug strip"
 
+QA_PREBUILT="usr/bin/cherry-studio"
+
 src_unpack() {
 	if use amd64; then
 		cp "${DISTDIR}/${P}-x86_64.AppImage" cherry-studio || die
