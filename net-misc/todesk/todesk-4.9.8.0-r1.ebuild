@@ -16,6 +16,8 @@ KEYWORDS="-* ~amd64"
 IUSE="systemd"
 RESTRICT="strip mirror bindist"
 
+QA_PREBUILT="opt/todesk/bin/*"
+
 RDEPEND="
 	dev-libs/glib:2
 	dev-libs/nspr
