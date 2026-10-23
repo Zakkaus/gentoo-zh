@@ -7,7 +7,7 @@ inherit font
 
 DESCRIPTION="LXGW Bright: a Ming/serif-style Chinese font by LXGW"
 HOMEPAGE="https://github.com/lxgw/LxgwBright"
-SRC_URI="https://github.com/lxgw/LxgwBright/releases/download/v${PV}/LXGWBright.7z -> ${P}.7z"
+SRC_URI="https://github.com/lxgw/LxgwBright/releases/download/${PV}/LXGWBright.7z -> ${P}.7z"
 S="${WORKDIR}/LXGWBright"
 
 LICENSE="OFL-1.1"
