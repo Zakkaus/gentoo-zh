@@ -41,6 +41,7 @@ RDEPEND="
 	sys-apps/dbus
 	sys-libs/glibc
 	sys-libs/libcap
+	virtual/libudev
 	x11-libs/cairo
 	x11-libs/gdk-pixbuf:2
 	|| (
