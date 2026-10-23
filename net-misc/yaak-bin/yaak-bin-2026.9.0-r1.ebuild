@@ -34,6 +34,11 @@ RDEPEND="
 	x11-libs/pango
 "
 
+QA_PREBUILT="
+	usr/bin/yaak-app-client
+	usr/lib/yaak/vendored/node/yaaknode
+"
+
 src_install() {
 	dobin usr/bin/yaak-app-client
 	insinto /usr/lib/yaak
