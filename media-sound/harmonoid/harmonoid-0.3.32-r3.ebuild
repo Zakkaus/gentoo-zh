@@ -26,7 +26,7 @@ QA_PREBUILT="usr/share/harmonoid/*"
 DEPEND="
 	app-accessibility/at-spi2-core:2
 	dev-libs/glib:2
-	media-libs/fontconfig
+	amd64? ( media-libs/fontconfig )
 	media-libs/harfbuzz
 	media-libs/libepoxy
 	x11-libs/cairo
