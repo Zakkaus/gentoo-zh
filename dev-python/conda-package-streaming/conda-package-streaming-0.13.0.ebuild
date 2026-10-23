@@ -10,7 +10,7 @@ DESCRIPTION="An efficient library to read from new and old conda packages"
 HOMEPAGE="https://github.com/conda/conda-package-streaming"
 SRC_URI="https://github.com/conda/conda-package-streaming/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
-LICENSE="BSD"
+LICENSE="BSD MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64 ~x86"
 
