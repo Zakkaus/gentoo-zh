@@ -31,13 +31,15 @@ IUSE="synctex"
 DEPEND="
 	dev-qt/qtbase:6[concurrent,gui,network,opengl,widgets]
 	dev-qt/qtsvg:6
-	virtual/zlib
+	virtual/zlib:=
 "
 RDEPEND="${DEPEND}"
 BDEPEND="
 	dev-build/cmake
 	dev-qt/qttools:6[linguist]
 "
+
+PATCHES=( "${FILESDIR}/${P}-build-fixes.patch" )
 
 src_prepare() {
 	# The release tarball ships empty thirdparty/mupdf and thirdparty/synctex
@@ -65,8 +67,10 @@ src_prepare() {
 src_configure() {
 	local mycmakeargs=(
 		-DWITH_SYNCTEX=$(usex synctex ON OFF)
+		-DWITH_CCACHE=OFF
 		-DWITH_FONTCONFIG=OFF
 		-DWITH_LIBARCHIVE=OFF
+		-DWITH_LLD=OFF
 		-DWITH_LUA=OFF
 		-DWITH_LLM_SUPPORT=OFF
 	)
@@ -90,4 +94,5 @@ pkg_postinst() {
 	optfeature "SVG rendering" "gnome-base/librsvg x11-libs/cairo"
 	optfeature "DjVu documents" app-text/djvu
 	optfeature "EXIF metadata" media-libs/libexif
+	optfeature "JPEG XL images" media-libs/libjxl
 }

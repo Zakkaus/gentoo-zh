@@ -1,0 +1,33 @@
+--- a/src/utils.cpp
++++ b/src/utils.cpp
+@@ -1,5 +1,9 @@
+ #include "utils.hpp"
+ 
++#include <QCursor>
++#include <QPainter>
++#include <QPixmap>
++
+ void
+ clean_pdf_text(std::string &s)
+ {
+--- a/src/lektra/Menus.cpp
++++ b/src/lektra/Menus.cpp
+@@ -1261,7 +1261,9 @@
+         if (pc.laser_on_start)
+             setLaserPointerCursor(true);
+         startPresentationCursorHide();
++#ifdef WITH_LUA
+         dispatchLuaEvent(DispatchType::OnPresentationStarted);
++#endif
+     }
+     else
+     {
+@@ -1279,6 +1281,8 @@
+ 
+         m_presentation.active = false;
+         setLaserPointerCursor(false);
++#ifdef WITH_LUA
+         dispatchLuaEvent(DispatchType::OnPresentationEnded);
++#endif
+     }
+ }
