@@ -16,7 +16,15 @@ LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64"
 
-RDEPEND="net-libs/webkit-gtk:4.1"
+RDEPEND="
+	dev-libs/glib:2
+	net-libs/libsoup:3.0
+	net-libs/webkit-gtk:4.1
+	virtual/zlib
+	x11-libs/cairo
+	x11-libs/gdk-pixbuf:2
+	x11-libs/gtk+:3
+"
 
 RESTRICT="strip"
 
