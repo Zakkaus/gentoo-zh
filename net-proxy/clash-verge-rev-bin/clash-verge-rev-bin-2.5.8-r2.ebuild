@@ -28,7 +28,6 @@ SLOT="0"
 DEPEND="
 	dev-libs/libayatana-appindicator
 	net-libs/webkit-gtk:4.1
-	dev-libs/openssl:0/3
 "
 
 RDEPEND="
