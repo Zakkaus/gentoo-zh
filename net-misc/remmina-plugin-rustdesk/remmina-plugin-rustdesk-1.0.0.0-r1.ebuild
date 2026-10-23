@@ -16,7 +16,7 @@ SRC_URI="
 "
 S="${WORKDIR}/build"
 
-LICENSE="GPL-2"
+LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
 
