@@ -14,7 +14,7 @@ SRC_URI="
 S="${WORKDIR}"/${P}
 
 # https://fsl.software/FSL-1.1-MIT.template.md
-LICENSE="FSL-1.1-MIT"
+LICENSE="FSL-1.1-MIT MIT"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64"
 
