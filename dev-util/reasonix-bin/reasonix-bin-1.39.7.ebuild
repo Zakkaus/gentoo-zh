@@ -21,7 +21,7 @@ fi
 S="${WORKDIR}"
 LICENSE="MIT"
 SLOT="0"
-RESTRICT="mirror strip"
+RESTRICT="strip"
 
 [[ ${PV} == 9999 ]] && BDEPEND+=" net-misc/curl"
 
