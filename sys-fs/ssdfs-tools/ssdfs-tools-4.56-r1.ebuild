@@ -16,7 +16,7 @@ fi
 
 inherit autotools
 
-LICENSE="BSD"
+LICENSE="Clear-BSD"
 SLOT="0"
 
 RDEPEND="
