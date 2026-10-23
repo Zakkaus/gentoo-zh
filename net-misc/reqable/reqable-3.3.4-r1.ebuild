@@ -33,6 +33,8 @@ RDEPEND="
 
 RESTRICT="strip mirror bindist"
 
+QA_PREBUILT="usr/share/reqable/*"
+
 src_install() {
 	insinto /usr/share/reqable
 	doins -r "${S}"/usr/share/reqable/*
