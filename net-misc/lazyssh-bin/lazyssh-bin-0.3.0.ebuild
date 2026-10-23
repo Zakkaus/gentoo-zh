@@ -22,6 +22,8 @@ RDEPEND="
 "
 RESTRICT="strip"
 
+QA_PREBUILT="usr/bin/lazyssh"
+
 src_install() {
 	dobin lazyssh
 	dodoc LICENSE README.md
