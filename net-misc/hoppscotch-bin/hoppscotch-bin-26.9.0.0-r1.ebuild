@@ -28,6 +28,8 @@ RDEPEND="
 
 RESTRICT="strip"
 
+QA_PREBUILT="usr/bin/hoppscotch-desktop"
+
 src_install() {
 	dobin "${S}"/usr/bin/hoppscotch-desktop
 
