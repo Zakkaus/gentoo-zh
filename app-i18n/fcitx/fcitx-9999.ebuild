@@ -11,7 +11,10 @@ DESCRIPTION="Fcitx 5 is a generic input method framework"
 HOMEPAGE="https://fcitx-im.org/ https://github.com/fcitx/fcitx5"
 EGIT_REPO_URI="https://github.com/fcitx/fcitx5.git"
 
-LICENSE="LGPL-2+ Unicode-DFS-2016"
+SPELL_EN_DICT_VER="20121020"
+SRC_URI="https://download.fcitx-im.org/data/en_dict-${SPELL_EN_DICT_VER}.tar.gz"
+
+LICENSE="LGPL-2.1+ Unicode-DFS-2016"
 SLOT="5"
 KEYWORDS=""
 IUSE="+autostart doc +emoji +enchant +keyboard presage +server systemd test wayland +X"
@@ -26,6 +29,7 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	!app-i18n/fcitx:4
 	dev-libs/libfmt
+	gnome-base/librsvg:2
 	sys-devel/gettext
 	virtual/libintl
 	x11-libs/cairo[X?]
@@ -40,15 +44,14 @@ RDEPEND="
 	keyboard? (
 		app-text/iso-codes
 		dev-libs/expat
-		dev-libs/json-c:=
 		x11-misc/xkeyboard-config
 		x11-libs/libxkbcommon[X?,wayland?]
 	)
 	systemd? (
-		sys-apps/systemd
+		sys-apps/systemd:=
 	)
 	!systemd? (
-		dev-libs/libuv
+		dev-libs/libuv:=
 		sys-apps/dbus
 	)
 	wayland? (
@@ -61,17 +64,31 @@ RDEPEND="
 		dev-libs/glib:2
 		>=x11-libs/xcb-imdkit-1.0.3:5
 		x11-libs/libX11
+		x11-libs/libxcb:=
 		x11-libs/libxkbfile
 		x11-libs/xcb-util
 		x11-libs/xcb-util-keysyms
 		x11-libs/xcb-util-wm
 	)
 "
-DEPEND="${RDEPEND}"
+DEPEND="${RDEPEND}
+	keyboard? ( dev-cpp/nlohmann_json )
+	wayland? ( dev-libs/plasma-wayland-protocols )
+"
 BDEPEND="
 	virtual/pkgconfig
 	kde-frameworks/extra-cmake-modules:0
 "
+
+src_unpack() {
+	git-r3_src_unpack
+	cp "${DISTDIR}/en_dict-${SPELL_EN_DICT_VER}.tar.gz" "${S}/src/modules/spell/" || die
+}
+
+src_prepare() {
+	sed -e '/cmake_minimum_required/s/3\.13/3.16/' -i CMakeLists.txt || die
+	cmake_src_prepare
+}
 
 src_configure() {
 	if [[ $(tc-get-cxx-stdlib) == "libc++" ]]; then
