@@ -2507,6 +2507,9 @@ prefix = "v"
 github_account = ["yangmame"]
 autobump = true
 
+# live ebuild only, upstream has no stable release yet
+#["net-proxy/honk"]
+
 ["net-proxy/hysteria"]
 source = "github"
 github = "HyNetworks/hysteria"
