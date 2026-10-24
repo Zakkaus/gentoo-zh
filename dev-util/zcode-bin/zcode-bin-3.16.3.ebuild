@@ -49,6 +49,7 @@ RDEPEND="
 	x11-libs/libxcb
 	x11-libs/libxkbcommon
 	x11-libs/pango
+	amd64? ( x11-libs/gdk-pixbuf:2 )
 "
 
 src_unpack() {
