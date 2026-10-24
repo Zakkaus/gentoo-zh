@@ -23,9 +23,10 @@ REQUIRED_USE="|| ( X wayland )
 DEPEND="gui-libs/egl-wayland
 	media-libs/fontconfig
 	media-libs/libsamplerate
-	dev-libs/nettle[gmp]
+	dev-libs/gmp:=
+	dev-libs/nettle:=[gmp]
 	app-emulation/spice-protocol
-	sys-libs/binutils-libs
+	sys-libs/binutils-libs:=
 	media-libs/libglvnd[X]
 	X? (
 		x11-libs/libX11
@@ -44,7 +45,7 @@ DEPEND="gui-libs/egl-wayland
 		)
 	)
 	pipewire? (
-		media-video/pipewire
+		media-video/pipewire:=
 	)
 	pulseaudio? (
 		media-libs/libpulse
