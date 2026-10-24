@@ -19,15 +19,14 @@ RDEPEND="
 	virtual/zlib
 	app-arch/lzma
 	app-arch/xz-utils
-	app-arch/zstd
+	app-arch/zstd:=
+	>=dev-libs/icu-76:=
 	test? ( dev-cpp/gtest )
-	xapian? (
-		>=dev-libs/xapian-1.4.12
-		>=dev-libs/icu-76
-	)
+	xapian? ( >=dev-libs/xapian-1.4.12:= )
 "
 
-DEPEND="virtual/pkgconfig"
+DEPEND="${RDEPEND}"
+BDEPEND="virtual/pkgconfig"
 
 src_configure() {
 	local emesonargs=(
