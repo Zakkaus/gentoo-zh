@@ -17,7 +17,7 @@ RDEPEND="dev-libs/libev
 		media-libs/giflib:=
 		media-libs/libjpeg-turbo:=
 		sys-libs/pam
-		x11-libs/libxcb[xkb]
+		x11-libs/libxcb:=[xkb]
 		x11-libs/xcb-util
 		x11-libs/xcb-util-image
 		x11-libs/xcb-util-xrm
