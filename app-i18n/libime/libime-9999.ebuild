@@ -9,8 +9,8 @@ DESCRIPTION="Fcitx5 Next generation of fcitx"
 HOMEPAGE="https://fcitx-im.org/"
 EGIT_REPO_URI="https://github.com/fcitx/libime.git"
 
-LM_VER="20250113"
-DICT_VER="20250327"
+LM_VER="20260629"
+DICT_VER="20260907"
 TABLE_VER="20240108"
 
 SRC_URI="
@@ -21,13 +21,13 @@ SRC_URI="
 	)
 "
 
-LICENSE="LGPL-2+"
+LICENSE="LGPL-2.1+"
 SLOT="5"
 KEYWORDS=""
 IUSE="+data doc test"
 RESTRICT="!test? ( test )"
 RDEPEND="
-	>=app-i18n/fcitx-5.1.13:5
+	>=app-i18n/fcitx-5.1.20:5
 	app-arch/zstd:=
 	dev-libs/boost:=
 "
@@ -53,10 +53,14 @@ src_unpack() {
 	fi
 }
 
-src_configure() {
+src_prepare() {
 	# 957570 : remove unused kenlm CMakeLists.txt
 	rm src/libime/core/kenlm/CMakeLists.txt || die
+	sed -e '/cmake_minimum_required/s/3\.12/3.16/' -i CMakeLists.txt || die
+	cmake_src_prepare
+}
 
+src_configure() {
 	local mycmakeargs=(
 		-DENABLE_DATA=$(usex data)
 		-DENABLE_DOC=$(usex doc)
