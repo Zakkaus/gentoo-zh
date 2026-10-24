@@ -1013,19 +1013,11 @@ github_account = ["microcai", "gouwazi"]
 #["dev-libs/qnodeeditor"]
 autobump = true
 
-["dev-libs/singleapplication"]
-source = "github"
-github = "itay-grudev/SingleApplication"
-use_latest_tag = true
-prefix = "v"
-github_account = ["blackteahamburger", "gouwazi"]
-
 # high update frequency
 #["dev-libs/v2ray-domain-list-community"]
 
 # high update frequency
 #["dev-libs/v2ray-domain-list-community-bin"]
-autobump = true
 
 ["dev-libs/v2ray-geoip"]
 source = "github"
