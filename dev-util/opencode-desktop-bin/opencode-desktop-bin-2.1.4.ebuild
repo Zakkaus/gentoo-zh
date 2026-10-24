@@ -47,7 +47,7 @@ RDEPEND="
 "
 
 QA_PREBUILT="
-	opt/${PN}/ai.opencode.desktop
+	opt/${PN}/ai.opencode
 	opt/${PN}/chrome-sandbox
 	opt/${PN}/chrome_crashpad_handler
 	opt/${PN}/libffmpeg.so
@@ -72,7 +72,7 @@ src_install() {
 	dodir /opt/${PN}
 	cp -r opt/OpenCode/. "${ED}/opt/${PN}/" || die
 	fperms 4711 /opt/${PN}/chrome-sandbox
-	dosym -r /opt/${PN}/ai.opencode.desktop /usr/bin/opencode-desktop
+	dosym -r /opt/${PN}/ai.opencode /usr/bin/opencode-desktop
 
 	domenu usr/share/applications/*.desktop
 	insinto /usr/share/metainfo
@@ -80,7 +80,7 @@ src_install() {
 
 	local size
 	for size in 32 64 128; do
-		doicon -s ${size} usr/share/icons/hicolor/${size}x${size}/apps/ai.opencode.desktop.png
+		doicon -s ${size} usr/share/icons/hicolor/${size}x${size}/apps/ai.opencode.png
 	done
 	newdoc "${DISTDIR}/${P}-LICENSE" LICENSE
 }
