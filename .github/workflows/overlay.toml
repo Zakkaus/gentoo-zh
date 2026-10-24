@@ -1005,13 +1005,10 @@ github = "yetist/lunar-date"
 use_latest_release = true
 prefix = "v"
 github_account = ["microcai", "gouwazi"]
-
-# no tracking entry yet
-#["dev-libs/qml-material"]
+autobump = true
 
 # packaged from a pinned commit, no tag to compare
 #["dev-libs/qnodeeditor"]
-autobump = true
 
 # high update frequency
 #["dev-libs/v2ray-domain-list-community"]
@@ -1246,9 +1243,6 @@ use_latest_release = true
 prefix = "v"
 autobump = true
 
-# kept in sync with the main tree qt, no nvchecker needed
-#["dev-qt/qtgrpc"]
-
 ["dev-ruby/filelock"]
 source = "github"
 github = "sheerun/filelock"
@@ -1282,10 +1276,10 @@ github = "orhun/binsider"
 use_latest_release = true
 prefix = "v"
 github_account = "gouwazi"
+autobump = true
 
 # The snapshot we carry is above upstream 2.0.1, the last release.
 #["dev-util/cmakerc"]
-autobump = true
 
 ["dev-util/codex"]
 source = "github"
@@ -1679,9 +1673,6 @@ prefix = "v"
 use_latest_release = true
 github_account = "Puqns67"
 
-# masked, removal on 2026-09-27
-#["gui-apps/waywallen"]
-
 ["kde-misc/plasma-applet-netspeed-widget"]
 source = "github"
 github = "dfaust/plasma-applet-netspeed-widget"
@@ -1879,9 +1870,6 @@ use_latest_release = true
 prefix = "v"
 github_account = ["vowstar", "gouwazi"]
 
-# masked, removal on 2026-09-27
-#["media-gfx/open-wallpaper-engine"]
-
 # TODO: very old package
 #["media-gfx/scangearmp"]
 
@@ -1928,9 +1916,6 @@ github = "waylyrics/waylyrics"
 prefix = "v"
 use_latest_release = true
 github_account = "liuyujielol"
-
-# masked, removal on 2026-09-27
-#["media-plugins/waywallen-display"]
 
 # vendor download, no published version index
 #["media-sound/cider"]
@@ -2212,8 +2197,6 @@ source = "regex"
 url = "https://github.com/peeweep/wechat-linux-watcher/raw/refs/heads/master/wechat-linux-version.txt"
 regex = '(.*)'
 github_account = "gouwazi"
-
-#["net-im/wechat-universal-bwrap"]
 
 ["net-im/wemeet"]
 source = "aur"
@@ -2819,10 +2802,10 @@ github = "dubeyko/ssdfs-tools"
 use_latest_tag = true
 prefix = "v"
 github_account = "gouwazi"
+autobump = true
 
 # live package only
 #["sys-fs/systemd-zpool-scrub"]
-autobump = true
 
 ["sys-kernel/cachyos-sources"]
 source = "regex"
@@ -2883,6 +2866,14 @@ github = "openSUSE/libsolv"
 use_latest_tag = true
 github_account = ["OriPoin", "gouwazi"]
 
+["sys-power/tlpui"]
+source = "github"
+github = "d4nj1/TLPUI"
+use_latest_tag = true
+prefix = "tlpui-"
+github_account = "xz-dev"
+autobump = true
+
 ["sys-process/witr"]
 source = "github"
 github = "pranshuparmar/witr"
@@ -2890,13 +2881,6 @@ use_latest_release = true
 prefix = "v"
 github_account = "liangyongxiang"
 autobump = true
-
-["sys-power/tlpui"]
-source = "github"
-github = "d4nj1/TLPUI"
-use_latest_tag = true
-prefix = "tlpui-"
-github_account = "xz-dev"
 
 #["virtual/dist-kernel"]
 
@@ -2907,7 +2891,16 @@ github_account = "xz-dev"
 #["virtual/v2ray-domain-list-community"]
 
 #["virtual/v2ray-geoip"]
-autobump = true
+
+["www-apps/sillytavern"]
+source = "github"
+github = "SillyTavern/SillyTavern"
+use_max_tag = true
+include_regex = "^\\d+\\.\\d+\\.\\d+$"
+github_account = "liangyongxiang"
+bundle = [
+  { id = "node_modules", repo = "gentoo-zh-drafts/SillyTavern", workflow = "node_modules.yml", tag = "v{PV}", inputs = { version = "{PV}" } },
+]
 
 ["www-client/adspower-global"]
 source = "regex"
@@ -2976,10 +2969,10 @@ github = "cginternals/glbinding"
 use_latest_release = true
 prefix = "v"
 github_account = ["microcai", "gouwazi"]
+autobump = true
 
 # live package only
 #["x11-libs/xcb-imdkit"]
-autobump = true
 
 ["x11-misc/9menu"]
 source = "debianpkg"
@@ -3058,16 +3051,6 @@ use_latest_release = true
 from_pattern = "(.*)-(.*)-(.*)"
 to_pattern = "\\1"
 github_account = ["oatiz", "gouwazi"]
-
-["www-apps/sillytavern"]
-source = "github"
-github = "SillyTavern/SillyTavern"
-use_max_tag = true
-include_regex = "^\\d+\\.\\d+\\.\\d+$"
-github_account = "liangyongxiang"
-bundle = [
-  { id = "node_modules", repo = "gentoo-zh-drafts/SillyTavern", workflow = "node_modules.yml", tag = "v{PV}", inputs = { version = "{PV}" } },
-]
 
 ["x11-themes/bibata-cursor"]
 source = "github"
