@@ -1,0 +1,19 @@
+Add missing includes
+
+Backport of https://github.com/qbittorrent/qBittorrent/commit/53f919aea823f771d71e4c97d1f651c1c72a5454
+(PR #22362), adapted to the 4.6 series.
+
+diff --git a/src/base/http/types.h b/src/base/http/types.h
+index 156ddf6..5f7ef94 100644
+--- a/src/base/http/types.h
++++ b/src/base/http/types.h
+@@ -29,7 +29,9 @@
+ 
+ #pragma once
+ 
++#include <QHash>
+ #include <QHostAddress>
++#include <QMap>
+ #include <QString>
+ #include <QVector>
+ 

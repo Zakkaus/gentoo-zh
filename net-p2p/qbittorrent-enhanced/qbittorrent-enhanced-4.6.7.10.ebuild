@@ -45,6 +45,8 @@ DOCS=( AUTHORS Changelog CONTRIBUTING.md README.md)
 
 PATCHES=(
 	"${FILESDIR}/4.5-fix-compile-error-when-disable-webui.patch"
+	"${FILESDIR}/4.6-add-missing-includes.patch"
+	"${FILESDIR}/4.6-find-coreprivate-qt6.10.patch"
 )
 
 src_configure() {

@@ -1,0 +1,19 @@
+Find CorePrivate package with Qt >= 6.10
+
+Backport of https://github.com/qbittorrent/qBittorrent/commit/599a2d0c93a1ea21bb6d62c70b1d20f4a58e1387
+(PR #22890), adapted to the QT6 option of the 4.6 series.
+
+diff --git a/cmake/Modules/CheckPackages.cmake b/cmake/Modules/CheckPackages.cmake
+index 672cbd9..e8f581a 100644
+--- a/cmake/Modules/CheckPackages.cmake
++++ b/cmake/Modules/CheckPackages.cmake
+@@ -48,6 +48,9 @@ find_package(OpenSSL ${minOpenSSLVersion} REQUIRED)
+ find_package(ZLIB ${minZlibVersion} REQUIRED)
+ if (QT6)
+     find_package(Qt6 ${minQt6Version} REQUIRED COMPONENTS Core Network Sql Xml LinguistTools)
++    if (Qt6_FOUND AND (Qt6_VERSION VERSION_GREATER_EQUAL 6.10))
++        find_package(Qt6 ${minQt6Version} REQUIRED COMPONENTS CorePrivate)
++    endif()
+     if (DBUS)
+         find_package(Qt6 ${minQt6Version} REQUIRED COMPONENTS DBus)
+         set_package_properties(Qt6DBus PROPERTIES
