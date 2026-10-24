@@ -10,7 +10,7 @@ DESCRIPTION="Fcitx-Sayura is a Sinhala input method for Fcitx input method frame
 HOMEPAGE="https://github.com/fcitx/fcitx5-sayura"
 EGIT_REPO_URI="https://github.com/fcitx/fcitx5-sayura.git"
 
-LICENSE="LGPL-2.1+ MIT"
+LICENSE="GPL-2+"
 SLOT="5"
 KEYWORDS=""
 
@@ -21,3 +21,8 @@ RDEPEND="${DEPEND}"
 BDEPEND="
 	kde-frameworks/extra-cmake-modules:0
 "
+
+src_prepare() {
+	sed -e '/cmake_minimum_required/s/3\.10/3.16/' -i CMakeLists.txt || die
+	cmake_src_prepare
+}
