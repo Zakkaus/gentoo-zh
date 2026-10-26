@@ -23,26 +23,40 @@ DEPEND="
 	app-accessibility/at-spi2-core:2
 	app-arch/bzip2
 	app-arch/lz4
+	app-arch/zstd
 	app-crypt/mit-krb5
 	dev-libs/glib:2
 	dev-libs/wayland
+	dev-libs/libffi
+	dev-libs/libgcrypt
+	dev-libs/libgpg-error
 	dev-libs/openssl:0/3
 	dev-libs/keybinder:3
 	dev-libs/libbsd
 	media-video/mpv:0[libmpv]
-	media-libs/gst-plugins-base
+	media-libs/fontconfig
+	media-libs/freetype
+	media-libs/gst-plugins-base:1.0
+	media-libs/gstreamer:1.0
 	media-libs/harfbuzz
 	media-libs/libepoxy
 	media-libs/libpng
 	media-libs/libpulse
 	media-libs/libva
+	media-libs/vulkan-loader
 	llvm-libunwind? ( llvm-runtimes/libunwind:= )
 	!llvm-libunwind? ( sys-libs/libunwind:= )
+	virtual/zlib
 	x11-libs/cairo
 	x11-libs/gdk-pixbuf:2
 	x11-libs/gtk+:3
+	x11-libs/libdrm
+	x11-libs/libX11
+	x11-libs/libXext
+	x11-libs/libXfixes
 	x11-libs/libXinerama
 	x11-libs/libnotify
+	x11-libs/libxcb
 	x11-libs/libxkbcommon
 	x11-libs/libvdpau
 	x11-libs/pango
