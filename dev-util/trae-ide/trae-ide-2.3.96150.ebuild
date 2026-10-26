@@ -28,10 +28,11 @@ RDEPEND="
 	>=app-accessibility/at-spi2-core-2.46.0:2
 	app-crypt/libsecret
 	dev-libs/expat
-	dev-libs/glib
+	dev-libs/glib:2
 	dev-libs/libgcrypt
 	dev-libs/nspr
 	dev-libs/nss
+	dev-libs/openssl:0/3
 	media-libs/alsa-lib
 	media-libs/mesa
 	net-libs/gnutls
@@ -41,6 +42,7 @@ RDEPEND="
 	sys-apps/dbus
 	sys-apps/util-linux
 	virtual/libudev
+	virtual/zlib
 	x11-libs/cairo
 	x11-libs/gdk-pixbuf:2
 	x11-libs/gtk+:3[X]
