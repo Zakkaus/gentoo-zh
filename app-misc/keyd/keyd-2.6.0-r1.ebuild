@@ -3,7 +3,9 @@
 
 EAPI=8
 
-inherit systemd
+PYTHON_COMPAT=( python3_{12..15} )
+
+inherit python-single-r1 systemd toolchain-funcs
 
 DESCRIPTION="A key remapping daemon for linux"
 HOMEPAGE="https://github.com/rvaiya/keyd"
@@ -12,25 +14,33 @@ SRC_URI="https://github.com/rvaiya/keyd/archive/refs/tags/v${PV}.tar.gz -> ${P}.
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 DEPEND="acct-group/keyd"
-RDEPEND="$DEPEND"
+RDEPEND="
+	${DEPEND}
+	${PYTHON_DEPS}
+"
 
 src_prepare() {
-	sed -i "/-groupadd keyd/d" Makefile || die
+	sed -i -e "/-groupadd keyd/d" -e "/-D_FORTIFY_SOURCE=2/d" -e "s/ -O3//" Makefile || die
 	default
+}
+
+src_compile() {
+	emake CC="$(tc-getCC)" PREFIX="${EPREFIX}/usr"
 }
 
 src_install() {
 	dobin bin/keyd
 	dobin bin/keyd-application-mapper
+	python_fix_shebang "${ED}"/usr/bin/keyd-application-mapper
 
 	sed -e 's#@PREFIX@#/usr#' keyd.service.in > keyd.service || die
 	systemd_dounit keyd.service
 
-	# sysusers.d taken cared by acct-group/keyd already
-	rm data/sysusers.d || die
 	insinto /usr/share/keyd
-	doins -r data
+	doins data/keyd.compose
+	doins -r data/gnome-extension{,-45} layouts
 
 	dodoc docs/{CHANGELOG.md,DESIGN.md}
 	dodoc README.md
