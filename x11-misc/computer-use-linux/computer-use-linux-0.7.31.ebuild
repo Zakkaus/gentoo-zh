@@ -134,6 +134,7 @@ CRATES="
 	read-fonts@0.39.2
 	ref-cast-impl@1.0.25
 	ref-cast@1.0.25
+	reis@0.7.1
 	rmcp-macros@3.5.1
 	rmcp@3.5.1
 	rustix@1.1.4
