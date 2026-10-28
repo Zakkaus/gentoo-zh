@@ -15,3 +15,11 @@ KEYWORDS="~amd64 ~arm64"
 DOCS=(
 	README.md doc/limitations.md doc/reference.md
 )
+
+src_install() {
+	cmake_src_install
+
+	# Gentoo tracks the license through LICENSE=, not an installed copy
+	rm "${ED}"/usr/share/nameof/LICENSE || die
+	rmdir "${ED}"/usr/share/nameof || die
+}
