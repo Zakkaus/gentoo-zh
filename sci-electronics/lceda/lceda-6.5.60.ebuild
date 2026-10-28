@@ -21,7 +21,7 @@ DEPEND="
 	>=app-accessibility/at-spi2-core-2.46.0:2
 	app-crypt/libsecret
 	dev-libs/expat
-	dev-libs/glib
+	dev-libs/glib:2
 	dev-libs/nspr
 	dev-libs/nss
 	media-libs/alsa-lib
@@ -56,7 +56,10 @@ RESTRICT="strip"
 QA_PREBUILT="*"
 
 src_unpack() {
-	default
+	# unzip exits 1 on the warnings about the Chinese file names in the archive
+	local ret=0
+	unzip -qo "${DISTDIR}/${A}" -d "${WORKDIR}" || ret=$?
+	(( ret <= 1 )) || die "unzip failed with exit status ${ret}"
 	mv "${WORKDIR}"/${PN}-linux-* "${S}" || die
 }
 
@@ -67,9 +70,10 @@ src_install(){
 	fperms 0755 /opt/lceda/chrome_crashpad_handler
 
 	local size
-	for size in 16 32 48 64 128 256; do
-		newicon -s ${size} icon/${size}x${size}/lceda.png lceda.png
+	for size in 16 32 128 256 512; do
+		newicon -s ${size} icon/icon_${size}x${size}.png lceda.png
 	done
+	newicon -s 64 icon/icon_32x32@2x.png lceda.png
 
 	sed -i 's|^Icon=.*|Icon=lceda|' LCEDA.dkt || die
 	newmenu LCEDA.dkt LCEDA.desktop
