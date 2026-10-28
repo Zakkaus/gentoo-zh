@@ -6,7 +6,8 @@ configuration consistent with the compiled feature set.
 
 --- a/etc/et.cfg
 +++ b/etc/et.cfg
-@@ -10,4 +10,4 @@ verbose = 0
+@@ -15,5 +15,5 @@
+ verbose = 0
  silent = 0
  logsize = 20971520
 -telemetry = true

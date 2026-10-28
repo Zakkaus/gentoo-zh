@@ -10,12 +10,6 @@ HOMEPAGE="https://eternalterminal.dev/ https://github.com/MisterTea/EternalTermi
 SRC_URI="
 	https://github.com/MisterTea/EternalTerminal/archive/refs/tags/et-v${PV}.tar.gz
 		-> ${P}.tar.gz
-	https://github.com/MisterTea/EternalTerminal/commit/47404b2a0402cf359e1afdb32210ce366a2a805d.patch
-		-> ${P}-security-1.patch
-	https://github.com/MisterTea/EternalTerminal/commit/c158f671e8a82d090e7a13f0ea0f8247b85f8391.patch
-		-> ${P}-security-2.patch
-	https://github.com/MisterTea/EternalTerminal/commit/519bc0af6c39d45a2fa0ccb4b9864faa83de64d1.patch
-		-> ${P}-security-3.patch
 "
 S="${WORKDIR}/EternalTerminal-et-v${PV}"
 
@@ -58,9 +52,6 @@ DOCS=( README.md )
 CMAKE_QA_COMPAT_SKIP=1
 
 PATCHES=(
-	"${FILESDIR}"/${P}-security-pr784-compat.patch
-	"${DISTDIR}"/${P}-security-{1,2,3}.patch
-	"${FILESDIR}"/${P}-cxx20.patch
 	"${FILESDIR}"/${P}-disable-telemetry.patch
 	"${FILESDIR}"/${P}-unwind-option.patch
 	"${FILESDIR}"/${P}-system-dependencies.patch
@@ -102,4 +93,20 @@ src_install() {
 	newinitd "${FILESDIR}"/etserver.initd etserver
 	newconfd "${FILESDIR}"/etserver.confd etserver
 	systemd_dounit systemctl/et.service
+
+	# Windows batch wrapper that upstream installs next to et1
+	rm "${ED}"/usr/bin/et1.cmd || die
+}
+
+pkg_postinst() {
+	local v
+	for v in ${REPLACING_VERSIONS}; do
+		if ver_test "${v}" -lt 7.1.0; then
+			ewarn "The short options of 'et' now match OpenSSH: -c, -t, -p, -l, -x, -f, -N,"
+			ewarn "-v and -e changed meaning. Use the long forms (--command, --tunnel,"
+			ewarn "--port, --logdir, --kill-other-sessions, --forward-ssh-agent,"
+			ewarn "--no-terminal, --verbose, --noexit) in existing scripts and aliases."
+			break
+		fi
+	done
 }
