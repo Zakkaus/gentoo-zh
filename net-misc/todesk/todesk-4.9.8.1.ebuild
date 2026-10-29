@@ -7,7 +7,7 @@ inherit desktop unpacker systemd xdg
 
 DESCRIPTION="Remote control and team work"
 HOMEPAGE="https://www.todesk.com/"
-SRC_URI="https://web.archive.org/web/20261020081749/https://dl.todesk.com/linux/todesk-v${PV}-amd64.deb"
+SRC_URI="https://web.archive.org/web/20261029102520/https://dl.todesk.com/linux/todesk-v${PV}-amd64.deb"
 
 S="${WORKDIR}"
 LICENSE="todesk"
@@ -29,6 +29,7 @@ RDEPEND="
 	media-libs/libpulse
 	media-libs/mesa[gbm(+)]
 	media-video/pipewire
+	sys-apps/dbus
 	sys-fs/fuse:0
 	virtual/libudev
 	virtual/zlib
