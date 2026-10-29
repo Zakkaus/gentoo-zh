@@ -2708,6 +2708,14 @@ github_account = ["microcai", "gouwazi"]
 # live package only
 #["net-wireless/linux-wifi-hotspot"]
 
+["sci-biology/datasets-bin"]
+source = "github"
+github = "ncbi/datasets"
+use_latest_release = true
+prefix = "v"
+github_account = "zakkaus"
+autobump = true
+
 ["sci-biology/fastani"]
 source = "github"
 github = "ParBLiSS/FastANI"
