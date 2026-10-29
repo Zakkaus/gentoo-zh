@@ -8,9 +8,11 @@ CRATES="
 
 NODE_SEMVER_COMMIT="3d74d6b7f4de1de2006cf2f7663aac09de65b1f6"
 DASHMAP_COMMIT="4401b5c0b2626266dd5d5a9202677bca8b53e57a"
+LIBSQL_COMMIT="e2c44e616a1f8e1ec7ceeb61138a3c2c391c35a9"
 declare -A GIT_CRATES=(
 	[node-semver]="https://github.com/pnpm/node-semver-rs;${NODE_SEMVER_COMMIT};node-semver-rs-%commit%"
 	[dashmap]="https://github.com/pnpm/dashmap;${DASHMAP_COMMIT};dashmap-%commit%"
+	[libsql]="https://github.com/pnpm/libsql;${LIBSQL_COMMIT};libsql-%commit%/libsql"
 )
 
 RUST_MIN_VER="1.97.0"
@@ -55,6 +57,11 @@ src_prepare() {
 
 	# upstream patches crates-io dashmap with its git fork; use the fetched tree
 	sed -i "s|^dashmap = { git = .*|dashmap = { path = \"${WORKDIR}/dashmap-${DASHMAP_COMMIT}\" }|" \
+		Cargo.toml || die
+
+	# upstream patches crates-io libsql with its git fork; use the fetched tree,
+	# whose sibling crates resolve through the fork's own workspace
+	sed -i "s|^libsql = { git = .*|libsql = { path = \"${WORKDIR}/libsql-${LIBSQL_COMMIT}/libsql\" }|" \
 		Cargo.toml || die
 }
 
