@@ -67,6 +67,7 @@ QA_PREBUILT="
 	/opt/${MY_PN}/libvk_swiftshader.so
 	/opt/${MY_PN}/libvulkan.so.1
 	/opt/${MY_PN}/${D_PN}
+	/opt/${MY_PN}/resources/app.asar.unpacked/node_modules/*
 "
 
 src_install() {
@@ -79,10 +80,7 @@ src_install() {
 
 	make_desktop_entry "/opt/${MY_PN}/${D_PN} --ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --enable-wayland-ime" "YouTube Music Desktop App Wayland" "${D_PN}" "AudioVideo;Audio;"
 
-	local f
-	for f in ${QA_PREBUILT}; do
-		fperms +x "${f}"
-	done
+	fperms +x /opt/"${MY_PN}"/{chrome-sandbox,chrome_crashpad_handler,libffmpeg.so,libvk_swiftshader.so,libvulkan.so.1,"${D_PN}"}
 
 	fperms u+s /opt/"${MY_PN}"/chrome-sandbox
 }
