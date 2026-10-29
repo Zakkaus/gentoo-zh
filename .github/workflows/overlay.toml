@@ -1432,10 +1432,9 @@ prefix = "v"
 autobump = true
 
 ["dev-util/opencode-bin"]
-source = "github"
-github = "anomalyco/opencode"
-use_latest_release = true
-prefix = "v"
+source = "jq"
+url = "https://opencode.ai/update/api/latest/cli/npm"
+filter = ".version"
 github_account = ["xz-dev"]
 autobump = true
 
