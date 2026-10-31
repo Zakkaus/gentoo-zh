@@ -2034,7 +2034,8 @@ autobump = true
 ["media-sound/spotube-bin"]
 source = "github"
 github = "KRTirtho/spotube"
-use_latest_release = true
+use_max_tag = true
+include_regex = "^v\\d+\\.\\d+\\.\\d+$"
 prefix = "v"
 autobump = true
 github_account = ["AmberisMyShiba", "gouwazi"]
