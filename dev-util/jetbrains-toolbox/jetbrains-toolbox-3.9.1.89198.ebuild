@@ -19,13 +19,25 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm64"
 
 RDEPEND="
+	dev-libs/wayland
 	media-libs/alsa-lib
+	media-libs/fontconfig
+	media-libs/freetype
+	media-libs/libglvnd
 	sys-fs/fuse:0
+	virtual/zlib
+	x11-libs/libX11
+	x11-libs/libXext
+	x11-libs/libXi
+	x11-libs/libXrender
+	x11-libs/libXtst
+	x11-libs/libxcb
+	x11-libs/libxkbcommon
 "
 
 RESTRICT="strip mirror bindist"
 
-QA_PREBUILT="/opt/${PN}/${PN}"
+QA_PREBUILT="opt/${PN}/*"
 
 src_unpack() {
 	default
@@ -37,24 +49,16 @@ src_unpack() {
 	fi
 }
 
-src_install() {
-	dodir /opt/"${PN}"
-	cp -PR --preserve=mode,timestamps . "${ED}/opt/${PN}" || die
-	rm -f "${ED}/opt/${PN}"/._* || die
+src_prepare() {
+	default
 
-	fperms +x "/opt/${PN}/${PN}"
-
-	dosym "../../opt/${PN}/${PN}" /usr/bin/jetbrains-toolbox
-
-	# Fix desktop file: add Categories
-	cp "${PN}.desktop" "${T}/${PN}.desktop" || die
-	sed -i '/^MimeType=/a Categories=Development;IDE;' "${T}/${PN}.desktop" || die
-	domenu "${T}/${PN}".desktop
+	sed -i '/^MimeType=/a Categories=Development;IDE;' ${PN}.desktop || die
 }
 
-pkg_postinst() {
-	xdg_pkg_postinst
+src_install() {
+	domenu ${PN}.desktop
 
-	# Required for app to behave correctly
-	chmod -R 777 /opt/"${PN}"
+	dodir /opt/${PN}
+	cp -PR --preserve=mode,timestamps . "${ED}"/opt/${PN} || die
+	dosym -r /opt/${PN}/${PN} /usr/bin/${PN}
 }
