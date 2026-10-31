@@ -20,6 +20,7 @@ RDEPEND="
 	dev-libs/glib:2
 	net-libs/libsoup:3.0
 	net-libs/webkit-gtk:4.1
+	sys-apps/dbus
 	virtual/zlib
 	x11-libs/cairo
 	x11-libs/gdk-pixbuf:2
