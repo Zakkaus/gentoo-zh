@@ -12,7 +12,7 @@ LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
 
-RDEPEND="virtual/jdk:17"
+RDEPEND=">=virtual/jdk-21:*"
 DEPEND="${RDEPEND}"
 
 src_install() {
