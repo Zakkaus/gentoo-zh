@@ -25,8 +25,8 @@ RDEPEND="
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
-	>=dev-python/pyqt-builder-1.19[${PYTHON_USEDEP}]
-	>=dev-python/sip-6.15[${PYTHON_USEDEP}]
+	>=dev-python/pyqt-builder-1.20[${PYTHON_USEDEP}]
+	>=dev-python/sip-6.17[${PYTHON_USEDEP}]
 	>=dev-qt/qtbase-${QT_PV}
 "
 
