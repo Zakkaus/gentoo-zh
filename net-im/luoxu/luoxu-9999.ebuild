@@ -40,7 +40,7 @@ PATCHES=(
 src_unpack() {
 	git-r3_src_unpack
 	# the Rust extension lives in a subdirectory
-	local S="${S}/querytrans"
+	cd "${S}/querytrans" || die
 	cargo_live_src_unpack
 }
 
